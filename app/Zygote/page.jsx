@@ -79,7 +79,7 @@ function PhoneVisual({ scene }) {
     const phoneOn = scene !== "phone_off" && scene !== "intro";
 
     return (
-        <div style={{ position: "relative", width: 220, height: 420, margin: "0 auto" }}>
+        <div style={{ position: "relative", width: 220, height: 420, margin: "0 auto", transform: "scale(1.8)", transformOrigin: "center center" }}>
             {/* Phone shell */}
             <div style={{
                 position: "absolute", inset: 0,
@@ -226,24 +226,24 @@ function PhoneVisual({ scene }) {
 
                     {/* SYSTEM SERVER */}
                     {scene === "morula" && (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: 10 }}>
-                            <p style={{ color: "#e8593c", fontSize: 8, fontFamily: "'DM Mono','Courier New',monospace", letterSpacing: 2, margin: 0 }}>SYSTEM SERVER</p>
-                            <div style={{ position: "relative", width: 110, height: 96 }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: 10 }}>
+                            <p style={{ color: "#e8593c", fontSize: 10, fontFamily: "'DM Mono','Courier New',monospace", letterSpacing: 2, margin: 0 }}>SYSTEM SERVER</p>
+                            <div style={{ position: "relative", width: 160, height: 110 }}>
                                 {[
                                     ["ActivityMgr", 4, 4, "#f5a623"],
-                                    ["PackageMgr", 60, 4, "#3ecfcf"],
-                                    ["WindowMgr", 4, 52, "#4a9eff"],
-                                    ["NotifMgr", 60, 52, "#5ec784"],
+                                    ["PackageMgr", 84, 4, "#3ecfcf"],
+                                    ["WindowMgr", 4, 57, "#4a9eff"],
+                                    ["NotifMgr", 84, 57, "#5ec784"],
                                 ].map(([label, x, y, color], i) => (
                                     <div key={i} style={{
                                         position: "absolute", left: x, top: y,
-                                        width: 46, height: 38, borderRadius: 8,
+                                        width: 72, height: 45, borderRadius: 8,
                                         background: `${color}14`,
                                         border: `1px solid ${color}44`,
                                         display: "flex", alignItems: "center", justifyContent: "center",
                                         animation: `cellAppear 0.4s ease ${i * 0.1}s both`,
                                     }}>
-                                        <p style={{ color, fontSize: 6.5, fontFamily: "'DM Mono','Courier New',monospace", textAlign: "center", margin: 0, lineHeight: 1.3 }}>{label}</p>
+                                        <p style={{ color, fontSize: 9.5, fontFamily: "'DM Mono','Courier New',monospace", textAlign: "center", margin: 0, lineHeight: 1.3 }}>{label}</p>
                                     </div>
                                 ))}
                             </div>
@@ -283,13 +283,7 @@ function PhoneVisual({ scene }) {
                     }} />
                 </div>
 
-                {/* Notch */}
-                <div style={{
-                    position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)",
-                    width: 80, height: 22, borderRadius: 11,
-                    background: "#0b0b0d",
-                    zIndex: 10,
-                }} />
+                {/* Notch removed per user request */}
             </div>
 
             {/* Side buttons */}
@@ -335,8 +329,9 @@ export default function ScrollyTeller() {
             background: "#0b0b0d",
             color: "#edeae4",
             height: "100vh",
+            width: "100VW",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             overflow: "hidden",
             position: "relative",
         }}>
@@ -371,193 +366,118 @@ export default function ScrollyTeller() {
         ::-webkit-scrollbar-thumb { background: #2a2318; border-radius: 2px; }
       `}</style>
 
-            {/* ── TOP: sticky panel ─────────────────────────────────────────────────── */}
-            <div style={{
-                position: "sticky",
-                top: 0,
-                zIndex: 20,
-                background: "linear-gradient(180deg, #0b0b0d 0%, #0b0b0d 80%, transparent 100%)",
-                padding: "24px 32px 22px",
-                borderBottom: "1px solid rgba(255,255,255,0.07)",
-                minHeight: "48vh",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                flex: "0 0 auto",
-            }}>
-                {/* Stage tag */}
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                    <span style={{
-                        fontSize: 9, letterSpacing: 5, color: "#f5a623",
-                        fontFamily: "'DM Mono', 'Courier New', monospace",
-                        textTransform: "uppercase",
-                        animation: "slideIn 0.4s ease",
-                    }}>
-                        {currentScene.chapter}
-                    </span>
-                    <span style={{ width: 32, height: 1, background: "linear-gradient(90deg, #f5a623, transparent)" }} />
-                    <span style={{
-                        width: 7, height: 7, borderRadius: "50%",
-                        background: "#e8593c",
-                        boxShadow: "0 0 12px rgba(232,89,60,0.85)",
-                        animation: "pulse 1.8s ease-in-out infinite",
-                    }} />
-                </div>
-
-                {/* Title */}
-                <h2 style={{
-                    fontSize: "clamp(20px, 4vw, 32px)",
-                    fontWeight: 700,
-                    marginBottom: 14,
-                    lineHeight: 1.15,
-                    letterSpacing: "-0.6px",
-                    animation: "slideIn 0.45s ease",
-                    background: "linear-gradient(135deg, #edeae4 0%, #f5a623 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                }}>
-                    {currentScene.title}
-                </h2>
-
-                {/* Body text */}
-                <p style={{
-                    fontSize: "clamp(13px, 2.2vw, 15px)",
-                    lineHeight: 1.8,
-                    color: "#7a776f",
-                    maxWidth: 620,
-                    animation: "slideIn 0.5s ease",
-                    margin: 0,
-                    fontWeight: 300,
-                }}>
-                    {currentScene.text}
-                </p>
-
-                {/* Progress dots */}
-                <div style={{ display: "flex", gap: 6, marginTop: 20, alignItems: "center" }}>
-                    {scenes.map((s, i) => (
-                        <div key={i} style={{
-                            width: i === activeScene ? 24 : 5,
-                            height: 5, borderRadius: 3,
-                            background: i === activeScene
-                                ? "linear-gradient(90deg, #f5a623, #3ecfcf)"
-                                : "#1a1a1e",
-                            transition: "all 0.35s ease",
-                            boxShadow: i === activeScene ? "0 0 10px rgba(245,166,35,0.5)" : "none",
-                        }} />
-                    ))}
-                </div>
+            {/* ── LEFT: scrollable text ──────────────────────────────────────────────── */}
+            <div
+                ref={containerRef}
+                style={{
+                    flex: "0 0 45%",
+                    overflowY: "scroll",
+                    padding: "0 60px",
+                    scrollBehavior: "smooth",
+                    position: "relative",
+                    borderRight: "1px solid rgba(255,255,255,0.07)",
+                }}
+            >
+                <div style={{ height: "35vh" }} />
+                {scenes.map((scene, i) => (
+                    <div
+                        key={scene.id}
+                        ref={(el) => (textRefs.current[i] = el)}
+                        data-index={i}
+                        style={{
+                            minHeight: "80vh",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            padding: "40px 0",
+                            opacity: activeScene === i ? 1 : 0.25,
+                            transform: activeScene === i ? "translateX(0)" : "translateX(-15px)",
+                            transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                        }}
+                    >
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                            <span style={{
+                                fontSize: 11, letterSpacing: 4, color: "#f5a623",
+                                fontFamily: "'DM Mono', 'Courier New', monospace",
+                                textTransform: "uppercase",
+                            }}>
+                                {scene.chapter}
+                            </span>
+                            <span style={{ width: 32, height: 1, background: "linear-gradient(90deg, #f5a623, transparent)" }} />
+                            {activeScene === i && (
+                                <span style={{
+                                    width: 7, height: 7, borderRadius: "50%",
+                                    background: "#e8593c",
+                                    boxShadow: "0 0 12px rgba(232,89,60,0.85)",
+                                    animation: "pulse 1.8s ease-in-out infinite",
+                                }} />
+                            )}
+                        </div>
+                        
+                        <h2 style={{
+                            fontSize: "clamp(26px, 3.5vw, 42px)",
+                            fontWeight: 700,
+                            marginBottom: 20,
+                            lineHeight: 1.15,
+                            letterSpacing: "-0.5px",
+                            background: "linear-gradient(135deg, #edeae4 0%, #f5a623 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                        }}>
+                            {scene.title}
+                        </h2>
+                        
+                        <p style={{
+                            fontSize: "clamp(16px, 2.2vw, 18px)",
+                            lineHeight: 1.8,
+                            color: activeScene === i ? "#edeae4" : "#7a776f",
+                            margin: 0,
+                            fontWeight: 300,
+                            transition: "color 0.6s ease",
+                        }}>
+                            {scene.text}
+                        </p>
+                    </div>
+                ))}
+                <div style={{ height: "45vh" }} />
             </div>
 
-            {/* ── BOTTOM: split layout ──────────────────────────────────────────────── */}
-            <div style={{ flex: 1, display: "flex", overflow: "hidden", position: "relative" }}>
-
-                {/* Left: scrollable text */}
-                <div
-                    ref={containerRef}
-                    style={{
-                        flex: "0 0 55%",
-                        overflowY: "scroll",
-                        padding: "0 28px",
-                        scrollBehavior: "smooth",
-                        position: "relative",
-                    }}
-                >
-                    <div style={{ height: "10vh" }} />
-                    {scenes.map((scene, i) => (
-                        <div
-                            key={scene.id}
-                            ref={(el) => (textRefs.current[i] = el)}
-                            data-index={i}
-                            style={{
-                                minHeight: "60vh",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                                padding: "32px 0",
-                                borderBottom: i < scenes.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-                            }}
-                        >
-                            <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                                <span style={{
-                                    fontFamily: "'DM Mono', 'Courier New', monospace",
-                                    fontSize: 10,
-                                    color: i === activeScene ? "#f5a623" : "#1a1a1e",
-                                    letterSpacing: 3, paddingTop: 4,
-                                    minWidth: 26,
-                                    transition: "color 0.4s ease",
-                                }}>
-                                    {String(i + 1).padStart(2, "0")}
-                                </span>
-                                <div>
-                                    <h3 style={{
-                                        fontSize: 13, fontWeight: 600, marginBottom: 10,
-                                        letterSpacing: 1.5,
-                                        fontFamily: "'DM Mono', 'Courier New', monospace",
-                                        textTransform: "uppercase",
-                                        color: i === activeScene ? "#3ecfcf" : "#444444",
-                                        transition: "color 0.4s ease",
-                                    }}>
-                                        {scene.title}
-                                    </h3>
-                                    <p style={{
-                                        fontSize: 14, lineHeight: 1.85,
-                                        color: i === activeScene ? "#edeae4" : "#444444",
-                                        transition: "color 0.4s ease",
-                                        margin: 0,
-                                        fontWeight: 300,
-                                    }}>
-                                        {scene.text}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <div style={{ height: "30vh" }} />
-                </div>
-
-                {/* Divider */}
+            {/* ── RIGHT: sticky visual ──────────────────────────────────────────────── */}
+            <div style={{
+                flex: "1",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
+            }}>
+                {/* Ambient glow */}
                 <div style={{
-                    width: 1,
-                    background: "linear-gradient(180deg, transparent, rgba(245,166,35,0.3) 20%, rgba(62,207,207,0.3) 80%, transparent)",
-                    flexShrink: 0,
+                    position: "absolute", inset: 0,
+                    background: "radial-gradient(ellipse at 50% 50%, rgba(245,166,35,0.05) 0%, transparent 70%)",
+                    pointerEvents: "none",
                 }} />
 
-                {/* Right: sticky visual */}
+                {/* Dot grid */}
                 <div style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    position: "relative",
-                    overflow: "hidden",
-                }}>
-                    {/* Ambient glow */}
-                    <div style={{
-                        position: "absolute", inset: 0,
-                        background: "radial-gradient(ellipse at 50% 50%, rgba(245,166,35,0.07) 0%, transparent 70%)",
-                        pointerEvents: "none",
-                    }} />
+                    position: "absolute", inset: 0,
+                    backgroundImage: "radial-gradient(circle, rgba(245,166,35,0.06) 1px, transparent 1px)",
+                    backgroundSize: "32px 32px",
+                    pointerEvents: "none",
+                }} />
 
-                    {/* Dot grid */}
+                {/* Phone */}
+                <div style={{ position: "relative", zIndex: 2 }}>
+                    <PhoneVisual scene={currentScene.visual} />
                     <div style={{
-                        position: "absolute", inset: 0,
-                        backgroundImage: "radial-gradient(circle, rgba(245,166,35,0.08) 1px, transparent 1px)",
-                        backgroundSize: "28px 28px",
-                        pointerEvents: "none",
-                    }} />
-
-                    {/* Phone */}
-                    <div style={{ position: "relative", zIndex: 2 }}>
-                        <PhoneVisual scene={currentScene.visual} />
-                        <div style={{
-                            textAlign: "center", marginTop: 20,
-                            fontFamily: "'DM Mono', 'Courier New', monospace",
-                            fontSize: 9, letterSpacing: 4,
-                            color: "#444444",
-                            textTransform: "uppercase",
-                        }}>
-                            Android Boot Sequence
-                        </div>
+                        textAlign: "center", marginTop: 24,
+                        fontFamily: "'DM Mono', 'Courier New', monospace",
+                        fontSize: 10, letterSpacing: 5,
+                        color: "#444444",
+                        textTransform: "uppercase",
+                    }}>
+                        Android Boot Sequence
                     </div>
                 </div>
             </div>
