@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Neural Networks Work — For Humans</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0b0d;
+            --bg2: #131315;
+            --bg3: #1a1a1e;
+            --card: #16161a;
+            --border: rgba(255, 255, 255, 0.07);
+            --border2: rgba(255, 255, 255, 0.13);
+            --text: #edeae4;
+            --muted: #7a776f;
+            --muted2: #444;
+            --accent: #f5a623;
+            --accent2: #e8593c;
+            --blue: #4a9eff;
+            --green: #5ec784;
+            --purple: #b48fff;
+            --pink: #ff7eb3;
+            --teal: #3ecfcf;
+            --serif: 'Instrument Serif', Georgia, serif;
+            --sans: 'DM Sans', sans-serif;
+            --mono: 'DM Mono', monospace;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: 17px;
+            line-height: 1.8;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* CURSOR */
+        #cur {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        #cdot {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s;
+        }
+
+        #cring {
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            transition: width 0.25s, height 0.25s, border-color 0.25s;
+        }
+
+        body.ch #cring {
+            width: 54px;
+            height: 54px;
+            border-color: var(--accent);
+        }
+
+        body.ca #cdot {
+            transform: translate(-50%, -50%) scale(2.2);
+        }
+
+        /* GRAIN */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.5;
+        }
+
+        /* AMBIENT */
+        .amb {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: 0.1;
+        }
+
+        #a1 {
+            width: 700px;
+            height: 700px;
+            background: var(--accent);
+            top: -300px;
+            left: -300px;
+        }
+
+        #a2 {
+            width: 600px;
+            height: 600px;
+            background: var(--purple);
+            bottom: -200px;
+            right: -200px;
+        }
+
+        /* PROGRESS BAR */
+        .pbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+            z-index: 500;
+        }
+
+        .pfill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* LAYOUT */
+        .wrap {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            padding: 72px 0;
+        }
+
+        /* REVEAL */
+        .rev {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .rev.on {
+            opacity: 1;
+            transform: none;
+        }
+
+        .d1 {
+            transition-delay: 0.1s;
+        }
+
+        .d2 {
+            transition-delay: 0.2s;
+        }
+
+        .d3 {
+            transition-delay: 0.3s;
+        }
+
+        /* HERO */
+        .hero {
+            padding: 110px 0 56px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1px solid rgba(245, 166, 35, 0.25);
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 32px;
+            background: rgba(245, 166, 35, 0.05);
+        }
+
+        .eyebrow::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(0.6);
+            }
+        }
+
+        h1 {
+            font-family: var(--serif);
+            font-size: clamp(40px, 6.5vw, 70px);
+            font-weight: 400;
+            line-height: 1.06;
+            letter-spacing: -0.025em;
+            margin-bottom: 28px;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+
+        .mpill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            padding: 5px 13px;
+            border-radius: 20px;
+        }
+
+        /* STAT GRID */
+        .statgrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .scard {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .scard:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 166, 35, 0.3);
+            box-shadow: 0 8px 30px rgba(245, 166, 35, 0.07);
+        }
+
+        .snum {
+            font-family: var(--serif);
+            font-size: 34px;
+            color: var(--accent);
+            display: block;
+        }
+
+        .slbl {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: var(--mono);
+            margin-top: 4px;
+        }
+
+        /* DIVIDER */
+        .div {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border2), transparent);
+        }
+
+        /* PROSE */
+        .prose h2 {
+            font-family: var(--serif);
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            margin-top: 60px;
+            letter-spacing: -0.02em;
+        }
+
+        .prose h2:first-child {
+            margin-top: 0;
+        }
+
+        .prose h3 {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 14px;
+            margin-top: 44px;
+            font-family: var(--mono);
+        }
+
+        .prose p {
+            margin-bottom: 22px;
+            color: #c6c2ba;
+            line-height: 1.8;
+        }
+
+        .prose strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .prose em {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        /* BOXES */
+        .callout,
+        .roast,
+        .analogy {
+            border-radius: 0 12px 12px 0;
+            padding: 18px 22px;
+            margin: 28px 0;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .callout {
+            background: rgba(245, 166, 35, 0.06);
+            border-left: 3px solid var(--accent);
+            color: #bbb;
+        }
+
+        .callout strong {
+            color: var(--accent);
+        }
+
+        .roast {
+            background: rgba(232, 89, 60, 0.06);
+            border-left: 3px solid var(--accent2);
+            color: #bbb;
+            font-style: italic;
+        }
+
+        .roast::before {
+            content: '😬  ';
+        }
+
+        .analogy {
+            background: rgba(74, 158, 255, 0.05);
+            border: 1px solid rgba(74, 158, 255, 0.15);
+            border-left: 3px solid var(--blue);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .albl {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--blue);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .analogy p {
+            color: #bbb;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .analogy strong {
+            color: var(--blue);
+        }
+
+        /* ICARD */
+        .icard {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .icard:hover {
+            border-color: rgba(245, 166, 35, 0.28);
+            box-shadow: 0 0 50px rgba(245, 166, 35, 0.05);
+        }
+
+        .ibadge {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--accent);
+            color: #000;
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.1em;
+        }
+
+        .ititle {
+            font-family: var(--serif);
+            font-size: 23px;
+            margin-bottom: 6px;
+        }
+
+        .idesc {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        /* SLIDERS */
+        .sgrp {
+            margin-bottom: 14px;
+        }
+
+        .sgrp label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-family: var(--mono);
+        }
+
+        .sgrp label .v {
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 3px;
+            appearance: none;
+            background: var(--bg3);
+            border-radius: 2px;
+            outline: none;
+            cursor: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: none;
+            box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.15);
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 8px rgba(245, 166, 35, 0.2);
+        }
+
+        /* OUTPUT */
+        .obox {
+            background: var(--bg);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .olbl {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+
+        .oval {
+            font-family: var(--serif);
+            font-size: 50px;
+            font-weight: 400;
+            transition: color 0.3s;
+        }
+
+        .otrack {
+            height: 5px;
+            background: var(--bg3);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .ofill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s;
+        }
+
+        .verdict {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--muted);
+            min-height: 22px;
+            transition: all 0.3s;
+        }
+
+        /* BUTTONS */
+        .btn {
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border2);
+            background: transparent;
+            color: var(--text);
+            cursor: none;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn.p {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .btn.p:hover {
+            background: #e09520;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 166, 35, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(0);
+            animation: rpl 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rpl {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* MATH */
+        .mbox {
+            background: var(--bg3);
+            border-radius: 10px;
+            padding: 16px 22px;
+            margin: 22px 0;
+            font-family: var(--mono);
+            font-size: 14px;
+            color: var(--green);
+            text-align: center;
+            border: 1px solid rgba(94, 199, 132, 0.15);
+        }
+
+        /* FLOW */
+        .fsteps {
+            position: relative;
+            margin: 32px 0;
+        }
+
+        .fsteps::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 28px;
+            bottom: 28px;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--border2) 20%, var(--border2) 80%, transparent);
+        }
+
+        .fstep {
+            display: flex;
+            gap: 18px;
+            padding: 14px 0;
+        }
+
+        .fnum {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            z-index: 1;
+            position: relative;
+            transition: all 0.25s;
+        }
+
+        .fstep:hover .fnum {
+            background: rgba(245, 166, 35, 0.12);
+            border-color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .fc {
+            padding-top: 8px;
+        }
+
+        .fc h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .fc p {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        /* SECTION MARKER */
+        .smk {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 44px;
+        }
+
+        .smk .n {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted2);
+            letter-spacing: 0.1em;
+        }
+
+        .smk .l {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* CONCEPT GRID */
+        .cgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .cc {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: none;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cc::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(245, 166, 35, 0.12), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cc:hover {
+            border-color: rgba(245, 166, 35, 0.35);
+            transform: translateY(-4px);
+        }
+
+        .cc:hover::before {
+            opacity: 1;
+        }
+
+        .cc .icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .cc .ct {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .cc .cd {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* HL */
+        .hl {
+            background: rgba(245, 166, 35, 0.1);
+            border-radius: 4px;
+            padding: 1px 6px;
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 0.88em;
+        }
+
+        /* NET STATS */
+        .nstats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .nstat {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+
+        .nstat .nl {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 4px;
+            letter-spacing: 0.06em;
+        }
+
+        .nstat .nv {
+            font-family: var(--mono);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* CHAPTER 6: PROMPT LAB */
+        .ppills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0 18px;
+        }
+
+        .ppill {
+            border: 1px solid var(--border2);
+            background: var(--bg3);
+            color: var(--text);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.02em;
+            transition: all 0.2s;
+        }
+
+        .ppill:hover {
+            border-color: rgba(245, 166, 35, 0.45);
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .pgrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .pbox {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .pbox .pl {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.06em;
+        }
+
+        .pbox .pv {
+            font-family: var(--serif);
+            font-size: 26px;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .resp {
+            margin-top: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            color: #d9d5cd;
+            line-height: 1.7;
+            min-height: 118px;
+        }
+
+        .resp strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* PROGRESS NAV */
+        .pnav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .pdot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--border2);
+            cursor: none;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .pdot::after {
+            content: attr(data-lbl);
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            font-size: 11px;
+            font-family: var(--mono);
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .pdot:hover::after {
+            opacity: 1;
+        }
+
+        .pdot.on {
+            background: var(--accent);
+            transform: scale(1.5);
+        }
+
+        /* SCROLL HINT */
+        .shint {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--muted2);
+            font-size: 13px;
+            font-family: var(--mono);
+            animation: bob 2s ease-in-out infinite;
+        }
+
+        @keyframes bob {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(7px);
+            }
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 52px 0;
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        @media(max-width:600px) {
+            .statgrid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .pnav {
+                display: none;
+            }
+
+            .cgrid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nstats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="cur">
+        <div id="cdot"></div>
+        <div id="cring"></div>
+    </div>
+    <div class="amb" id="a1"></div>
+    <div class="amb" id="a2"></div>
+    <div class="pbar">
+        <div class="pfill" id="pfill"></div>
+    </div>
+
+    <nav class="pnav" id="pnav">
+        <div class="pdot on" data-lbl="Intro" onclick="goTo(0)"></div>
+        <div class="pdot" data-lbl="What is a Neuron" onclick="goTo(1)"></div>
+        <div class="pdot" data-lbl="Weights" onclick="goTo(2)"></div>
+        <div class="pdot" data-lbl="Activation" onclick="goTo(3)"></div>
+        <div class="pdot" data-lbl="Layers" onclick="goTo(4)"></div>
+        <div class="pdot" data-lbl="Training" onclick="goTo(5)"></div>
+            <div class="pdot" data-lbl="Prompt Lab" onclick="goTo(6)"></div>
+    </nav>
+
+    <div class="wrap">
+
+        <!-- HERO -->
+        <section class="hero" id="s0">
+            <div class="eyebrow">🧠 Beginner Series — Episode 01</div>
+            <h1>How Neural Networks<br><em>Actually</em> Work</h1>
+            <p class="hero-sub">Explained like you're a golden retriever. No PhD. No math trauma. Just sliders, charts,
+                and the unsettling realisation that your brain is doing this right now.</p>
+            <div class="meta">
+                <span class="mpill">⏱ 12 min read</span>
+                <span class="mpill">🎮 5 interactive demos</span>
+                <span class="mpill">📊 4 live charts</span>
+                <span class="mpill">🧠 zero assumed knowledge</span>
+            </div>
+            <div class="statgrid rev">
+                <div class="scard"><span class="snum" data-target="86">0</span>
+                    <div class="slbl">billion neurons in your brain</div>
+                </div>
+                <div class="scard"><span class="snum" data-target="1800" data-sfx="T">0</span>
+                    <div class="slbl">params in GPT-4</div>
+                </div>
+                <div class="scard"><span class="snum" data-target="9">0</span>
+                    <div class="slbl">params in our demo</div>
+                </div>
+            </div>
+            <div class="shint rev d2">↓ scroll to begin</div>
+        </section>
+
+        <div class="div"></div>
+
+        <!-- S1: NEURON -->
+        <section class="prose" id="s1">
+            <div class="smk rev"><span class="n">01 / 05</span><span class="l"></span></div>
+            <h2 class="rev">Your brain is a terrible computer</h2>
+            <p class="rev">Here's the thing nobody tells you: <strong>your brain doesn't work like a computer</strong>.
+                A regular computer follows instructions step by step, like an obedient intern. Your brain? 86 billion
+                tiny cells all screaming at each other simultaneously, and somehow you use that chaos to recognise your
+                mom's face in 0.2 seconds.</p>
+            <p class="rev">In the 1940s, some scientists said: <em>"what if we built math that works like that?"</em>
+                That's literally the whole idea. Neural networks are math loosely inspired by how neurons work. Don't
+                let anyone make it sound fancier.</p>
+            <div class="roast rev">If you've been nodding pretending you already knew this — it's okay. This is a
+                judgment-free zone. We are all winging it.</div>
+            <h3 class="rev">A neuron does one job</h3>
+            <p class="rev">A real brain neuron: receives signals → adds them up → if the total is big enough, it
+                <strong>fires</strong>. Like a bouncer at a club. Enough people show up, the door opens. Too few?
+                Nothing happens. Door stays shut. Bouncer doesn't care.</p>
+            <div class="analogy rev">
+                <div class="albl">🐕 The Bruno Analogy™</div>
+                <p>Bruno the dog has a neuron for "should I freak out right now?" Signals: <strong>doorbell
+                        rings</strong> (+2.0), <strong>smells food</strong> (+1.8), <strong>it's 3am</strong> (–1.5).
+                    Total high enough? Bruno achieves full chaos mode. Too low? Bruno is a log on the couch. That neuron
+                    just did machine learning. Bruno is an AI researcher now.</p>
+            </div>
+            <div class="cgrid rev">
+                <div class="cc">
+                    <div class="icon">📥</div>
+                    <div class="ct">Inputs</div>
+                    <div class="cd">Raw numbers coming in — pixels, sounds, temperatures, anything.</div>
+                </div>
+                <div class="cc">
+                    <div class="icon">⚖️</div>
+                    <div class="ct">Weights</div>
+                    <div class="cd">Volume knobs. How much should each input matter? Training adjusts these.</div>
+                </div>
+                <div class="cc">
+                    <div class="icon">➕</div>
+                    <div class="ct">Sum</div>
+                    <div class="cd">Add all (input × weight) products. One single number. The raw signal.</div>
+                </div>
+                <div class="cc">
+                    <div class="icon">🔥</div>
+                    <div class="ct">Activation</div>
+                    <div class="cd">Squish the sum into 0–1. "Did it fire?" becomes a smooth probability.</div>
+                </div>
+            </div>
+
+            <!-- DEMO 1 -->
+            <div class="icard rev">
+                <div class="ibadge">INTERACTIVE</div>
+                <div class="ititle">Your First Neuron 🐕</div>
+                <p class="idesc">Drag the sliders. Watch Bruno's neuron decide whether to bark. This is literally how
+                    every AI on earth works at its atomic level.</p>
+                <svg viewBox="0 0 560 180" style="width:100%;height:auto;display:block;margin-bottom:20px;" id="nsvg">
+                    <defs>
+                        <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"
+                            orient="auto">
+                            <path d="M1,2 L8,5 L1,8" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </marker>
+                    </defs>
+                    <line id="nw1" x1="72" y1="44" x2="200" y2="83" stroke="#4a9eff" stroke-width="2.5" opacity="0.6"
+                        marker-end="url(#ah)" />
+                    <line id="nw2" x1="72" y1="90" x2="195" y2="90" stroke="#5ec784" stroke-width="2.5" opacity="0.6"
+                        marker-end="url(#ah)" />
+                    <line id="nw3" x1="72" y1="136" x2="200" y2="97" stroke="#ff7eb3" stroke-width="2.5" opacity="0.6"
+                        marker-end="url(#ah)" />
+                    <line id="nwout" x1="278" y1="90" x2="415" y2="90" stroke="#f5a623" stroke-width="3" opacity="0.7"
+                        marker-end="url(#ah)" />
+                    <circle cx="48" cy="44" r="22" fill="#1a1a1e" stroke="#4a9eff" stroke-width="1.5" />
+                    <text x="48" y="48" text-anchor="middle" fill="#4a9eff" font-family="DM Mono,monospace"
+                        font-size="11" id="svi1">1.0</text>
+                    <circle cx="48" cy="90" r="22" fill="#1a1a1e" stroke="#5ec784" stroke-width="1.5" />
+                    <text x="48" y="94" text-anchor="middle" fill="#5ec784" font-family="DM Mono,monospace"
+                        font-size="11" id="svi2">1.0</text>
+                    <circle cx="48" cy="136" r="22" fill="#1a1a1e" stroke="#ff7eb3" stroke-width="1.5" />
+                    <text x="48" y="140" text-anchor="middle" fill="#ff7eb3" font-family="DM Mono,monospace"
+                        font-size="11" id="svi3">1.0</text>
+                    <rect x="98" y="47" width="54" height="16" rx="4" fill="#0b0b0d" opacity="0.85" />
+                    <text id="swl1" x="125" y="59" text-anchor="middle" fill="#4a9eff" font-family="DM Mono,monospace"
+                        font-size="10">w=1.0</text>
+                    <rect x="114" y="80" width="54" height="16" rx="4" fill="#0b0b0d" opacity="0.85" />
+                    <text id="swl2" x="141" y="92" text-anchor="middle" fill="#5ec784" font-family="DM Mono,monospace"
+                        font-size="10">w=1.0</text>
+                    <rect x="98" y="114" width="54" height="16" rx="4" fill="#0b0b0d" opacity="0.85" />
+                    <text id="swl3" x="125" y="126" text-anchor="middle" fill="#ff7eb3" font-family="DM Mono,monospace"
+                        font-size="10">w=1.0</text>
+                    <circle cx="240" cy="90" r="38" fill="#16161a" stroke="#f5a623" stroke-width="2" id="nbdy" />
+                    <text x="240" y="84" text-anchor="middle" fill="#666" font-family="DM Mono,monospace"
+                        font-size="9">Σ sum</text>
+                    <text x="240" y="101" text-anchor="middle" fill="#f5a623" font-family="DM Mono,monospace"
+                        font-size="16" font-weight="500" id="svsum">3.0</text>
+                    <circle cx="445" cy="90" r="32" fill="#1a1a1e" stroke="#f5a623" stroke-width="1.5" id="nout" />
+                    <text x="445" y="85" text-anchor="middle" fill="#666" font-family="DM Mono,monospace"
+                        font-size="9">output</text>
+                    <text x="445" y="101" text-anchor="middle" fill="#f5a623" font-family="DM Mono,monospace"
+                        font-size="15" font-weight="500" id="svout">0.95</text>
+                    <text x="48" y="172" text-anchor="middle" fill="#444" font-family="DM Sans,sans-serif"
+                        font-size="11">inputs</text>
+                    <text x="240" y="144" text-anchor="middle" fill="#444" font-family="DM Sans,sans-serif"
+                        font-size="11">neuron</text>
+                    <text x="445" y="134" text-anchor="middle" fill="#444" font-family="DM Sans,sans-serif"
+                        font-size="11">fires?</text>
+                    <g id="sparks" opacity="0">
+                        <circle cx="478" cy="68" r="3.5" fill="#f5a623" />
+                        <circle cx="490" cy="80" r="2" fill="#f5a623" opacity="0.6" />
+                        <circle cx="470" cy="60" r="2.5" fill="#f5a623" opacity="0.8" />
+                        <circle cx="484" cy="58" r="2" fill="#f5a623" opacity="0.7" />
+                    </g>
+                </svg>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div>
+                        <div class="sgrp"><label><span style="color:#4a9eff">🚪 Doorbell (i1)</span><span class="v"
+                                    id="vi1" style="color:#4a9eff">1.0</span></label><input type="range" min="0" max="2"
+                                step="0.1" value="1" id="ni1" oninput="upN()"></div>
+                        <div class="sgrp"><label><span style="color:#5ec784">🍗 Smells food (i2)</span><span class="v"
+                                    id="vi2" style="color:#5ec784">1.0</span></label><input type="range" min="0" max="2"
+                                step="0.1" value="1" id="ni2" oninput="upN()"></div>
+                        <div class="sgrp"><label><span style="color:#ff7eb3">🌙 It's 3am (i3)</span><span class="v"
+                                    id="vi3" style="color:#ff7eb3">1.0</span></label><input type="range" min="0" max="2"
+                                step="0.1" value="1" id="ni3" oninput="upN()"></div>
+                    </div>
+                    <div>
+                        <div class="sgrp"><label><span style="color:#4a9eff">Weight 1</span><span class="v" id="vw1"
+                                    style="color:#4a9eff">1.0</span></label><input type="range" min="-2" max="2"
+                                step="0.1" value="1" id="nw_1" oninput="upN()"></div>
+                        <div class="sgrp"><label><span style="color:#5ec784">Weight 2</span><span class="v" id="vw2"
+                                    style="color:#5ec784">1.0</span></label><input type="range" min="-2" max="2"
+                                step="0.1" value="1" id="nw_2" oninput="upN()"></div>
+                        <div class="sgrp"><label><span style="color:#ff7eb3">Weight 3</span><span class="v" id="vw3"
+                                    style="color:#ff7eb3">1.0</span></label><input type="range" min="-2" max="2"
+                                step="0.1" value="1" id="nw_3" oninput="upN()"></div>
+                    </div>
+                </div>
+                <div class="obox">
+                    <div class="olbl">NEURON OUTPUT (sigmoid activation)</div>
+                    <div class="oval" id="noval">0.95</div>
+                    <div class="otrack">
+                        <div class="ofill" id="nobar" style="width:95%;background:var(--accent)"></div>
+                    </div>
+                    <div class="verdict" id="nverdict">🔥 FIRING — Bruno is achieving supersonic bark velocity</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- S2: WEIGHTS -->
+        <section class="prose" id="s2">
+            <div class="smk rev"><span class="n">02 / 05</span><span class="l"></span></div>
+            <h2 class="rev">Weights: the volume knobs of the universe</h2>
+            <p class="rev">A weight is just a number saying <em>"how much should this input matter?"</em> Weight of
+                <span class="hl">2.0</span>? This input MATTERS. Weight of <span class="hl">0.1</span>? Barely a
+                whisper. Weight of <span class="hl">–1.5</span>? This input actively fights against firing.</p>
+            <p class="rev"><strong>The entire job of training a neural network is finding the right weights.</strong>
+                They start as random garbage numbers. Slowly they get nudged toward something useful. That process of
+                nudging is called training. It takes minutes for tiny networks. Months for GPT-4.</p>
+            <div class="callout rev"><strong>Wait, negative weights?</strong> Yes! A neuron can be suppressed by an
+                input. In Bruno's case, "it's 3am" has a large negative weight because exhaustion fights excitement.
+                Even if the doorbell rings. Bruno is not getting up. The math said no.</div>
+
+            <!-- WEIGHT EXPLORER -->
+            <div class="icard rev">
+                <div class="ibadge">INTERACTIVE</div>
+                <div class="ititle">Weight Bar Explorer</div>
+                <p class="idesc">These are 6 weights of a tiny classifier. Drag them. Watch the bars shift and the
+                    output respond. Break it on purpose — that's how you learn.</p>
+                <div id="wbars"></div>
+                <canvas id="wcanv"
+                    style="width:100%;height:180px;display:block;border-radius:10px;background:var(--bg);margin-top:16px;"></canvas>
+                <div class="obox" style="margin-top:16px;">
+                    <div class="olbl">IS THIS ORANGE TERRITORY?</div>
+                    <div class="oval" id="woval">—</div>
+                    <div class="otrack">
+                        <div class="ofill" id="wobar" style="width:50%"></div>
+                    </div>
+                    <div class="verdict" id="wverdict">Drag any slider to see the output change live</div>
+                </div>
+            </div>
+            <div class="mbox rev">output = sigmoid( Σ (inputᵢ × weightᵢ) + bias )</div>
+            <p class="rev">That's the whole formula. Multiply each input by its weight, sum everything up, add a bias
+                (like a default offset), then squish it through sigmoid. That's one neuron. Stack thousands. You get
+                intelligence. Or at least something that sounds intelligent at 2am.</p>
+        </section>
+
+        <!-- S3: ACTIVATION -->
+        <section class="prose" id="s3">
+            <div class="smk rev"><span class="n">03 / 05</span><span class="l"></span></div>
+            <h2 class="rev">Activation: the great squisher</h2>
+            <p class="rev">After all that multiplying and adding, you end up with some raw number. Could be <span
+                    class="hl">–847</span>. Could be <span class="hl">3.2</span>. Could be <span
+                    class="hl">12,000</span>. Neurons hate working with unbounded random numbers — so we squish them
+                into a nice range using an <strong>activation function</strong>.</p>
+            <p class="rev">The most famous one is <strong>Sigmoid</strong>. Shoves any number into 0 to 1. Negative
+                infinity → 0. Positive infinity → 1. Zero → exactly 0.5. Beautiful symmetry. You're welcome.</p>
+
+            <!-- SIGMOID VIZ -->
+            <div class="icard rev">
+                <div class="ibadge">INTERACTIVE</div>
+                <div class="ititle">Sigmoid Visualizer</div>
+                <p class="idesc">Drag the slider. Any number → squished between 0 and 1. Drag it to extremes and watch
+                    what happens near the edges.</p>
+                <canvas id="sigcanv"
+                    style="width:100%;height:220px;display:block;border-radius:10px;background:var(--bg);"></canvas>
+                <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;align-items:center;">
+                    <div style="flex:1;min-width:200px;">
+                        <div class="sgrp"><label><span>Input value (x)</span><span class="v"
+                                    id="sxlbl">0.0</span></label><input type="range" min="-6" max="6" step="0.1"
+                                value="0" id="sigx" oninput="drawSig()"></div>
+                    </div>
+                    <div
+                        style="background:var(--bg3);border-radius:10px;padding:12px 20px;text-align:center;border:1px solid var(--border);">
+                        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;">σ(x) =
+                        </div>
+                        <div style="font-family:var(--serif);font-size:28px;color:var(--accent);" id="sigout">0.500
+                        </div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;">
+                    <div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
+                        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;">x = −∞
+                        </div>
+                        <div style="font-family:var(--mono);font-size:13px;color:var(--blue);">→ 0.000</div>
+                        <div style="font-size:11px;color:var(--muted2);margin-top:4px;">completely off</div>
+                    </div>
+                    <div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
+                        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;">x = 0
+                        </div>
+                        <div style="font-family:var(--mono);font-size:13px;color:var(--accent);">→ 0.500</div>
+                        <div style="font-size:11px;color:var(--muted2);margin-top:4px;">perfectly unsure</div>
+                    </div>
+                    <div style="background:var(--bg3);border-radius:10px;padding:12px;text-align:center;">
+                        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;">x = +∞
+                        </div>
+                        <div style="font-family:var(--mono);font-size:13px;color:var(--green);">→ 1.000</div>
+                        <div style="font-size:11px;color:var(--muted2);margin-top:4px;">fully firing</div>
+                    </div>
+                </div>
+            </div>
+            <div class="roast rev">Yes, there are other activation functions. ReLU, Tanh, GELU, Swish, Mish. If someone
+                brings these up unprompted at a party, that's a red flag. Leave.</div>
+        </section>
+
+        <!-- S4: LAYERS -->
+        <section class="prose" id="s4">
+            <div class="smk rev"><span class="n">04 / 05</span><span class="l"></span></div>
+            <h2 class="rev">Layers: neurons watching neurons watching neurons</h2>
+            <p class="rev">One neuron can only have one simple opinion. But chain them into <strong>layers where each
+                    layer processes the outputs of the one before it</strong>, and suddenly you can do incredibly
+                complex things. Recognise handwriting. Translate languages. Generate images. All from this same core
+                idea.</p>
+            <div class="analogy rev">
+                <div class="albl">🏢 The company analogy</div>
+                <p><strong>Input layer</strong> = interns receiving raw data (pixels, numbers, temperatures).
+                    <strong>Hidden layers</strong> = middle managers spotting patterns ("this looks like a curved edge",
+                    "these pixels form a circle"). <strong>Output layer</strong> = CEO making the final call: "that's a
+                    cat. 94% confident. I accept full responsibility."</p>
+            </div>
+
+            <!-- LAYER DIAGRAM SVG (drawn by JS) -->
+            <div style="background:var(--bg);border-radius:14px;padding:20px;margin:24px 0;border:1px solid var(--border);"
+                class="rev">
+                <svg viewBox="0 0 680 260" style="width:100%;height:auto;display:block;" id="laysvg"></svg>
+            </div>
+
+            <!-- LIVE NETWORK -->
+            <div class="icard rev">
+                <div class="ibadge">INTERACTIVE — LIVE TRAINING</div>
+                <div class="ititle">Watch a Network Learn in Real Time</div>
+                <p class="idesc">Orange dots vs blue dots. The network starts knowing nothing. Hit Train and watch it
+                    figure out the boundary between them. Watch the background fill with colour as understanding
+                    emerges.</p>
+                <canvas id="netcanv"
+                    style="width:100%;height:300px;display:block;border-radius:12px;background:var(--bg);"></canvas>
+                <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                    <button class="btn p" onclick="doTrain(100)">▶ Train 100 steps</button>
+                    <button class="btn" onclick="doTrain(1000)">⚡ Train 1000 steps</button>
+                    <button class="btn" onclick="resetNet()">↺ Reset</button>
+                </div>
+                <div class="nstats">
+                    <div class="nstat">
+                        <div class="nl">STEPS</div>
+                        <div class="nv" id="nssteps" style="color:var(--accent)">0</div>
+                    </div>
+                    <div class="nstat">
+                        <div class="nl">LOSS</div>
+                        <div class="nv" id="nsloss" style="color:var(--accent2)">—</div>
+                    </div>
+                    <div class="nstat">
+                        <div class="nl">ACCURACY</div>
+                        <div class="nv" id="nsacc" style="color:var(--green)">0%</div>
+                    </div>
+                </div>
+                <canvas id="lossch"
+                    style="width:100%;height:130px;display:block;border-radius:10px;background:var(--bg);margin-top:14px;"></canvas>
+                <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;" id="netstatus">
+                    Click ▶ Train to begin. Watch the loss chart drop as the network learns.</div>
+            </div>
+        </section>
+
+        <!-- S5: TRAINING -->
+        <section class="prose" id="s5">
+            <div class="smk rev"><span class="n">05 / 05</span><span class="l"></span></div>
+            <h2 class="rev">Training: failing slowly until you don't</h2>
+            <p class="rev">How does a network actually learn? No teacher. No manual. It just <strong>makes a guess,
+                    measures how wrong it was, and nudges every weight slightly</strong> in the direction that would
+                have made it less wrong. Then does this millions of times. That's training.</p>
+            <p class="rev">The "measure of wrongness" is called <em>loss</em>. Goal: drive loss to zero. The process of
+                figuring out which direction to nudge each weight is called <strong>backpropagation</strong> — fancy
+                word for "blaming math, distributed backwards".</p>
+            <div class="fsteps rev">
+                <div class="fstep">
+                    <div class="fnum">1</div>
+                    <div class="fc">
+                        <h4>Initialize random weights</h4>
+                        <p>Complete garbage numbers. The network knows nothing. This is expected and fine.</p>
+                    </div>
+                </div>
+                <div class="fstep">
+                    <div class="fnum">2</div>
+                    <div class="fc">
+                        <h4>Forward pass</h4>
+                        <p>Feed an example in. Each neuron fires or doesn't. A prediction comes out the other end.</p>
+                    </div>
+                </div>
+                <div class="fstep">
+                    <div class="fnum">3</div>
+                    <div class="fc">
+                        <h4>Measure loss</h4>
+                        <p>How wrong was the prediction? The bigger the mistake, the higher the loss number.</p>
+                    </div>
+                </div>
+                <div class="fstep">
+                    <div class="fnum">4</div>
+                    <div class="fc">
+                        <h4>Backpropagation</h4>
+                        <p>Work backwards. Figure out which weights caused the most wrongness. Assign blame.</p>
+                    </div>
+                </div>
+                <div class="fstep">
+                    <div class="fnum">5</div>
+                    <div class="fc">
+                        <h4>Nudge the weights</h4>
+                        <p>Adjust each guilty weight slightly in the right direction. Size of nudge = learning rate.</p>
+                    </div>
+                </div>
+                <div class="fstep">
+                    <div class="fnum">6</div>
+                    <div class="fc">
+                        <h4>Repeat millions of times</h4>
+                        <p>With millions of examples. Patterns emerge. Weights crystallize. Magic happens (it's math).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRADIENT DESCENT -->
+            <div class="icard rev">
+                <div class="ibadge">INTERACTIVE</div>
+                <div class="ititle">Gradient Descent: The Ball Rolling Downhill</div>
+                <p class="idesc">Every training step tries to roll a ball downhill on the "loss surface." Click anywhere
+                    to place the ball, then watch it find the bottom. Try a high learning rate — watch it overshoot.</p>
+                <canvas id="gdcanv"
+                    style="width:100%;height:260px;display:block;border-radius:12px;background:var(--bg);"></canvas>
+                <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;align-items:flex-end;">
+                    <button class="btn p" onclick="startGD()">▶ Start Rolling</button>
+                    <button class="btn" onclick="resetGD()">↺ Reset</button>
+                    <div style="flex:1;min-width:200px;">
+                        <div class="sgrp"><label><span>Learning rate</span><span class="v"
+                                    id="lrlbl">0.10</span></label><input type="range" min="0.01" max="0.5" step="0.01"
+                                value="0.1" id="lrsl"
+                                oninput="document.getElementById('lrlbl').textContent=parseFloat(this.value).toFixed(2)">
+                        </div>
+                    </div>
+                </div>
+                <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;" id="gdstatus">
+                    Click anywhere on the surface to place the ball, then hit ▶ Start Rolling</div>
+            </div>
+
+            <div class="callout rev"><strong>Learning rate too high?</strong> The ball overshoots and bounces forever.
+                Too low? It crawls so slowly you'll age out before training finishes. Finding the right learning rate is
+                one of the dark arts of ML. People write entire papers about it.</div>
+            <h2 class="rev" style="margin-top:44px;">So… that's it?</h2>
+            <p class="rev">That's the core. Everything from the voice assistant on your phone to the thing that wrote
+                half the internet's blog posts runs on this exact idea — just with more layers, more neurons, and
+                weights numbered in the trillions instead of the single digits you just played with.</p>
+            <div class="roast rev">GPT-4 has ~1.8 trillion parameters. You now understand what a parameter is. You are
+                statistically smarter than you were 12 minutes ago. Don't let it go to your head. Or do. Bruno would
+                want you to bark about it.</div>
+            <div class="callout rev" style="margin-top:36px;"><strong>Next up →</strong> Gradient Descent in depth — why
+                the "downhill ball" metaphor is both perfect and deeply misleading, and why sometimes the ball falls
+                into a pit and gets stuck forever. (Yes, that's a real problem. It has a name. It is not solved.)</div>
+        </section>
+
+        <!-- S6: PROMPT LAB -->
+        <section class="prose" id="s6">
+            <div class="smk rev"><span class="n">06 / 06</span><span class="l"></span></div>
+            <h2 class="rev">Prompting: steering the model, not controlling it</h2>
+            <p class="rev">If neural nets are the engine, prompting is the steering wheel. You do not hard-code answers.
+                You set <strong>intent, tone, constraints, and context</strong> so the model samples useful tokens from
+                a giant probability distribution.</p>
+            <p class="rev">This chapter follows a react.gg style idea: learn by doing tiny challenge loops. Change one
+                input, observe one behavior, and build intuition faster than reading a wall of theory.</p>
+
+            <div class="ppills rev">
+                <span class="ppill">🎯 Intent > verbosity</span>
+                <span class="ppill">🌡 Temperature controls randomness</span>
+                <span class="ppill">🧪 Top-p trims the tail</span>
+                <span class="ppill">🧱 Constraints improve reliability</span>
+            </div>
+
+            <div class="icard rev">
+                <div class="ibadge">INTERACTIVE — CHAPTER PLAYGROUND</div>
+                <div class="ititle">Prompt Sampling Lab</div>
+                <p class="idesc">Pick a teaching style, tune sampling knobs, then generate a response. The chart shows
+                    how token probabilities flatten as temperature rises.</p>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                    <button class="btn p" onclick="setPersona('kid')">Explain to a 10-year-old</button>
+                    <button class="btn" onclick="setPersona('pm')">Explain to a product manager</button>
+                    <button class="btn" onclick="setPersona('eng')">Explain to an engineer</button>
+                </div>
+
+                <div class="sgrp">
+                    <label><span>Prompt goal</span><span class="v" id="plblPersona">10-year-old mode</span></label>
+                    <textarea id="pinput" title="Prompt goal input" placeholder="Describe your desired output style and constraints"
+                        style="width:100%;min-height:96px;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:12px;font:14px/1.6 var(--sans);resize:vertical;">Explain what an AI model does when you ask it a question. Use one simple analogy and end with one practical tip.</textarea>
+                </div>
+
+                <div class="pgrid">
+                    <div class="sgrp">
+                        <label><span>Temperature</span><span class="v" id="ptempv">0.70</span></label>
+                        <input type="range" min="0.1" max="1.5" step="0.01" value="0.7" id="ptemp" title="Temperature control slider" oninput="updPromptLab()">
+                    </div>
+                    <div class="sgrp">
+                        <label><span>Top-p</span><span class="v" id="ptoppv">0.90</span></label>
+                        <input type="range" min="0.2" max="1" step="0.01" value="0.9" id="ptopp" title="Top p control slider" oninput="updPromptLab()">
+                    </div>
+                </div>
+
+                <canvas id="tokdist"
+                    style="width:100%;height:170px;display:block;border-radius:10px;background:var(--bg);margin-top:14px;"></canvas>
+
+                <div class="pgrid">
+                    <div class="pbox">
+                        <div class="pl">DIVERSITY</div>
+                        <div class="pv" id="pdiv">62%</div>
+                    </div>
+                    <div class="pbox">
+                        <div class="pl">CONSISTENCY</div>
+                        <div class="pv" id="pcons">81%</div>
+                    </div>
+                </div>
+
+                <div class="resp" id="presp"></div>
+
+                <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                    <button class="btn p" onclick="generatePromptOutput()">✨ Generate response</button>
+                    <button class="btn" onclick="rerollPromptTone()">🎲 Re-roll wording</button>
+                </div>
+            </div>
+
+            <div class="callout rev"><strong>Micro challenge:</strong> keep the same prompt, set temperature to 0.2 then
+                to 1.3, and compare how "safe vs creative" the answer feels. That one experiment builds intuition faster
+                than 20 blog posts.</div>
+        </section>
+
+        <footer>
+            <div class="wrap">
+                <p>Part of the <strong>AI for Humans</strong> series — explaining things properly the first time.</p>
+                <p style="margin-top:6px;font-size:13px;">Made with excessive Bruno analogies and zero regrets.</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // ─── CURSOR ───
+        const cur = document.getElementById('cur'), cdot = document.getElementById('cdot'), cring = document.getElementById('cring');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cdot.style.left = mx + 'px'; cdot.style.top = my + 'px'; });
+        (function ac() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; cring.style.left = rx + 'px'; cring.style.top = ry + 'px'; requestAnimationFrame(ac); })();
+        document.querySelectorAll('a,button,input,.btn,.cc,.fstep,.icard,.pdot,.scard').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('ch'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('ch'));
+        });
+        document.addEventListener('mousedown', () => document.body.classList.add('ca'));
+        document.addEventListener('mouseup', () => document.body.classList.remove('ca'));
+
+        // ─── RIPPLE ───
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const r = document.createElement('span'); r.className = 'ripple';
+                const rect = btn.getBoundingClientRect(); const sz = Math.max(rect.width, rect.height) * 2;
+                r.style.cssText = `width:${sz}px;height:${sz}px;left:${e.clientX - rect.left - sz / 2}px;top:${e.clientY - rect.top - sz / 2}px;`;
+                btn.appendChild(r); setTimeout(() => r.remove(), 700);
+            });
+        });
+
+        // ─── PROGRESS + SCROLL NAV ───
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('pfill').style.width = (window.scrollY / h * 100) + '%';
+            const secs = ['s0', 's1', 's2', 's3', 's4', 's5', 's6'];
+            const dots = document.querySelectorAll('.pdot');
+            secs.forEach((id, i) => { const el = document.getElementById(id); if (!el) return; const r = el.getBoundingClientRect(); if (r.top <= window.innerHeight * 0.5 && r.bottom >= window.innerHeight * 0.5) { dots.forEach(d => d.classList.remove('on')); dots[i].classList.add('on'); } });
+        });
+        function goTo(i) { document.getElementById(['s0', 's1', 's2', 's3', 's4', 's5', 's6'][i]).scrollIntoView({ behavior: 'smooth' }); }
+
+        // ─── SCROLL REVEAL ───
+        const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }), { threshold: 0.1 });
+        document.querySelectorAll('.rev').forEach(el => ro.observe(el));
+
+        // ─── COUNT UP ───
+        const co = new IntersectionObserver(es => es.forEach(e => {
+            if (e.isIntersecting && !e.target.dataset.done) {
+                e.target.dataset.done = '1';
+                const target = parseInt(e.target.dataset.target), sfx = e.target.dataset.sfx || '', dur = 1200, start = performance.now();
+                const tick = now => { const p = Math.min((now - start) / dur, 1); const ease = 1 - Math.pow(1 - p, 3); const v = Math.round(ease * target); e.target.textContent = (v >= 1000 ? v.toLocaleString() : v) + sfx; if (p < 1) requestAnimationFrame(tick); };
+                requestAnimationFrame(tick);
+            }
+        }), { threshold: 0.5 });
+        document.querySelectorAll('[data-target]').forEach(el => co.observe(el));
+
+        // ─── UTILS ───
+        const sig = x => 1 / (1 + Math.exp(-x));
+        const relu = x => Math.max(0, x);
+        const reluD = x => x > 0 ? 1 : 0;
+
+        // ─── SECTION 1: NEURON ───
+        function upN() {
+            const get = id => +document.getElementById(id).value;
+            const i1 = get('ni1'), i2 = get('ni2'), i3 = get('ni3'), w1 = get('nw_1'), w2 = get('nw_2'), w3 = get('nw_3');
+            const upd = (vid, val, color) => { const el = document.getElementById(vid); el.textContent = val.toFixed(1); if (color) el.style.color = color; };
+            upd('vi1', i1, '#4a9eff'); upd('vi2', i2, '#5ec784'); upd('vi3', i3, '#ff7eb3');
+            upd('vw1', w1, '#4a9eff'); upd('vw2', w2, '#5ec784'); upd('vw3', w3, '#ff7eb3');
+            const sum = i1 * w1 + i2 * w2 + i3 * w3, out = sig(sum);
+            document.getElementById('svi1').textContent = i1.toFixed(1);
+            document.getElementById('svi2').textContent = i2.toFixed(1);
+            document.getElementById('svi3').textContent = i3.toFixed(1);
+            document.getElementById('swl1').textContent = 'w=' + w1.toFixed(1);
+            document.getElementById('swl2').textContent = 'w=' + w2.toFixed(1);
+            document.getElementById('swl3').textContent = 'w=' + w3.toFixed(1);
+            document.getElementById('svsum').textContent = sum.toFixed(1);
+            document.getElementById('svout').textContent = out.toFixed(2);
+            // wire thickness
+            const wires = [['nw1', w1, '#4a9eff'], ['nw2', w2, '#5ec784'], ['nw3', w3, '#ff7eb3']];
+            wires.forEach(([id, w, col]) => {
+                const el = document.getElementById(id);
+                el.setAttribute('stroke-width', Math.max(0.5, Math.abs(w) * 2.5));
+                el.setAttribute('opacity', Math.abs(w) < 0.05 ? 0.1 : 0.75);
+                el.setAttribute('stroke', w < 0 ? '#e8593c' : col);
+            });
+            document.getElementById('nwout').setAttribute('stroke-width', Math.max(1, out * 5));
+            const nb = document.getElementById('nbdy');
+            const sp = document.getElementById('sparks');
+            if (out > 0.8) { nb.setAttribute('stroke', '#f5a623'); nb.setAttribute('stroke-width', '3'); sp.setAttribute('opacity', '1'); }
+            else if (out > 0.5) { nb.setAttribute('stroke', '#5ec784'); nb.setAttribute('stroke-width', '2'); sp.setAttribute('opacity', '0'); }
+            else { nb.setAttribute('stroke', '#4a9eff'); nb.setAttribute('stroke-width', '1.5'); sp.setAttribute('opacity', '0'); }
+            const ov = document.getElementById('noval'), ob = document.getElementById('nobar'), vd = document.getElementById('nverdict');
+            ov.textContent = out.toFixed(3); ob.style.width = (out * 100).toFixed(1) + '%';
+            if (out > 0.8) { ov.style.color = '#f5a623'; ob.style.background = '#f5a623'; vd.textContent = '🔥 FIRING — Bruno is achieving supersonic bark velocity'; }
+            else if (out > 0.5) { ov.style.color = '#5ec784'; ob.style.background = '#5ec784'; vd.textContent = '🐾 Active — Bruno is seriously considering the situation'; }
+            else if (out > 0.2) { ov.style.color = '#4a9eff'; ob.style.background = '#4a9eff'; vd.textContent = '😴 Barely active — Bruno has one eye open. Not convinced.'; }
+            else { ov.style.color = '#555'; ob.style.background = '#333'; vd.textContent = '❌ Silent — Bruno is a log. Time is a construct. Nothing matters.'; }
+        }
+        upN();
+
+        // ─── SECTION 2: WEIGHT BARS ───
+        const wts = [0.8, -0.5, 0.3, 1.2, -0.7, 0.9];
+        const wlbls = ['pixel brightness', 'edge strength', 'color hue', 'texture', 'shape', 'position'];
+        function buildWBars() {
+            const wrap = document.getElementById('wbars'); wrap.innerHTML = '';
+            wts.forEach((w, i) => {
+                const d = document.createElement('div'); d.className = 'sgrp';
+                d.innerHTML = `<label><span style="color:var(--muted);font-size:12px;">${wlbls[i]}</span><span class="v" id="wv${i}" style="color:${w >= 0 ? 'var(--accent)' : 'var(--blue)'}">${w.toFixed(2)}</span></label><input type="range" min="-2" max="2" step="0.05" value="${w}" oninput="wts[${i}]=parseFloat(this.value);updW();">`;
+                wrap.appendChild(d);
+            });
+        }
+        function updW() {
+            wts.forEach((w, i) => { const el = document.getElementById('wv' + i); if (el) { el.textContent = w.toFixed(2); el.style.color = w >= 0 ? 'var(--accent)' : 'var(--blue)'; } });
+            const s = wts.reduce((a, w) => a + w * 0.6, 0.1), out = sig(s);
+            document.getElementById('woval').textContent = out.toFixed(3);
+            const ob = document.getElementById('wobar'); ob.style.width = (out * 100).toFixed(1) + '%';
+            if (out > 0.75) { ob.style.background = 'var(--accent)'; document.getElementById('wverdict').textContent = '🟠 Strong orange signal — definitely orange territory'; }
+            else if (out > 0.5) { ob.style.background = '#d09030'; document.getElementById('wverdict').textContent = '🟡 Leaning orange — possible but uncertain'; }
+            else if (out > 0.25) { ob.style.background = 'var(--blue)'; document.getElementById('wverdict').textContent = '🔵 Leaning blue — some weights are fighting back'; }
+            else { ob.style.background = '#2a5a88'; document.getElementById('wverdict').textContent = '💙 Strong blue signal — definitely not orange territory'; }
+            drawWC();
+        }
+        function drawWC() {
+            const cv = document.getElementById('wcanv');
+            cv.width = cv.clientWidth * (window.devicePixelRatio || 1); cv.height = cv.clientHeight * (window.devicePixelRatio || 1);
+            const ctx = cv.getContext('2d'); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const W = cv.clientWidth, H = cv.clientHeight; ctx.clearRect(0, 0, W, H);
+            const bw = Math.floor(W / wts.length) - 10, gap = (W - (bw * wts.length)) / (wts.length + 1), mid = H / 2, sc = H * 0.37;
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(W, mid); ctx.stroke(); ctx.setLineDash([]);
+            wts.forEach((w, i) => {
+                const x = gap + i * (bw + gap), bh = Math.abs(w) * sc, pos = w >= 0, y = pos ? mid - bh : mid;
+                ctx.shadowColor = pos ? 'rgba(245,166,35,0.5)' : 'rgba(74,158,255,0.5)'; ctx.shadowBlur = 10;
+                const gr = ctx.createLinearGradient(0, y, 0, y + bh);
+                if (pos) { gr.addColorStop(0, '#f5a623'); gr.addColorStop(1, 'rgba(245,166,35,0.15)'); }
+                else { gr.addColorStop(0, 'rgba(74,158,255,0.15)'); gr.addColorStop(1, '#4a9eff'); }
+                ctx.fillStyle = gr; ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(x, y, bw, bh, 3); else ctx.rect(x, y, bw, bh);
+                ctx.fill(); ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '10px DM Mono,monospace'; ctx.textAlign = 'center';
+                ctx.fillText('w' + (i + 1), x + bw / 2, H - 5);
+                ctx.fillStyle = pos ? '#f5a623' : '#4a9eff';
+                ctx.fillText(w.toFixed(1), x + bw / 2, pos ? y - 4 : y + bh + 12);
+            });
+        }
+        buildWBars(); updW();
+
+        // ─── SECTION 3: SIGMOID ───
+        function drawSig() {
+            const cv = document.getElementById('sigcanv');
+            cv.width = cv.clientWidth * (window.devicePixelRatio || 1); cv.height = cv.clientHeight * (window.devicePixelRatio || 1);
+            const ctx = cv.getContext('2d'); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const W = cv.clientWidth, H = cv.clientHeight; ctx.clearRect(0, 0, W, H);
+            const xv = +document.getElementById('sigx').value;
+            document.getElementById('sxlbl').textContent = xv.toFixed(1);
+            const sv = sig(xv); document.getElementById('sigout').textContent = sv.toFixed(3);
+            const toX = x => ((x + 7) / 14) * W, toY = y => (1 - y) * (H - 44) + 22;
+            // grid lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+            [0, 0.25, 0.5, 0.75, 1].forEach(y => { ctx.beginPath(); ctx.moveTo(0, toY(y)); ctx.lineTo(W, toY(y)); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'left'; ctx.fillText(y.toFixed(2), 3, toY(y) - 3); });
+            [-6, -4, -2, 0, 2, 4, 6].forEach(x => { ctx.beginPath(); ctx.moveTo(toX(x), 0); ctx.lineTo(toX(x), H); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'center'; ctx.fillText(x, toX(x), H - 4); });
+            // gradient under curve
+            const grd = ctx.createLinearGradient(0, toY(0.5), 0, toY(0)); grd.addColorStop(0, 'rgba(180,143,255,0)'); grd.addColorStop(1, 'rgba(180,143,255,0.08)');
+            ctx.beginPath(); ctx.moveTo(0, toY(sig(-7)));
+            for (let px = 0; px <= W; px++) { const x = (px / W) * 14 - 7; ctx.lineTo(px, toY(sig(x))); }
+            ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fillStyle = grd; ctx.fill();
+            // curve
+            ctx.beginPath();
+            for (let px = 0; px <= W; px++) { const x = (px / W) * 14 - 7; px === 0 ? ctx.moveTo(px, toY(sig(x))) : ctx.lineTo(px, toY(sig(x))); }
+            ctx.strokeStyle = '#b48fff'; ctx.lineWidth = 2.5; ctx.shadowColor = 'rgba(180,143,255,0.6)'; ctx.shadowBlur = 10; ctx.stroke(); ctx.shadowBlur = 0;
+            // dashed lines
+            const cx = toX(xv), cy = toY(sv);
+            ctx.strokeStyle = 'rgba(245,166,35,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(cx, H); ctx.lineTo(cx, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(cx, cy); ctx.stroke();
+            ctx.setLineDash([]);
+            // dot
+            ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fillStyle = '#f5a623'; ctx.shadowColor = 'rgba(245,166,35,0.8)'; ctx.shadowBlur = 18; ctx.fill(); ctx.shadowBlur = 0;
+        }
+        drawSig();
+
+        // ─── LAYER DIAGRAM ───
+        (function drawLayers() {
+            const svg = document.getElementById('laysvg');
+            if (!svg) return;
+            const cols = [{ x: 80, n: 3, c: '#4a9eff', lbl: 'INPUT' }, { x: 240, n: 4, c: '#b48fff', lbl: 'HIDDEN 1' }, { x: 400, n: 3, c: '#5ec784', lbl: 'HIDDEN 2' }, { x: 560, n: 1, c: '#f5a623', lbl: 'OUTPUT' }];
+            const H = 260, pad = 40;
+            const ys = c => c.n === 1 ? [H / 2] : Array.from({ length: c.n }, (_, i) => pad + i * (H - 2 * pad) / (c.n - 1));
+            // connections
+            cols.forEach((col, ci) => { if (ci === cols.length - 1) return; const next = cols[ci + 1]; ys(col).forEach(y1 => ys(next).forEach(y2 => { const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); l.setAttribute('x1', col.x); l.setAttribute('y1', y1); l.setAttribute('x2', next.x); l.setAttribute('y2', y2); l.setAttribute('stroke', 'rgba(255,255,255,0.05)'); l.setAttribute('stroke-width', '0.8'); svg.appendChild(l); })); });
+            // neurons
+            cols.forEach(col => {
+                const t = document.createElementNS('http://www.w3.org/2000/svg', 'text'); t.setAttribute('x', col.x); t.setAttribute('y', '14'); t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', '#444'); t.setAttribute('font-family', 'DM Mono,monospace'); t.setAttribute('font-size', '10'); t.textContent = col.lbl; svg.appendChild(t);
+                ys(col).forEach(y => {
+                    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    c.setAttribute('cx', col.x); c.setAttribute('cy', y); c.setAttribute('r', '17');
+                    c.setAttribute('fill', '#16161a'); c.setAttribute('stroke', col.c); c.setAttribute('stroke-width', '1.5'); c.setAttribute('class', 'ln');
+                    g.appendChild(c); svg.appendChild(g);
+                });
+            });
+            let step = 0;
+            const nodes = [...svg.querySelectorAll('.ln')];
+            setInterval(() => {
+                nodes.forEach((n, i) => { n.setAttribute('fill', '#16161a'); n.setAttribute('stroke-width', '1.5'); });
+                const ci = step % 4, col = cols[ci]; const start = cols.slice(0, ci).reduce((s, c) => s + c.n, 0);
+                for (let i = start; i < start + col.n; i++) { if (nodes[i]) { nodes[i].setAttribute('fill', col.c + '22'); nodes[i].setAttribute('stroke-width', '2.5'); } }
+                step++;
+            }, 700);
+        })();
+
+        // ─── NETWORK TRAINING ───
+        let netW = null, tSteps = 0, lossHist = [];
+        function genData(n = 80) { const d = []; for (let i = 0; i < n / 2; i++) { const r = Math.random() * 0.28 + 0.06, a = Math.random() * Math.PI * 2; d.push({ x: 0.5 + r * Math.cos(a), y: 0.5 + r * Math.sin(a), l: 0 }); } for (let i = 0; i < n / 2; i++) { const r = Math.random() * 0.16 + 0.4, a = Math.random() * Math.PI * 2; d.push({ x: 0.5 + r * Math.cos(a), y: 0.5 + r * Math.sin(a), l: 1 }); } return d; }
+        const tData = genData();
+        function initW() { return { w1: Array.from({ length: 5 }, () => Array.from({ length: 2 }, () => (Math.random() - 0.5) * 2)), b1: Array(5).fill(0), w2: [[...Array.from({ length: 5 }, () => (Math.random() - 0.5) * 2)]], b2: [0] }; }
+        function fwd(net, x, y) { const h = net.w1.map((r, i) => relu(r[0] * x + r[1] * y + net.b1[i])); const raw = net.w2[0].reduce((s, w, i) => s + w * h[i], net.b2[0]); return { h, out: sig(raw) }; }
+        function trainN(net, steps) {
+            let loss = 0;
+            for (let s = 0; s < steps; s++) {
+                const dw1 = net.w1.map(() => [0, 0]), db1 = Array(5).fill(0), dw2 = [[...Array(5).fill(0)]], db2 = [0]; loss = 0;
+                for (const d of tData) {
+                    const { h, out } = fwd(net, d.x, d.y); const err = out - d.l; loss += err * err; const dO = err * out * (1 - out);
+                    for (let i = 0; i < 5; i++) { dw2[0][i] += dO * h[i]; const dh = dO * net.w2[0][i] * reluD(net.w1[i][0] * d.x + net.w1[i][1] * d.y + net.b1[i]); dw1[i][0] += dh * d.x; dw1[i][1] += dh * d.y; db1[i] += dh; }
+                    db2[0] += dO;
+                }
+                const N = tData.length, lr = 0.08;
+                for (let i = 0; i < 5; i++) { net.w1[i][0] -= lr * dw1[i][0] / N; net.w1[i][1] -= lr * dw1[i][1] / N; net.b1[i] -= lr * db1[i] / N; net.w2[0][i] -= lr * dw2[0][i] / N; }
+                net.b2[0] -= lr * db2[0] / N;
+            }
+            return loss / tData.length;
+        }
+        function drawNet() {
+            const cv = document.getElementById('netcanv'); cv.width = cv.clientWidth * (window.devicePixelRatio || 1); cv.height = cv.clientHeight * (window.devicePixelRatio || 1);
+            const ctx = cv.getContext('2d'); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const W = cv.clientWidth, H = cv.clientHeight; ctx.clearRect(0, 0, W, H);
+            if (!netW) { ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '14px DM Sans,sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Click ▶ Train to begin', W / 2, H / 2); return; }
+            const res = 48; for (let ix = 0; ix < res; ix++) { for (let iy = 0; iy < res; iy++) { const { out } = fwd(netW, ix / res, iy / res); ctx.fillStyle = out > 0.5 ? `rgba(245,166,35,${out * 0.32})` : `rgba(74,158,255,${(1 - out) * 0.32})`; ctx.fillRect(ix * W / res, iy * H / res, W / res + 1, H / res + 1); } }
+            for (const d of tData) { ctx.beginPath(); ctx.arc(d.x * W, d.y * H, 5, 0, Math.PI * 2); ctx.fillStyle = d.l === 1 ? '#f5a623' : '#4a9eff'; ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1; ctx.stroke(); }
+        }
+        function drawLoss() {
+            const cv = document.getElementById('lossch'); cv.width = cv.clientWidth * (window.devicePixelRatio || 1); cv.height = cv.clientHeight * (window.devicePixelRatio || 1);
+            const ctx = cv.getContext('2d'); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const W = cv.clientWidth, H = cv.clientHeight; ctx.clearRect(0, 0, W, H);
+            if (lossHist.length < 2) return;
+            const maxL = Math.max(...lossHist) * 1.1 || 0.3;
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+            [0, 0.25, 0.5, 0.75, 1].forEach(t => { const y = H * (1 - t); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'left'; ctx.fillText((maxL * t).toFixed(3), 2, y - 2); });
+            ctx.beginPath(); lossHist.forEach((l, i) => { const x = (i / (lossHist.length - 1)) * W, y = H * (1 - l / maxL); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+            ctx.strokeStyle = '#e8593c'; ctx.lineWidth = 2; ctx.shadowColor = 'rgba(232,89,60,0.5)'; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
+            ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fillStyle = 'rgba(232,89,60,0.07)'; ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '10px DM Mono,monospace'; ctx.textAlign = 'center'; ctx.fillText('training steps →', W / 2, H - 4);
+        }
+        function doTrain(steps) {
+            if (!netW) netW = initW();
+            const loss = trainN(netW, steps); tSteps += steps; lossHist.push(loss); if (lossHist.length > 60) lossHist = lossHist.slice(-60);
+            let correct = 0; for (const d of tData) { const { out } = fwd(netW, d.x, d.y); if ((out > 0.5) === (d.l === 1)) correct++; }
+            const acc = (correct / tData.length * 100).toFixed(0);
+            document.getElementById('nssteps').textContent = tSteps;
+            const le = document.getElementById('nsloss'); le.textContent = loss.toFixed(4); le.style.color = loss < 0.1 ? 'var(--green)' : loss < 0.2 ? 'var(--accent)' : 'var(--accent2)';
+            const ae = document.getElementById('nsacc'); ae.textContent = acc + '%'; ae.style.color = acc > 90 ? 'var(--green)' : acc > 70 ? 'var(--accent)' : 'var(--accent2)';
+            document.getElementById('netstatus').textContent = acc > 90 ? '🎉 Network mastered it! Look at those clean colour regions.' : acc > 70 ? '📈 Getting smarter — loss dropping, boundaries forming...' : '🧠 Still learning... random weights slowly becoming something useful.';
+            drawNet(); drawLoss();
+        }
+        function resetNet() { netW = null; tSteps = 0; lossHist = [];['nssteps', 'nsloss', 'nsacc'].forEach(id => document.getElementById(id).textContent = id === 'nssteps' ? '0' : '—'); document.getElementById('netstatus').textContent = 'Click ▶ Train to begin. Watch the loss chart drop as the network learns.'; drawNet(); drawLoss(); }
+        drawNet();
+
+        // ─── GRADIENT DESCENT ───
+        let gdBall = null, gdRun = false, gdAnim = null;
+        function gdLoss(x, y) { return 0.28 * Math.sin(x * 1.6) * Math.cos(y) + 0.5 * (x * x + y * y) * 0.18 + 0.1 * Math.sin(x * 3.2) + 0.09 * Math.cos(y * 2.4); }
+        function gdGrad(x, y) { return { dx: 0.28 * 1.6 * Math.cos(x * 1.6) * Math.cos(y) + x * 0.18 + 0.32 * Math.cos(x * 3.2), dy: -0.28 * Math.sin(x * 1.6) * Math.sin(y) + y * 0.18 - 0.216 * Math.sin(y * 2.4) }; }
+        function drawGD() {
+            const cv = document.getElementById('gdcanv'); cv.width = cv.clientWidth * (window.devicePixelRatio || 1); cv.height = cv.clientHeight * (window.devicePixelRatio || 1);
+            const ctx = cv.getContext('2d'); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const W = cv.clientWidth, H = cv.clientHeight; ctx.clearRect(0, 0, W, H);
+            for (let xi = 0; xi <= 50; xi++) {
+                for (let yi = 0; yi <= 50; yi++) {
+                    const x = xi / 50 * 4 - 2, y = yi / 50 * 4 - 2, v = gdLoss(x, y), t = Math.max(0, Math.min(1, (v + 0.05) / 1.1));
+                    const r = Math.round(15 + t * 90), g2 = Math.round(25 + t * 25), b = Math.round(55 - t * 35);
+                    ctx.fillStyle = `rgb(${r},${g2},${b})`; ctx.fillRect(xi * W / 50, yi * H / 50, W / 50 + 1, H / 50 + 1);
+                }
+            }
+            // contour hint
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 0.5;
+            [0.1, 0.2, 0.3, 0.4, 0.5].forEach(lv => { for (let xi = 0; xi < 50; xi++) { for (let yi = 0; yi < 50; yi++) { const x = xi / 50 * 4 - 2, y = yi / 50 * 4 - 2; if (Math.abs(gdLoss(x, y) - lv) < 0.04) { ctx.beginPath(); ctx.arc(xi * W / 50, yi * H / 50, 1, 0, Math.PI * 2); ctx.stroke(); } } } });
+            if (!gdBall) return;
+            if (gdBall.path && gdBall.path.length > 1) {
+                ctx.beginPath(); gdBall.path.forEach((p, i) => { const px = (p.x + 2) / 4 * W, py = (p.y + 2) / 4 * H; i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+                ctx.strokeStyle = 'rgba(245,166,35,0.55)'; ctx.lineWidth = 1.5; ctx.stroke();
+            }
+            const bx = (gdBall.x + 2) / 4 * W, by = (gdBall.y + 2) / 4 * H, loss = gdLoss(gdBall.x, gdBall.y);
+            ctx.beginPath(); ctx.arc(bx, by, 9, 0, Math.PI * 2); ctx.fillStyle = '#f5a623'; ctx.shadowColor = 'rgba(245,166,35,0.9)'; ctx.shadowBlur = 22; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = 'rgba(245,166,35,0.9)'; ctx.font = 'bold 11px DM Mono,monospace'; ctx.textAlign = 'center'; ctx.fillText('loss: ' + loss.toFixed(3), bx, by - 16);
+        }
+        document.getElementById('gdcanv').addEventListener('click', function (e) {
+            const rect = this.getBoundingClientRect(); const x = (e.clientX - rect.left) / this.clientWidth * 4 - 2, y = (e.clientY - rect.top) / this.clientHeight * 4 - 2;
+            gdBall = { x, y, path: [{ x, y }] }; if (gdAnim) { cancelAnimationFrame(gdAnim); gdRun = false; }
+            drawGD(); document.getElementById('gdstatus').textContent = `Ball at (${x.toFixed(2)}, ${y.toFixed(2)}). Loss = ${gdLoss(x, y).toFixed(3)}. Hit ▶ Start Rolling!`;
+        });
+        function startGD() {
+            if (!gdBall) { document.getElementById('gdstatus').textContent = 'Click anywhere on the surface first!'; return; }
+            if (gdRun) return; gdRun = true; let step = 0;
+            (function tick() {
+                if (!gdRun || step > 600) return;
+                const lr = +document.getElementById('lrsl').value;
+                const { dx, dy } = gdGrad(gdBall.x, gdBall.y);
+                gdBall.x = Math.max(-2, Math.min(2, gdBall.x - lr * dx));
+                gdBall.y = Math.max(-2, Math.min(2, gdBall.y - lr * dy));
+                if (!gdBall.path) gdBall.path = [];
+                gdBall.path.push({ x: gdBall.x, y: gdBall.y });
+                if (gdBall.path.length > 100) gdBall.path.shift();
+                drawGD(); step++;
+                const loss = gdLoss(gdBall.x, gdBall.y);
+                document.getElementById('gdstatus').textContent = `Step ${step} — Loss: ${loss.toFixed(4)} ${loss < 0.01 ? '🎉 Found the minimum!' : loss < 0.05 ? 'Getting close...' : 'Rolling...'}`;
+                if (loss < 0.004) { gdRun = false; document.getElementById('gdstatus').textContent = '🎉 Found the minimum! Loss ≈ 0. Training complete. This is what a trained network feels like.'; return; }
+                gdAnim = requestAnimationFrame(tick);
+            })();
+        }
+        function resetGD() { gdBall = null; gdRun = false; if (gdAnim) cancelAnimationFrame(gdAnim); drawGD(); document.getElementById('gdstatus').textContent = 'Click anywhere on the surface to place the ball, then hit ▶ Start Rolling'; }
+        drawGD();
+
+        // ─── SECTION 6: PROMPT LAB ───
+        let promptPersona = 'kid';
+        const promptSamples = {
+            kid: [
+                'Think of AI like a super-fast librarian who has read a huge internet library and guesses the next best sentence from your question.',
+                'AI is like autocomplete with a giant brain: it predicts what words are most likely to come next, one token at a time.',
+                'Imagine a robot storyteller that picks the most probable next word repeatedly until an answer appears.'
+            ],
+            pm: [
+                'A model is a probability engine: it maps your intent to likely token sequences, then optimizes for coherence and usefulness.',
+                'In product terms, prompting defines scope, output format, and quality constraints so the model returns actionable responses.',
+                'Treat the model like a stochastic teammate: strong context and clear acceptance criteria improve reliability.'
+            ],
+            eng: [
+                'Inference is iterative next-token sampling over a conditional distribution shaped by context window, temperature, and top-p.',
+                'The model emits logits, applies sampling controls, selects a token, appends it, and repeats until stop criteria.',
+                'Prompt quality matters because the model is doing pattern completion, not symbolic reasoning with guaranteed correctness.'
+            ]
+        };
+        function setPersona(p) {
+            promptPersona = p;
+            const lbl = document.getElementById('plblPersona');
+            if (p === 'kid') lbl.textContent = '10-year-old mode';
+            if (p === 'pm') lbl.textContent = 'Product manager mode';
+            if (p === 'eng') lbl.textContent = 'Engineer mode';
+            generatePromptOutput();
+        }
+        function getPromptParams() {
+            const t = +document.getElementById('ptemp').value;
+            const p = +document.getElementById('ptopp').value;
+            return { t, p };
+        }
+        function drawTokenDist() {
+            const cv = document.getElementById('tokdist');
+            cv.width = cv.clientWidth * (window.devicePixelRatio || 1); cv.height = cv.clientHeight * (window.devicePixelRatio || 1);
+            const ctx = cv.getContext('2d'); ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            const W = cv.clientWidth, H = cv.clientHeight; ctx.clearRect(0, 0, W, H);
+            const { t, p } = getPromptParams();
+            const n = 12, bars = [];
+            for (let i = 0; i < n; i++) {
+                const base = Math.exp(-i * 0.35);
+                const adjusted = Math.pow(base, 1 / Math.max(0.08, t));
+                bars.push(adjusted);
+            }
+            const sum = bars.reduce((a, b) => a + b, 0);
+            const probs = bars.map(v => v / sum);
+            let cum = 0, cutoff = probs.length - 1;
+            for (let i = 0; i < probs.length; i++) { cum += probs[i]; if (cum >= p) { cutoff = i; break; } }
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+            ctx.lineWidth = 1;
+            [0.25, 0.5, 0.75, 1].forEach(g => { const y = H * (1 - g); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); });
+            const bw = Math.max(10, Math.floor(W / n) - 6), gap = (W - n * bw) / (n + 1);
+            probs.forEach((pr, i) => {
+                const x = gap + i * (bw + gap), h = Math.max(2, pr * (H - 26)), y = H - h;
+                const inTopP = i <= cutoff;
+                const gr = ctx.createLinearGradient(0, y, 0, H);
+                if (inTopP) { gr.addColorStop(0, '#f5a623'); gr.addColorStop(1, 'rgba(245,166,35,0.12)'); }
+                else { gr.addColorStop(0, '#4a9eff'); gr.addColorStop(1, 'rgba(74,158,255,0.1)'); }
+                ctx.fillStyle = gr;
+                if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, bw, h, 3); ctx.fill(); } else { ctx.fillRect(x, y, bw, h); }
+            });
+            ctx.fillStyle = 'rgba(255,255,255,0.32)';
+            ctx.font = '10px DM Mono,monospace';
+            ctx.fillText('top-p cutoff token: ' + (cutoff + 1), 8, 14);
+        }
+        function updPromptLab() {
+            const { t, p } = getPromptParams();
+            document.getElementById('ptempv').textContent = t.toFixed(2);
+            document.getElementById('ptoppv').textContent = p.toFixed(2);
+            const diversity = Math.max(5, Math.min(98, Math.round(30 + t * 45 + (1 - p) * 10)));
+            const consistency = Math.max(5, Math.min(99, Math.round(100 - diversity + 8)));
+            document.getElementById('pdiv').textContent = diversity + '%';
+            document.getElementById('pcons').textContent = consistency + '%';
+            document.getElementById('pdiv').style.color = diversity > 70 ? 'var(--purple)' : diversity > 45 ? 'var(--accent)' : 'var(--green)';
+            document.getElementById('pcons').style.color = consistency > 75 ? 'var(--green)' : consistency > 55 ? 'var(--accent)' : 'var(--accent2)';
+            drawTokenDist();
+        }
+        function generatePromptOutput() {
+            const prompt = document.getElementById('pinput').value.trim();
+            const { t, p } = getPromptParams();
+            const bank = promptSamples[promptPersona] || promptSamples.kid;
+            const idx = Math.floor(Math.random() * bank.length);
+            const tip = promptPersona === 'kid'
+                ? 'Tip: ask for one analogy and one example.'
+                : promptPersona === 'pm'
+                    ? 'Tip: ask for bullets with trade-offs and success metrics.'
+                    : 'Tip: ask for assumptions, edge cases, and failure modes.';
+            const behavior = t < 0.45 ? 'safe and focused' : t > 1.05 ? 'creative and varied' : 'balanced';
+            const tail = p < 0.65 ? 'narrow token set' : p > 0.92 ? 'wide token set' : 'moderate token set';
+            document.getElementById('presp').innerHTML =
+                `<strong>Simulated model response:</strong><br>${bank[idx]}<br><br>` +
+                `Based on your settings, generation is <strong>${behavior}</strong> with a <strong>${tail}</strong>.<br>` +
+                `${tip}<br><span style="color:var(--muted);font-size:12px;">Prompt snapshot: "${prompt.slice(0, 140)}${prompt.length > 140 ? '…' : ''}"</span>`;
+        }
+        function rerollPromptTone() { generatePromptOutput(); }
+        updPromptLab();
+        generatePromptOutput();
+
+        // ─── RESIZE ───
+        window.addEventListener('resize', () => { drawSig(); drawWC(); if (netW) drawNet(); drawLoss(); drawGD(); drawTokenDist(); });
+    </script>
+</body>
+
+</html>
