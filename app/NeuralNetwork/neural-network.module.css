@@ -1,0 +1,714 @@
+.sectionRoot {
+  --nn-bg: #0b0b0d;
+  --nn-bg-2: #131315;
+  --nn-card: rgba(22, 22, 26, 0.9);
+  --nn-card-strong: rgba(18, 18, 22, 0.96);
+  --nn-border: rgba(245, 166, 35, 0.18);
+  --nn-border-muted: rgba(255, 255, 255, 0.08);
+  --nn-text: #edeae4;
+  --nn-muted: #a6a095;
+  --nn-accent: #f5a623;
+  --nn-accent-2: #e8593c;
+  --nn-blue: #4a9eff;
+  --nn-green: #5ec784;
+  --nn-pink: #ff7eb3;
+  --nn-purple: #b48fff;
+  position: relative;
+  min-height: 100dvh;
+  color: var(--nn-text);
+  background:
+    radial-gradient(circle at top, rgba(245, 166, 35, 0.15), transparent 32%),
+    radial-gradient(circle at 18% 18%, rgba(74, 158, 255, 0.12), transparent 28%),
+    linear-gradient(180deg, #0f0f12 0%, var(--nn-bg) 24%, #09090b 100%);
+  overflow: clip;
+}
+
+.sectionGlow {
+  position: absolute;
+  inset: -12rem auto auto 50%;
+  width: 42rem;
+  height: 42rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(245, 166, 35, 0.12), transparent 68%);
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: blur(18px);
+}
+
+.sectionHeader {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(18px);
+  background: rgba(11, 11, 13, 0.72);
+  border-bottom: 1px solid var(--nn-border-muted);
+}
+
+.sectionHeaderInner {
+  width: min(1180px, calc(100vw - 2rem));
+  margin: 0 auto;
+  padding: 1.35rem 0 1.1rem;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  color: var(--nn-accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  line-height: 0.95;
+}
+
+.sectionLead {
+  max-width: 46rem;
+  margin: 0.7rem 0 0;
+  color: var(--nn-muted);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.sectionNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.navLink {
+  padding: 0.78rem 1rem;
+  border: 1px solid var(--nn-border-muted);
+  border-radius: 999px;
+  color: var(--nn-text);
+  background: rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+  font-size: 0.92rem;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    background-color 180ms ease;
+}
+
+.navLink:hover {
+  border-color: var(--nn-border);
+  background: rgba(245, 166, 35, 0.08);
+  transform: translateY(-1px);
+}
+
+.sectionContent {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, calc(100vw - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.pageStack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.heroCard {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.4rem, 2vw, 2rem);
+  border: 1px solid var(--nn-border);
+  border-radius: 1.6rem;
+  background:
+    linear-gradient(135deg, rgba(245, 166, 35, 0.08), transparent 38%),
+    linear-gradient(180deg, rgba(19, 19, 21, 0.98), rgba(11, 11, 13, 0.96));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  gap: 1.5rem;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 0.95;
+}
+
+.heroBody {
+  max-width: 42rem;
+  margin: 1rem 0 0;
+  color: var(--nn-muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.chip {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--nn-text);
+  font-size: 0.82rem;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.9rem;
+  padding: 0.8rem 1.05rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.primaryButton {
+  color: #111;
+  background: linear-gradient(90deg, var(--nn-accent), #ffcb6a);
+}
+
+.secondaryButton {
+  color: var(--nn-text);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--nn-border-muted);
+}
+
+.primaryButton:hover,
+.secondaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.metaCard {
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+  padding: 1.1rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--nn-border-muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.metaLabel {
+  color: var(--nn-muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.metaValue {
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.metaCopy {
+  color: var(--nn-muted);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.frameCard {
+  overflow: hidden;
+  border-radius: 1.6rem;
+  border: 1px solid var(--nn-border-muted);
+  background: var(--nn-card-strong);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+}
+
+.frameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--nn-border-muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.frameDots {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.frameDots span {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.frameDots span:nth-child(1) {
+  background: rgba(232, 89, 60, 0.9);
+}
+
+.frameDots span:nth-child(2) {
+  background: rgba(245, 166, 35, 0.9);
+}
+
+.frameDots span:nth-child(3) {
+  background: rgba(94, 199, 132, 0.9);
+}
+
+.frameLabel {
+  color: var(--nn-muted);
+  font-size: 0.86rem;
+}
+
+.articleFrame {
+  display: block;
+  width: 100%;
+  height: calc(100dvh - 6rem);
+  border: 0;
+  background: var(--nn-bg);
+}
+
+@media (max-width: 900px) {
+  .sectionHeader {
+    position: relative;
+  }
+
+  .sectionHeaderInner,
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeaderInner {
+    align-items: start;
+  }
+
+  .articleFrame {
+    height: 84dvh;
+  }
+}
+
+.storyHeroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 1.5rem;
+}
+
+.storyIntroCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.storyIntroCard {
+  padding: 1.15rem 1.2rem;
+  border: 1px solid var(--nn-border-muted);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--nn-muted);
+  line-height: 1.7;
+}
+
+.storyIntroCard p {
+  margin: 0;
+}
+
+.storyLayout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.08fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.storyStickyColumn {
+  position: sticky;
+  top: 6.8rem;
+}
+
+.storyStickyCard {
+  padding: 1rem;
+  border: 1px solid var(--nn-border);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(19, 19, 21, 0.98), rgba(11, 11, 13, 0.96)),
+    linear-gradient(135deg, rgba(245, 166, 35, 0.04), transparent 40%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.storyStickyHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.storyStickyHeader strong {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.storyStickyNote {
+  margin: 1rem 0 0;
+  color: var(--nn-muted);
+  line-height: 1.7;
+}
+
+.storyStepColumn {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.storyStepCard {
+  min-height: 58dvh;
+  padding: 1.35rem;
+  border: 1px solid var(--nn-border-muted);
+  border-radius: 1.5rem;
+  background: rgba(18, 18, 22, 0.94);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.storyStepCardActive {
+  border-color: var(--nn-border);
+  transform: translateY(-2px);
+  box-shadow: 0 30px 80px rgba(245, 166, 35, 0.08);
+}
+
+.storyStepEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  color: var(--nn-accent);
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.storyStepEyebrow span {
+  padding: 0.38rem 0.62rem;
+  border: 1px solid var(--nn-border);
+  border-radius: 999px;
+}
+
+.storyStepTitle {
+  margin: 0;
+  font-size: clamp(2rem, 3.5vw, 3.3rem);
+  line-height: 0.98;
+}
+
+.storyStepBody {
+  max-width: 44rem;
+  margin: 1rem 0 0;
+  color: var(--nn-muted);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.storyVisualStage {
+  display: grid;
+  gap: 1rem;
+  min-height: 25rem;
+  padding: 1rem;
+  border: 1px solid var(--nn-border-muted);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at top, rgba(245, 166, 35, 0.1), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+}
+
+.storySignalList,
+.storyBars,
+.storyScaleGrid,
+.storyNetworkGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.storySignalHot,
+.storySignalMuted,
+.storyDecisionCard,
+.storyFormulaCard,
+.storyReadoutGrid > div,
+.storyLoopRow span,
+.storyScaleCard {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--nn-border-muted);
+  border-radius: 1rem;
+}
+
+.storySignalHot {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.18), rgba(232, 89, 60, 0.15));
+}
+
+.storySignalMuted {
+  color: var(--nn-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.storyDecisionCard {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.16), rgba(62, 207, 207, 0.14));
+}
+
+.storyDecisionValue {
+  font-size: 1.6rem;
+  text-transform: uppercase;
+}
+
+.storyMiniLabel {
+  color: var(--nn-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.storyFormulaCard {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.storyFormulaCard strong {
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+
+.storyBarHot,
+.storyBarCool,
+.storyBarMuted {
+  display: block;
+  height: 0.95rem;
+  border-radius: 999px;
+}
+
+.storyBarHot,
+.storyLossBar,
+.storyBoundaryDotHot {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.2), rgba(232, 89, 60, 0.18));
+}
+
+.storyBarCool,
+.storyNetworkNodeAccent,
+.storyBoundaryDotCool {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.18), rgba(62, 207, 207, 0.18));
+}
+
+.storyBarMuted {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.storyCurvePanel,
+.storyBoundaryPanel,
+.storyLossPanel {
+  position: relative;
+  width: 100%;
+  height: 15rem;
+  overflow: hidden;
+  border: 1px solid var(--nn-border-muted);
+  border-radius: 1.25rem;
+}
+
+.storyCurveGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 100% 2rem, 2rem 100%;
+}
+
+.storyCurveTrace {
+  position: absolute;
+  top: 22%;
+  left: 15%;
+  width: 62%;
+  height: 8.5rem;
+  border-bottom: 3px solid var(--nn-accent);
+  border-left: 3px solid transparent;
+  border-radius: 0 0 7.5rem 7.5rem;
+  transform: rotate(-9deg);
+}
+
+.storyCurveDot {
+  position: absolute;
+  top: 24%;
+  right: 26%;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--nn-accent);
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
+}
+
+.storyReadoutGrid,
+.storyScaleGrid,
+.storyLoopRow,
+.storyLegendRow {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.storyReadoutGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.storyReadoutGrid strong,
+.storyScaleCard strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.18rem;
+}
+
+.storyNetworkGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+}
+
+.storyNetworkColumn {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+}
+
+.storyNetworkColumn::after {
+  content: "";
+  position: absolute;
+  right: -50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+.storyNetworkColumn:last-child::after {
+  display: none;
+}
+
+.storyNetworkNode {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.storyLegendRow {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  color: var(--nn-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.storyLossPanel {
+  padding: 1rem;
+}
+
+.storyLossBars {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.75rem;
+  height: 100%;
+}
+
+.storyLossBar {
+  display: block;
+  border-radius: 1rem 1rem 0.35rem 0.35rem;
+}
+
+.storyLoopRow {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.storyLoopRow span {
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  text-transform: uppercase;
+}
+
+.storyBoundaryLine {
+  position: absolute;
+  left: 49%;
+  top: -10%;
+  width: 5px;
+  height: 120%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(245, 166, 35, 0.8), rgba(74, 158, 255, 0.8));
+  transform: rotate(18deg);
+}
+
+.storyBoundaryDotHot,
+.storyBoundaryDotCool {
+  position: absolute;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.storyScaleGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.storyScaleCard {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 900px) {
+  .storyHeroGrid,
+  .storyIntroCards,
+  .storyLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .storyStickyColumn {
+    position: relative;
+    top: auto;
+  }
+
+  .storyStepCard {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .storyReadoutGrid,
+  .storyScaleGrid,
+  .storyLegendRow,
+  .storyLoopRow {
+    grid-template-columns: 1fr;
+  }
+
+  .storyVisualStage {
+    min-height: 20rem;
+  }
+}

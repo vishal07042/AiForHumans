@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function NeuralNetworkPage() {
-  const htmlPath = path.join(process.cwd(), "app",  "NeuralNetwork", "Neuorns.html");
+  const htmlPath = path.join(process.cwd(), "app", "NeuralNetwork", "Neuorns.html");
   const html = await fs.readFile(htmlPath, "utf8");
 
   return (
