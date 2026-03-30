@@ -90,8 +90,135 @@ const SECTIONS = [
   }
 ];
 
+function PhoneVisualBinder({ scene }) {
+    return (
+        <div style={{ position: "relative", width: 220, height: 420, margin: "0 auto", transform: "scale(0.85)", transformOrigin: "center center" }}>
+            <style>{`
+                @keyframes sceneFade { from { opacity: 0.2; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+                @keyframes floatItem { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
+            `}</style>
+            {/* Phone shell */}
+            <div style={{
+                position: "absolute", inset: 0,
+                borderRadius: 36,
+                background: "#0b0b0d",
+                boxShadow: "0 0 0 2px #2a2318, 0 0 60px rgba(245,166,35,0.18), 0 20px 60px rgba(0,0,0,0.9)",
+                overflow: "hidden",
+            }}>
+                {/* Screen */}
+                <div style={{
+                    position: "absolute", inset: "10px 8px",
+                    borderRadius: 28,
+                    background: "radial-gradient(ellipse at 50% 30%, #1a1a1e 0%, #0b0b0d 100%)",
+                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                }}>
+                    
+                    {/* SCENE 0: Intro */}
+                    {scene === 0 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                            <div style={{ fontSize: 44, marginBottom: 12 }}>🤖</div>
+                            <h3 style={{ color: "#00d2ff", fontFamily: "'DM Mono', monospace", fontSize: 13, margin: 0, letterSpacing: 1 }}>BINDER IPC</h3>
+                            <p style={{ color: "#7a776f", fontSize: 10, marginTop: 4 }}>System Plumbing</p>
+                        </div>
+                    )}
+
+                    {/* SCENE 1: Sockets */}
+                    {scene === 1 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)", width: "100%", padding: 20 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, padding: "0 10px" }}>
+                                <div style={{ background: "rgba(43,0,255,0.2)", border: "1px solid #2b00ff", padding: "8px 4px", borderRadius: 8, fontSize: 9, color: "#fff", width: 50 }}>App</div>
+                                <span style={{ color: "#ff3366", fontSize: 16 }}>❌</span>
+                                <div style={{ background: "rgba(255,51,102,0.2)", border: "1px solid #ff3366", padding: "8px 4px", borderRadius: 8, fontSize: 9, color: "#fff", width: 50 }}>Server</div>
+                            </div>
+                            <p style={{ color: "#ff3366", fontSize: 11, fontFamily: "'DM Mono', monospace", letterSpacing: 1, margin: 0 }}>2 COPIES</p>
+                            <p style={{ color: "#7a776f", fontSize: 9, marginTop: 6 }}>Too Slow for UI</p>
+                        </div>
+                    )}
+
+                    {/* SCENE 2: The Four Players */}
+                    {scene === 2 && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "75%", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                            <div style={{ background: "rgba(0, 210, 255, 0.1)", border: "1px solid #00d2ff", padding: 10, borderRadius: 8, textAlign: "center", color: "#00d2ff", fontSize: 10 }}>1. App Client</div>
+                            <div style={{ background: "rgba(255, 51, 102, 0.1)", border: "1px solid #ff3366", padding: 10, borderRadius: 8, textAlign: "center", color: "#ff3366", fontSize: 10 }}>2. System Server</div>
+                            <div style={{ background: "rgba(122, 119, 111, 0.15)", border: "1px solid #7a776f", padding: 10, borderRadius: 8, textAlign: "center", color: "#edeae4", fontSize: 10 }}>3. /dev/binder</div>
+                            <div style={{ background: "rgba(245, 166, 35, 0.1)", border: "1px solid #f5a623", padding: 10, borderRadius: 8, textAlign: "center", color: "#f5a623", fontSize: 10 }}>4. ServiceManager</div>
+                        </div>
+                    )}
+
+                    {/* SCENE 3: mmap */}
+                    {scene === 3 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)", position: "relative", height: 160, width: 140 }}>
+                            <div style={{ position: "absolute", top: 10, left: 10, width: 80, height: 70, background: "rgba(0,210,255,0.2)", border: "1px solid #00d2ff", borderRadius: 8, zIndex: 1 }} />
+                            <div style={{ position: "absolute", top: 40, left: 50, width: 80, height: 70, background: "rgba(255,51,102,0.2)", border: "1px solid #ff3366", borderRadius: 8, zIndex: 2 }} />
+                            <div style={{ position: "absolute", bottom: -5, width: "100%", color: "#3ecfcf", fontSize: 13, fontFamily: "'DM Mono', monospace", fontWeight: "bold", letterSpacing: 2 }}>mmap()</div>
+                            <p style={{ position: "absolute", bottom: -25, left: 25, color: "#edeae4", fontSize: 9 }}>1 shared copy!</p>
+                        </div>
+                    )}
+
+                    {/* SCENE 4: Parcel */}
+                    {scene === 4 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                            <div style={{ fontSize: 50, animation: "floatItem 2.5s ease-in-out infinite" }}>📦</div>
+                            <h3 style={{ color: "#f5a623", fontFamily: "'DM Mono', monospace", fontSize: 15, marginTop: 24, letterSpacing: 2 }}>PARCEL</h3>
+                            <p style={{ color: "#7a776f", fontSize: 10, marginTop: 4 }}>Flattened Data</p>
+                        </div>
+                    )}
+
+                    {/* SCENE 5: ioctl */}
+                    {scene === 5 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                            <div style={{ fontSize: 40, color: "#ff3366", marginBottom: 16 }}>🔒</div>
+                            <div style={{ background: "rgba(255,51,102,0.05)", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(255,51,102,0.3)" }}>
+                                <span style={{ color: "#ff3366", fontSize: 10, fontFamily: "'DM Mono', monospace" }}>ioctl(WRITE_READ)</span>
+                            </div>
+                            <p style={{ color: "#edeae4", fontSize: 10, marginTop: 16 }}>Thread Blocked!</p>
+                        </div>
+                    )}
+
+                    {/* SCENE 6: AIDL */}
+                    {scene === 6 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)", width: "100%", padding: 20 }}>
+                            <div style={{ fontSize: 38, marginBottom: 16 }}>🪄</div>
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                                <div style={{ flex: 1, background: "rgba(0,210,255,0.08)", border: "1px solid #00d2ff", padding: "10px 0", borderRadius: 6, fontSize: 10, color: "#00d2ff" }}>PROXY<br/><span style={{fontSize: 8, color:"#7a776f"}}>Client</span></div>
+                                <div style={{ flex: 1, background: "rgba(255,51,102,0.08)", border: "1px solid #ff3366", padding: "10px 0", borderRadius: 6, fontSize: 10, color: "#ff3366" }}>STUB<br/><span style={{fontSize: 8, color:"#7a776f"}}>Server</span></div>
+                            </div>
+                            <div style={{ color: "#f5a623", fontSize: 13, fontFamily: "'DM Mono', monospace", margin: "20px 0 0", letterSpacing: 1 }}>AIDL AUTO-GEN</div>
+                        </div>
+                    )}
+
+                    {/* SCENE 7: Death Notif */}
+                    {scene === 7 && (
+                        <div style={{ textAlign: "center", animation: "sceneFade 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 24 }}>
+                                <div style={{ fontSize: 32 }}>📱</div>
+                                <div style={{ fontSize: 16, color: "#ff3366" }}>←</div>
+                                <div style={{ fontSize: 32 }}>💀</div>
+                            </div>
+                            <div style={{ background: "rgba(245,166,35,0.05)", border: "1px solid rgba(245,166,35,0.3)", padding: "10px 14px", borderRadius: 8, display: "inline-block" }}>
+                                <span style={{ color: "#f5a623", fontSize: 10, fontFamily: "'DM Mono', monospace" }}>linkToDeath()</span>
+                            </div>
+                            <p style={{ color: "#7a776f", fontSize: 10, marginTop: 16 }}>Alerts when app dies</p>
+                        </div>
+                    )}
+
+                </div>
+            </div>
+            {/* Side buttons */}
+            <div style={{ position: "absolute", right: -4, top: 100, width: 4, height: 40, borderRadius: 2, background: "#1a1a1e" }} />
+            <div style={{ position: "absolute", left: -4, top: 90, width: 4, height: 28, borderRadius: 2, background: "#1a1a1e" }} />
+            <div style={{ position: "absolute", left: -4, top: 126, width: 4, height: 28, borderRadius: 2, background: "#1a1a1e" }} />
+        </div>
+    );
+}
+
 export default function BinderIpc() {
   const [activeStep, setActiveStep] = useState(0);
+  const [visMode, setVisMode] = useState("default");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -207,6 +334,11 @@ export default function BinderIpc() {
 
   return (
     <div className={styles.container}>
+      <div style={{ position: 'absolute', top: 30, right: 30, zIndex: 100, display: 'flex', gap: 10, background: 'rgba(255,255,255,0.9)', padding: 12, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <button onClick={() => setVisMode('default')} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: visMode === 'default' ? '#ff3366' : '#e2e8f0', color: visMode === 'default' ? 'white' : '#1e293b', cursor: 'pointer', fontWeight: 'bold' }}>Default View</button>
+        <button onClick={() => setVisMode('phone')} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: visMode === 'phone' ? '#ff3366' : '#e2e8f0', color: visMode === 'phone' ? 'white' : '#1e293b', cursor: 'pointer', fontWeight: 'bold' }}>Phone Mode</button>
+      </div>
+
       <div className={styles.textSectionWrapper}>
         <div style={{height: '10vh'}}></div>
         {SECTIONS.map((section, idx) => (
@@ -219,11 +351,16 @@ export default function BinderIpc() {
             <div>{section.content}</div>
           </div>
         ))}
+        <div style={{height: '30vh'}}></div>
       </div>
       
-      <div className={styles.visWrapper}>
+      <div className={styles.visWrapper} style={{ background: visMode === 'phone' ? '#0b0b0d' : '' }}>
         <div className={styles.visStage}>
-          {renderVis()}
+          {visMode === 'phone' ? (
+            <PhoneVisualBinder scene={activeStep} />
+          ) : (
+            renderVis()
+          )}
         </div>
       </div>
     </div>
