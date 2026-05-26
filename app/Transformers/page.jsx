@@ -1254,6 +1254,7 @@ const CHAPTERS = [
 
 export default function App() {
     const [ch, setCh] = useState(0);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const contentRef = useRef(null);
     const { comp: Chapter, accent } = CHAPTERS[ch];
 
@@ -1286,7 +1287,7 @@ export default function App() {
                     <div style={{ fontSize: 9, color: C.muted, letterSpacing: "3px", textTransform: "uppercase", marginBottom: 4 }}>
                         LLM Internals · Episode 02 · Interactive Course
                     </div>
-                    <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    <div style={{ fontSize: 22, fontWeight: 700 }}>
                         How <span style={{ color: accent, transition: "color .4s" }}>Transformers</span> Actually Work
                     </div>
                 </div>
@@ -1303,31 +1304,52 @@ export default function App() {
             <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
                 {/* Sidebar */}
                 <div style={{
-                    width: 210, borderRight: `1px solid ${C.border}`, padding: "16px 12px",
-                    display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", flexShrink: 0
+                    width: sidebarOpen ? 210 : 48, borderRight: `1px solid ${C.border}`,
+                    padding: sidebarOpen ? "16px 12px" : "16px 8px",
+                    display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", flexShrink: 0,
+                    transition: "width .25s cubic-bezier(.4,0,.2,1), padding .25s cubic-bezier(.4,0,.2,1)"
                 }}>
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
+                        background: `${C.border}30`, border: `1px solid ${C.border2}`,
+                        borderRadius: 7, padding: "6px", cursor: "pointer",
+                        color: C.muted, fontSize: 11, fontFamily: C.mono,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        marginBottom: sidebarOpen ? 8 : 12, transition: "margin .25s"
+                    }}>
+                        {sidebarOpen ? "◁" : "▷"}
+                    </button>
                     {CHAPTERS.map(({ label, accent: a }, i) => (
-                        <button key={i} onClick={() => go(i)} style={{
-                            display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 9,
+                        <button key={i} onClick={() => go(i)} title={!sidebarOpen ? label : undefined} style={{
+                            display: "flex", alignItems: "center", gap: 8, padding: sidebarOpen ? "10px 12px" : "10px 8px", borderRadius: 9,
                             border: `1px solid ${i === ch ? a : C.border}`, cursor: "pointer", textAlign: "left",
-                            background: i === ch ? `${a}12` : "transparent", transition: "all .2s", width: "100%"
+                            background: i === ch ? `${a}12` : "transparent", transition: "all .2s", width: "100%",
+                            justifyContent: sidebarOpen ? "flex-start" : "center"
                         }}>
-                            <div>
-                                <div style={{
-                                    fontFamily: C.mono, fontSize: 10, color: i === ch ? a : C.muted,
-                                    fontWeight: i === ch ? "700" : "400", lineHeight: 1.3
-                                }}>{label}</div>
-                                <div style={{ fontFamily: C.mono, fontSize: 7, color: i < ch ? C.green : C.faint, marginTop: 1 }}>
-                                    {i < ch ? "done" : i === ch ? "in progress" : "—"}
+                            {sidebarOpen ? (
+                                <div>
+                                    <div style={{
+                                        fontFamily: C.mono, fontSize: 10, color: i === ch ? a : C.muted,
+                                        fontWeight: i === ch ? "700" : "400", lineHeight: 1.3
+                                    }}>{label}</div>
+                                    <div style={{ fontFamily: C.mono, fontSize: 7, color: i < ch ? C.green : C.faint, marginTop: 1 }}>
+                                        {i < ch ? "done" : i === ch ? "in progress" : "—"}
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div style={{
+                                    width: 8, height: 8, borderRadius: "50%",
+                                    background: i === ch ? a : i < ch ? C.green : C.faint,
+                                    flexShrink: 0
+                                }} />
+                            )}
                         </button>
                     ))}
                 </div>
 
-                <div>
+                <div style={{ height: 470 }}>
                     <TransformerPixelMovie />
                 </div>
+           
 
                 {/* Main content */}
                 <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "36px 40px 56px" }}>

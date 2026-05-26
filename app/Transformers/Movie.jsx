@@ -607,14 +607,14 @@ export default function TransformerPixelMovie() {
         }}>
             {/* Header */}
             <div style={{ color: "#334155", fontSize: "9px", letterSpacing: "4px", marginBottom: "10px", textTransform: "uppercase" }}>
-                LLM INTERNALS · EPISODE 02 · PIXEL FILM
+                {/* LLM INTERNALS · EPISODE 02 · PIXEL FILM */}
             </div>
 
             {/* Movie Frame */}
             <div style={{
                 width: "100%",
                 maxWidth: "800px",
-                aspectRatio: "2/1",
+                aspectRatio: "2/1.15", // Slightly increases height
                 position: "relative",
                 borderRadius: "8px",
                 overflow: "hidden",
@@ -622,6 +622,7 @@ export default function TransformerPixelMovie() {
                 boxShadow: "0 0 60px rgba(99,102,241,0.12)",
                 background: "#000",
             }}>
+       
                 {/* Background */}
                 <BgComponent />
 
@@ -758,14 +759,16 @@ export default function TransformerPixelMovie() {
                         style={{
                             background: beatIdx >= ch.idx && beatIdx < (ch.idx + 8) ? "#1e293b" : "none",
                             border: `1px solid ${beatIdx >= ch.idx && beatIdx < (ch.idx + 8) ? "#6366f1" : "#1e293b"}`,
-                            color: beatIdx >= ch.idx && beatIdx < (ch.idx + 8) ? "#6366f1" : "#334155",
+                            // Color change for accessibility: use white text on selected (dark bg), keep existing color otherwise
+                            color: beatIdx >= ch.idx && beatIdx < (ch.idx + 8) ? "#fff" : "#334155",
                             padding: "3px 10px", borderRadius: "4px", cursor: "pointer",
-                            fontFamily: "monospace", fontSize: "9px", letterSpacing: "1px",
+                            fontFamily: "monospace", fontSize: "12px", letterSpacing: "1px",
                         }}>
                         {ch.label}
                     </button>
                 ))}
             </div>
+    
 
             <div style={{ marginTop: "10px", fontSize: "8px", color: "#1e293b", fontFamily: "monospace", letterSpacing: "2px" }}>
                 CLICK TIMELINE TO SCRUB · CHAPTER BUTTONS TO JUMP
