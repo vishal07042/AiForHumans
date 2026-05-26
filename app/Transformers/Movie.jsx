@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 // ─────────────────────────────────────────────
 const SCRIPT = [
     // ── COLD OPEN ──────────────────────────────
-    { speaker: null, text: null, duration: 2200, bg: "night", visualKey: "title", caption: "A Pixel Short Film" },
+    { speaker: null, text: null, duration: 2200, bg: "night", visualKey: "title", caption: "" },
 
     // ── ACT 1: INTRO ───────────────────────────
     { speaker: "ARIA", text: "MAX. I have a question.", duration: 2400, bg: "lab", visualKey: "idle", mood: "normal" },
@@ -347,7 +347,7 @@ function Visual({ visualKey, progress }) {
 
     if (visualKey === "title") return (
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-            <div style={{ fontSize: "11px", color: "#475569", letterSpacing: "6px", fontFamily: "monospace", marginBottom: "10px", opacity: p }}>A PIXEL SHORT FILM</div>
+            <div style={{ fontSize: "11px", color: "#475569", letterSpacing: "6px", fontFamily: "monospace", marginBottom: "10px", opacity: p }}></div>
             <div style={{ fontSize: "clamp(18px,4vw,36px)", color: "white", fontFamily: "'Courier New',monospace", fontWeight: "bold", letterSpacing: "2px", textAlign: "center", opacity: p, textShadow: "0 0 30px #6366f1" }}>
                 ATTENTION IS<br />ALL YOU NEED
             </div>
@@ -543,6 +543,12 @@ export default function TransformerPixelMovie() {
 
     const beat = SCRIPT[beatIdx] || SCRIPT[SCRIPT.length - 1];
     const BgComponent = BG_MAP[beat.bg] || BgLab;
+
+    // Auto-play after 2 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => setIsPlaying(true), 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Bob animation
     useEffect(() => {
