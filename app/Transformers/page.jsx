@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import TransformerPixelMovie from "./Movie";
 
 const C = {
     bg: "#060606", card: "#0c0c0c", card2: "#111", card3: "#161616",
@@ -1322,6 +1323,10 @@ export default function App() {
                             </div>
                         </button>
                     ))}
+                </div>
+
+                <div>
+                    <TransformerPixelMovie />
                 </div>
 
                 {/* Main content */}
