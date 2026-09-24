@@ -19,6 +19,8 @@ import '@xyflow/react/dist/style.css';
 
 import { FLOW_NODE_TYPES, type FlowNodeData } from './FlowNodes';
 import { GRAPH, ROOT_ID, type GraphItem } from '../url-shortener/graph';
+import { ARCH_STEPS } from '../url-shortener/arch';
+import ArchDiagram from './ArchDiagram';
 
 const SLOT = 340;
 const DROP = 420;
@@ -81,6 +83,10 @@ function FlowCanvas() {
   const dataCache = useRef(new Map<string, DataRecord>());
   const draggingNode = useRef(false);
   const mountedRef = useRef(false);
+  /** Floating Guide panel: drag offset + size. Null = docked bottom-right. */
+  const asideRef = useRef<HTMLElement | null>(null);
+  const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
+  const [panelSize, setPanelSize] = useState<{ w: number; h: number } | null>(null);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Positions live in React Flow's own store. Once a node is placed, nothing
@@ -350,6 +356,54 @@ function FlowCanvas() {
     requestAnimationFrame(() => fitView({ padding: 0.2, duration: 300 }));
   }, [fitView]);
 
+  const redockPanel = useCallback(() => {
+    setPanelPos(null);
+    setPanelSize(null);
+  }, []);
+
+  const onPanelDragStart = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    const el = asideRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const move = (ev: PointerEvent) => {
+      setPanelPos({
+        x: Math.max(8, Math.min(window.innerWidth - 140, r.left + ev.clientX - sx)),
+        y: Math.max(8, Math.min(window.innerHeight - 140, r.top + ev.clientY - sy)),
+      });
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }, []);
+
+  const onPanelResizeStart = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const el = asideRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const move = (ev: PointerEvent) => {
+      setPanelSize({
+        w: Math.max(280, Math.min(window.innerWidth - 16, r.width + ev.clientX - sx)),
+        h: Math.max(360, Math.min(window.innerHeight - 16, r.height + ev.clientY - sy)),
+      });
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }, []);
+
   // Ctrl+I / Ctrl+O zoom, Shift+Ctrl+mouse-move pans the canvas.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -387,6 +441,7 @@ function FlowCanvas() {
 
   const selected = byId.get(selectedId);
   const expandedCount = visibleItems.length - 1;
+  const unlockedBoxes = ARCH_STEPS.filter((s) => s.requires.every((r) => linked.has(r))).length;
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-slate-900">
@@ -443,9 +498,31 @@ function FlowCanvas() {
         </span>
       </div>
 
-      {/* Guide panel */}
-      <aside className="absolute bottom-4 right-4 top-20 flex w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/90 shadow-2xl backdrop-blur">
-        <div className="border-b border-slate-700/60 px-4 py-3">
+      {/* Guide panel: drag by header, resize by corner, double-click to re-dock */}
+      <aside
+        ref={asideRef}
+        style={
+          panelPos
+            ? {
+                left: panelPos.x,
+                top: panelPos.y,
+                right: 'auto',
+                bottom: 'auto',
+                width: panelSize?.w,
+                height: panelSize?.h,
+              }
+            : panelSize
+              ? { width: panelSize.w, height: panelSize.h }
+              : undefined
+        }
+        className="absolute bottom-4 right-4 top-20 flex w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/90 shadow-2xl backdrop-blur"
+      >
+        <div
+          onPointerDown={onPanelDragStart}
+          onDoubleClick={redockPanel}
+          title="Drag to move · double-click to re-dock"
+          className="cursor-move select-none border-b border-slate-700/60 px-4 py-3 [touch-action:none]"
+        >
           <div className="text-[11px] font-bold uppercase tracking-widest text-sky-400">Guide</div>
           <div className="text-base font-bold text-white">{selected?.label ?? '—'}</div>
           {selected?.tag ? (
@@ -456,9 +533,27 @@ function FlowCanvas() {
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-3 text-sm leading-relaxed text-slate-200">
           <p className="whitespace-pre-line">{selected?.detail}</p>
+
+          <div className="mt-4 border-t border-slate-700/60 pt-3">
+            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-amber-400">
+              Best diagram so far · {unlockedBoxes}/{ARCH_STEPS.length}
+            </div>
+            <ArchDiagram linked={linked} />
+          </div>
         </div>
         <div className="border-t border-slate-700/60 px-4 py-2 text-[11px] font-medium text-slate-300">
           + drops parts below · connect to unlock the next +
+        </div>
+        <div
+          onPointerDown={onPanelResizeStart}
+          title="Drag to resize"
+          className="absolute bottom-1 right-1 z-10 h-6 w-6 cursor-nwse-resize touch-none rounded-tl-lg text-slate-400 hover:text-slate-200"
+          aria-hidden
+        >
+          <svg viewBox="0 0 16 16" className="h-full w-full" fill="currentColor">
+            <path d="M11 2v3h3l-8 8H3v-3l8-8z" opacity="0.9" />
+            <path d="M14 8v6H8l6-6z" opacity="0.5" />
+          </svg>
         </div>
       </aside>
     </div>
