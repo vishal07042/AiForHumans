@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Java Interview Q&amp;A</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0c10;--surface:#0f1117;--card:#13161e;--border:#1e2230;
+  --accent:#00e5a0;--accent2:#00b8ff;--accent3:#ff6b6b;--accent4:#ffd166;
+  --text:#c9d1e0;--muted:#5a6375;--heading:#eef2ff;
+  --code-bg:#080b11;--tag-bg:#0d2a1f;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+.container{max-width:920px;margin:0 auto;padding:60px 24px 120px;position:relative;z-index:1}
+
+/* HEADER */
+header{text-align:center;margin-bottom:60px}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:var(--tag-bg);border:1px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;padding:6px 14px;border-radius:4px;margin-bottom:22px}
+.header-badge::before{content:'◆';font-size:8px}
+h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;color:var(--heading);letter-spacing:-.03em;line-height:1.1;margin-bottom:12px}
+h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--muted);font-size:.88rem;font-family:'JetBrains Mono',monospace}
+.stats{display:flex;justify-content:center;gap:36px;margin-top:28px;flex-wrap:wrap}
+.stat-num{font-size:1.9rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace;display:block}
+.stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem;pointer-events:none}
+#searchInput{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:12px 14px 12px 40px;border-radius:8px;outline:none;transition:border-color .2s}
+#searchInput:focus{border-color:var(--accent)}
+#searchInput::placeholder{color:var(--muted)}
+.ctrl-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ctrl-btn.active{background:var(--tag-bg);border-color:var(--accent);color:var(--accent)}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;margin-bottom:38px;flex-wrap:wrap}
+
+/* SECTION HEADERS */
+.section-header{display:flex;align-items:center;gap:12px;margin:50px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-icon{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.si-platform{background:linear-gradient(135deg,#004d99,#0077ff)}
+.si-wrapper{background:linear-gradient(135deg,#1a4d2e,#00e5a0)}
+.si-strings{background:linear-gradient(135deg,#4d1a00,#ff6b00)}
+.si-oop{background:linear-gradient(135deg,#2d004d,#a020f0)}
+.si-advanced{background:linear-gradient(135deg,#004d3d,#00e5c0)}
+.si-modifiers{background:linear-gradient(135deg,#4d3d00,#ffd166)}
+.si-conditions{background:linear-gradient(135deg,#4d0022,#ff6b6b)}
+.si-exceptions{background:linear-gradient(135deg,#4d1a1a,#ff4444)}
+.si-misc{background:linear-gradient(135deg,#2a2a2a,#888888)}
+.si-collections{background:linear-gradient(135deg,#1a1a4d,#6666ff)}
+.si-advcollections{background:linear-gradient(135deg,#1a003d,#9900cc)}
+.si-generics{background:linear-gradient(135deg,#003d1a,#00cc55)}
+.si-threading{background:linear-gradient(135deg,#3d2800,#cc8800)}
+.si-functional{background:linear-gradient(135deg,#003333,#00cccc)}
+.section-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--muted)}
+.section-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted)}
+
+/* QA CARDS */
+.qa-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.qa-card:hover{border-color:#252a3c}
+.qa-card.open{border-color:var(--accent)}
+.qa-toggle{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:16px 18px;text-align:left;color:inherit}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);background:var(--tag-bg);border:1px solid rgba(0,229,160,.2);padding:3px 8px;border-radius:4px;flex-shrink:0;min-width:40px;text-align:center;font-weight:700}
+.q-text{font-size:.92rem;font-weight:600;color:var(--heading);flex:1;line-height:1.4}
+.qa-card.open .q-text{color:var(--accent)}
+.chevron{flex-shrink:0;color:var(--muted);transition:transform .3s;font-size:.65rem}
+.qa-card.open .chevron{transform:rotate(180deg);color:var(--accent)}
+.qa-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.qa-body-inner{padding:0 18px 20px;border-top:1px solid var(--border);padding-top:16px}
+.qa-body-inner p{font-size:.875rem;color:var(--text);margin-bottom:10px;line-height:1.75}
+.qa-body-inner ul,.qa-body-inner ol{margin:8px 0 12px 18px;font-size:.85rem}
+.qa-body-inner li{margin-bottom:5px;line-height:1.65}
+.qa-body-inner strong{color:var(--heading)}
+
+/* CODE */
+pre{background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.75;color:#c9d1e0}
+.kw{color:#00b8ff;font-weight:600}
+.str{color:#00e5a0}
+.cm{color:#363f55;font-style:italic}
+.cls{color:#ffd166}
+.num{color:#ff9f43}
+.ann{color:#a29bfe}
+.out{color:#ff6b6b}
+
+/* CALLOUTS */
+.note{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.15);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent);margin:10px 0}
+.warn{background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.2);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent3);margin:10px 0}
+.info{background:rgba(0,184,255,.05);border:1px solid rgba(0,184,255,.15);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent2);margin:10px 0}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:.8rem;margin:10px 0}
+th{background:var(--code-bg);color:var(--accent);text-align:left;padding:9px 13px;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+td{padding:8px 13px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+
+.no-results{text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:60px 20px;display:none}
+.progress-bar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s;z-index:100}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+@media(max-width:600px){.container{padding:28px 14px 80px}.stats{gap:18px}h1{font-size:1.9rem}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="container">
+
+<header>
+  <div class="header-badge">Java Interview Prep</div>
+  <h1>Master <span>Java</span><br/>Interview Questions</h1>
+  <p class="subtitle">// 220 questions · 14 sections · click to reveal answers</p>
+  <div class="stats">
+    <div class="stat"><span class="stat-num">220</span><span class="stat-label">Questions</span></div>
+    <div class="stat"><span class="stat-num">14</span><span class="stat-label">Topics</span></div>
+    <div class="stat"><span class="stat-num" id="openCount">0</span><span class="stat-label">Opened</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap"><input type="text" id="searchInput" placeholder="Search questions..."/></div>
+  <button class="ctrl-btn" onclick="expandAll()">Expand All</button>
+  <button class="ctrl-btn" onclick="collapseAll()">Collapse All</button>
+</div>
+
+<div class="filters">
+  <button class="ctrl-btn active" onclick="filterSection('all',this)">All</button>
+  <button class="ctrl-btn" onclick="filterSection('platform',this)">☕ Platform</button>
+  <button class="ctrl-btn" onclick="filterSection('wrapper',this)">📦 Wrappers</button>
+  <button class="ctrl-btn" onclick="filterSection('strings',this)">🔤 Strings</button>
+  <button class="ctrl-btn" onclick="filterSection('oop',this)">🏗 OOP</button>
+  <button class="ctrl-btn" onclick="filterSection('advanced',this)">⚡ Advanced OOP</button>
+  <button class="ctrl-btn" onclick="filterSection('modifiers',this)">🔒 Modifiers</button>
+  <button class="ctrl-btn" onclick="filterSection('conditions',this)">🔁 Conditions</button>
+  <button class="ctrl-btn" onclick="filterSection('exceptions',this)">🚨 Exceptions</button>
+  <button class="ctrl-btn" onclick="filterSection('misc',this)">🧩 Misc</button>
+  <button class="ctrl-btn" onclick="filterSection('collections',this)">📚 Collections</button>
+  <button class="ctrl-btn" onclick="filterSection('advcollections',this)">⚙️ Adv Collections</button>
+  <button class="ctrl-btn" onclick="filterSection('generics',this)">🧬 Generics</button>
+  <button class="ctrl-btn" onclick="filterSection('threading',this)">🧵 Threading</button>
+  <button class="ctrl-btn" onclick="filterSection('functional',this)">λ Functional</button>
+</div>
+
+<div id="qaContainer">
+
+<!-- ═══════════════════════════════════ PLATFORM ═══════════════════════════════════ -->
+<div class="section-header" data-section="platform">
+  <div class="section-icon si-platform">☕</div>
+  <div class="section-title">Java Platform</div>
+  <div class="section-count">Q1 – Q6</div>
+</div>
+
+<div class="qa-card" data-section="platform"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q01</span><span class="q-text">Why is Java so popular?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Java became dominant because of a unique combination of features that addressed real pain points of the 1990s software world:</p>
+<ul>
+<li><strong>Platform Independence</strong> – Write Once, Run Anywhere (WORA). Compile to bytecode, run on any JVM.</li>
+<li><strong>Object-Oriented</strong> – Everything is an object. Promotes code reuse, modularity, and clean design.</li>
+<li><strong>Automatic Memory Management</strong> – Garbage Collector handles allocation/deallocation; no manual <code>free()</code>.</li>
+<li><strong>Strongly Typed &amp; Safe</strong> – Type safety, array bounds checking, no raw pointers.</li>
+<li><strong>Rich Standard Library</strong> – Collections, I/O, networking, concurrency — all built in.</li>
+<li><strong>Multi-threading Support</strong> – First-class threading APIs baked in.</li>
+<li><strong>Massive Ecosystem</strong> – Spring, Hibernate, Maven, Android — decades of tooling.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="platform"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q02</span><span class="q-text">What is platform independence?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Platform independence means the same compiled Java code runs on any OS without modification. Achieved via the JVM abstraction layer.</p>
+<pre><span class="cm">// Step 1: Write Java source → Step 2: javac compiles to .class (bytecode)
+// Step 3: Any JVM on any OS interprets that bytecode</span>
+<span class="kw">public class</span> <span class="cls">Hello</span> {
+    <span class="kw">public static void</span> main(<span class="cls">String</span>[] args) {
+        <span class="cls">System</span>.out.println(<span class="str">"Hello, World!"</span>);
+    }
+}</pre>
+<div class="note">💡 The JVM itself is NOT platform-independent — but your Java code is.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="platform"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q03</span><span class="q-text">What is bytecode?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Bytecode is the <strong>intermediate binary representation</strong> produced by <code>javac</code> — neither raw source nor native machine code. It's OS-agnostic and runs on any JVM.</p>
+<pre><span class="cm">// javap -c Hello.class  (simplified view)</span>
+<span class="num">0</span>: getstatic     #2   <span class="cm">// Field java/lang/System.out</span>
+<span class="num">3</span>: ldc           #3   <span class="cm">// String "Hello"</span>
+<span class="num">5</span>: invokevirtual #4   <span class="cm">// Method println</span>
+<span class="num">8</span>: return</pre>
+<p>The JVM can <strong>interpret</strong> bytecode or <strong>JIT-compile</strong> it to native code for performance.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="platform"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q04</span><span class="q-text">Compare JDK vs JVM vs JRE</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Component</th><th>Full Form</th><th>Purpose</th><th>Contains</th></tr>
+<tr><td><strong>JVM</strong></td><td>Java Virtual Machine</td><td>Runs bytecode</td><td>Interpreter + JIT + GC + Class Loader</td></tr>
+<tr><td><strong>JRE</strong></td><td>Java Runtime Environment</td><td>Runs Java apps (end-user)</td><td>JVM + standard libraries</td></tr>
+<tr><td><strong>JDK</strong></td><td>Java Development Kit</td><td>Develops Java apps</td><td>JRE + javac + javap + jdb + tools</td></tr>
+</table>
+<pre><span class="cm">// Nested relationship: JDK ⊃ JRE ⊃ JVM</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="platform"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q05</span><span class="q-text">What are the important differences between C++ and Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Feature</th><th>Java</th><th>C++</th></tr>
+<tr><td>Platform</td><td>Platform independent (JVM)</td><td>Platform dependent (native binary)</td></tr>
+<tr><td>Memory</td><td>Garbage collected</td><td>Manual (new/delete)</td></tr>
+<tr><td>Pointers</td><td>No raw pointers (references only)</td><td>Full pointer arithmetic</td></tr>
+<tr><td>Multiple Inheritance</td><td>Via interfaces only</td><td>Full class multiple inheritance</td></tr>
+<tr><td>Operator Overloading</td><td>Not allowed</td><td>Allowed</td></tr>
+<tr><td>Compilation</td><td>→ Bytecode → JIT</td><td>→ Native machine code</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="platform"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q06</span><span class="q-text">What is the role of a ClassLoader in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The ClassLoader <strong>loads .class files into JVM memory</strong> at runtime. Three built-in loaders (delegation hierarchy):</p>
+<ul>
+<li><strong>Bootstrap</strong> – Loads core Java classes (<code>java.lang.*</code>). Written in native code.</li>
+<li><strong>Extension/Platform</strong> – Loads from <code>jre/lib/ext</code>.</li>
+<li><strong>Application</strong> – Loads your app classes from classpath.</li>
+</ul>
+<pre><span class="cls">ClassLoader</span> cl = <span class="cls">MyClass</span>.<span class="kw">class</span>.getClassLoader();
+<span class="cls">System</span>.out.println(cl);                 <span class="cm">// AppClassLoader</span>
+<span class="cls">System</span>.out.println(cl.getParent());     <span class="cm">// PlatformClassLoader</span>
+<span class="cls">System</span>.out.println(cl.getParent().getParent()); <span class="cm">// null (Bootstrap)</span></pre>
+<div class="note">💡 Custom ClassLoaders power hot-reload in Spring Boot DevTools, OSGi, and Tomcat.</div>
+</div></div></div>
+
+<!-- ═══════════════════════════════════ WRAPPERS ═══════════════════════════════════ -->
+<div class="section-header" data-section="wrapper">
+  <div class="section-icon si-wrapper">📦</div>
+  <div class="section-title">Wrapper Classes</div>
+  <div class="section-count">Q7 – Q15</div>
+</div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q07</span><span class="q-text">What are Wrapper classes?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Wrapper classes are <strong>object representations of primitive types</strong> in <code>java.lang</code>:</p>
+<table>
+<tr><th>Primitive</th><th>Wrapper</th><th>Primitive</th><th>Wrapper</th></tr>
+<tr><td>int</td><td>Integer</td><td>float</td><td>Float</td></tr>
+<tr><td>long</td><td>Long</td><td>boolean</td><td>Boolean</td></tr>
+<tr><td>double</td><td>Double</td><td>char</td><td>Character</td></tr>
+<tr><td>byte</td><td>Byte</td><td>short</td><td>Short</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q08</span><span class="q-text">Why do we need Wrapper classes in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Collections require objects</strong> – <code>List&lt;Integer&gt;</code> works; <code>List&lt;int&gt;</code> doesn't.</li>
+<li><strong>Null support</strong> – primitives can't be null; <code>Integer</code> can.</li>
+<li><strong>Utility methods</strong> – <code>Integer.parseInt()</code>, <code>Integer.toBinaryString()</code>, etc.</li>
+<li><strong>Generics &amp; Reflection</strong> – type parameters require reference types.</li>
+</ul>
+<pre><span class="cls">List</span>&lt;<span class="cls">Integer</span>&gt; list = <span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+list.add(<span class="num">42</span>);  <span class="cm">// autoboxed to Integer.valueOf(42)</span>
+<span class="kw">int</span> parsed = <span class="cls">Integer</span>.parseInt(<span class="str">"123"</span>);</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q09</span><span class="q-text">What are the different ways of creating Wrapper class instances?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cm">// 1. Constructor (deprecated since Java 9)</span>
+<span class="cls">Integer</span> i1 = <span class="kw">new</span> <span class="cls">Integer</span>(<span class="num">42</span>);
+
+<span class="cm">// 2. Static factory — preferred</span>
+<span class="cls">Integer</span> i2 = <span class="cls">Integer</span>.valueOf(<span class="num">42</span>);
+
+<span class="cm">// 3. Autoboxing (compiler generates valueOf)</span>
+<span class="cls">Integer</span> i3 = <span class="num">42</span>;
+
+<span class="cm">// 4. Parse from String</span>
+<span class="cls">Integer</span> i4 = <span class="cls">Integer</span>.valueOf(<span class="str">"42"</span>);
+<span class="kw">int</span>     i5 = <span class="cls">Integer</span>.parseInt(<span class="str">"42"</span>);  <span class="cm">// returns primitive</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q10</span><span class="q-text">What are differences in the two ways of creating Wrapper classes?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Aspect</th><th>new Integer(42)</th><th>Integer.valueOf(42)</th></tr>
+<tr><td>Caching</td><td>Always new object</td><td>Caches -128 to 127</td></tr>
+<tr><td>Memory</td><td>Less efficient</td><td>More efficient for small values</td></tr>
+<tr><td>Deprecated</td><td>✅ Yes (Java 9+)</td><td>❌ No — preferred</td></tr>
+</table>
+<pre><span class="cls">Integer</span> a = <span class="cls">Integer</span>.valueOf(<span class="num">127</span>);
+<span class="cls">Integer</span> b = <span class="cls">Integer</span>.valueOf(<span class="num">127</span>);
+<span class="cls">System</span>.out.println(a == b);  <span class="cm">// true  — same cached object</span>
+
+<span class="cls">Integer</span> c = <span class="cls">Integer</span>.valueOf(<span class="num">128</span>);
+<span class="cls">Integer</span> d = <span class="cls">Integer</span>.valueOf(<span class="num">128</span>);
+<span class="cls">System</span>.out.println(c == d);  <span class="cm">// false — outside cache range</span></pre>
+<div class="warn">⚠️ Always use .equals() for Wrapper comparisons, never ==</div>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q11</span><span class="q-text">What is autoboxing?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Autoboxing is the <strong>automatic conversion</strong> between a primitive and its Wrapper class, done by the Java compiler.</p>
+<pre><span class="cls">Integer</span> x = <span class="num">5</span>;     <span class="cm">// autoboxing: compiled as Integer.valueOf(5)</span>
+<span class="kw">int</span>     y = x;     <span class="cm">// unboxing:   compiled as x.intValue()</span>
+
+<span class="cls">List</span>&lt;<span class="cls">Integer</span>&gt; list = <span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+list.add(<span class="num">10</span>);              <span class="cm">// autoboxed</span>
+<span class="kw">int</span> val = list.get(<span class="num">0</span>);    <span class="cm">// unboxed</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q12</span><span class="q-text">What are the advantages of autoboxing?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Less boilerplate</strong> – No manual valueOf/intValue calls everywhere.</li>
+<li><strong>Cleaner generic code</strong> – <code>list.add(5)</code> instead of <code>list.add(Integer.valueOf(5))</code>.</li>
+<li><strong>Interoperability</strong> – Primitives and Wrappers mix naturally in expressions.</li>
+</ul>
+<div class="warn">⚠️ Watch out: unboxing a null Wrapper throws NullPointerException!
+<pre style="margin-top:8px;background:transparent;border:none;padding:0"><span class="cls">Integer</span> i = <span class="kw">null</span>;
+<span class="kw">int</span> val = i;  <span class="cm">// NullPointerException — calls null.intValue()</span></pre></div>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q13</span><span class="q-text">What is casting?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Casting is <strong>converting a value from one type to another</strong>. Two kinds: implicit (widening) and explicit (narrowing).</p>
+<pre><span class="kw">int</span> i = <span class="num">42</span>;
+<span class="kw">double</span> d = i;         <span class="cm">// implicit — int → double, no data loss</span>
+<span class="kw">int</span> back = (<span class="kw">int</span>) d;  <span class="cm">// explicit — double → int, may truncate</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q14</span><span class="q-text">What is implicit casting?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>Widening conversion</strong> — happens automatically when assigning a smaller type to a larger type. No data is lost.</p>
+<pre><span class="kw">byte</span>  b = <span class="num">10</span>;
+<span class="kw">short</span> s = b;   <span class="cm">// byte → short</span>
+<span class="kw">int</span>   i = s;   <span class="cm">// short → int</span>
+<span class="kw">long</span>  l = i;   <span class="cm">// int → long</span>
+<span class="kw">float</span> f = l;   <span class="cm">// long → float</span>
+<span class="kw">double</span> d = f;  <span class="cm">// float → double</span>
+<span class="cm">// Order: byte → short → int → long → float → double</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="wrapper"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q15</span><span class="q-text">What is explicit casting?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>Narrowing conversion</strong> — you must manually specify the target type. Data loss is possible.</p>
+<pre><span class="kw">double</span> d = <span class="num">9.99</span>;
+<span class="kw">int</span> i = (<span class="kw">int</span>) d;        <span class="cm">// truncates → i = 9</span>
+
+<span class="cm">// Object casting</span>
+<span class="cls">Object</span> obj = <span class="str">"Hello"</span>;
+<span class="cls">String</span> s = (<span class="cls">String</span>) obj;     <span class="cm">// OK</span>
+<span class="cm">// Integer n = (Integer) obj; // ClassCastException at runtime!</span>
+
+<span class="cm">// Safe with instanceof (Java 16+ pattern matching)</span>
+<span class="kw">if</span> (obj <span class="kw">instanceof</span> <span class="cls">String</span> str) {
+    <span class="cls">System</span>.out.println(str.length());
+}</pre>
+</div></div></div>
+
+<!-- ═══════════════════════════════════ STRINGS ═══════════════════════════════════ -->
+<div class="section-header" data-section="strings">
+  <div class="section-icon si-strings">🔤</div>
+  <div class="section-title">Strings</div>
+  <div class="section-count">Q16 – Q22</div>
+</div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q16</span><span class="q-text">Are all Strings immutable?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Yes — <code>java.lang.String</code> objects are <strong>always immutable</strong>. Any "modification" creates a new String object.</p>
+<pre><span class="cls">String</span> s = <span class="str">"Hello"</span>;
+s.toUpperCase();         <span class="cm">// returns new String — s unchanged!</span>
+<span class="cls">System</span>.out.println(s);  <span class="cm">// still "Hello"</span>
+
+s = s.toUpperCase();     <span class="cm">// now s points to new "HELLO" object</span></pre>
+<div class="note">💡 Immutability makes Strings thread-safe, safe as HashMap keys, and enables the String Pool optimization.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q17</span><span class="q-text">Where are String values stored in memory?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>String literals go into the <strong>String Pool</strong> (part of the Heap since Java 7+). The JVM reuses pooled Strings to save memory.</p>
+<pre><span class="cls">String</span> a = <span class="str">"Java"</span>;            <span class="cm">// stored in pool</span>
+<span class="cls">String</span> b = <span class="str">"Java"</span>;            <span class="cm">// reuses same pool object</span>
+<span class="cls">System</span>.out.println(a == b);   <span class="cm">// true  — same reference</span>
+
+<span class="cls">String</span> c = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"Java"</span>); <span class="cm">// always new heap object</span>
+<span class="cls">System</span>.out.println(a == c);   <span class="cm">// false — different object</span>
+<span class="cls">System</span>.out.println(a == c.intern()); <span class="cm">// true — intern() forces pool</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q18</span><span class="q-text">Why should you be careful about String concatenation (+) in loops?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Because String is immutable, each <code>+</code> creates a <strong>new String object</strong>, copying all previous content. This is O(n²) time and memory.</p>
+<pre><span class="cm">// BAD — O(n²)</span>
+<span class="cls">String</span> result = <span class="str">""</span>;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">10000</span>; i++) {
+    result += i;  <span class="cm">// new String object every iteration!</span>
+}
+<span class="cm">// At iteration n: copies n characters → total = 1+2+...+10000 ≈ 50M copies</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q19</span><span class="q-text">How do you solve the String concatenation in loop problem?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Use <strong>StringBuilder</strong> — uses a mutable char array internally, appending is O(1) amortized.</p>
+<pre><span class="cm">// GOOD — O(n)</span>
+<span class="cls">StringBuilder</span> sb = <span class="kw">new</span> <span class="cls">StringBuilder</span>();
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">10000</span>; i++) {
+    sb.append(i);
+}
+<span class="cls">String</span> result = sb.toString();
+
+<span class="cm">// Or with streams:</span>
+<span class="cls">String</span> s = <span class="cls">IntStream</span>.range(<span class="num">0</span>, <span class="num">10000</span>)
+    .mapToObj(<span class="cls">Integer</span>::toString)
+    .collect(<span class="cls">Collectors</span>.joining());</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q20</span><span class="q-text">What are differences between String and StringBuffer?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Feature</th><th>String</th><th>StringBuffer</th></tr>
+<tr><td>Mutability</td><td>Immutable</td><td>Mutable</td></tr>
+<tr><td>Thread Safety</td><td>Thread-safe (immutable)</td><td>Thread-safe (synchronized)</td></tr>
+<tr><td>Performance</td><td>Slow for repeated concat</td><td>Slower than StringBuilder</td></tr>
+<tr><td>Use Case</td><td>Fixed text, keys, constants</td><td>Multi-threaded string building</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q21</span><span class="q-text">What are differences between StringBuilder and StringBuffer?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Feature</th><th>StringBuilder</th><th>StringBuffer</th></tr>
+<tr><td>Thread Safety</td><td>❌ Not thread-safe</td><td>✅ Synchronized</td></tr>
+<tr><td>Performance</td><td>Faster (no lock overhead)</td><td>Slower</td></tr>
+<tr><td>Introduced</td><td>Java 5</td><td>Java 1.0</td></tr>
+<tr><td>Use When</td><td>Single-threaded (99% of cases)</td><td>Shared across threads</td></tr>
+</table>
+<div class="note">💡 Default to StringBuilder. Use StringBuffer only when multiple threads write to the same builder.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="strings"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q22</span><span class="q-text">Can you give examples of different utility methods in String class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cls">String</span> s = <span class="str">"  Hello, Java World!  "</span>;
+s.length()                <span class="cm">// 22</span>
+s.trim()                  <span class="cm">// "Hello, Java World!"</span>
+s.strip()                 <span class="cm">// Java 11 — Unicode-aware trim</span>
+s.toUpperCase()           <span class="cm">// "  HELLO, JAVA WORLD!  "</span>
+s.contains(<span class="str">"Java"</span>)       <span class="cm">// true</span>
+s.replace(<span class="str">"Java"</span>, <span class="str">"Go"</span>)  <span class="cm">// "  Hello, Go World!  "</span>
+s.substring(<span class="num">2</span>, <span class="num">7</span>)         <span class="cm">// "Hello"</span>
+s.split(<span class="str">","</span>)             <span class="cm">// ["  Hello", " Java World!  "]</span>
+s.startsWith(<span class="str">"  He"</span>)    <span class="cm">// true</span>
+s.isEmpty()               <span class="cm">// false</span>
+s.isBlank()               <span class="cm">// false (Java 11)</span>
+<span class="cls">String</span>.format(<span class="str">"%s=%d"</span>, <span class="str">"x"</span>, <span class="num">5</span>)  <span class="cm">// "x=5"</span>
+s.equals(<span class="str">"other"</span>)        <span class="cm">// false</span>
+s.equalsIgnoreCase(<span class="str">"hello"</span>) <span class="cm">// false (spaces differ)</span></pre>
+</div></div></div>
+
+<!-- ═══════════════════════════════════ OOP ═══════════════════════════════════ -->
+<div class="section-header" data-section="oop">
+  <div class="section-icon si-oop">🏗</div>
+  <div class="section-title">Object Oriented Programming Basics</div>
+  <div class="section-count">Q23 – Q54</div>
+</div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q23</span><span class="q-text">What is a class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A class is a <strong>blueprint/template</strong> defining the structure (fields) and behavior (methods) of objects.</p>
+<pre><span class="kw">public class</span> <span class="cls">Car</span> {
+    <span class="kw">private</span> <span class="cls">String</span> brand;  <span class="cm">// state</span>
+    <span class="kw">private int</span> speed;
+    <span class="kw">public</span> <span class="cls">Car</span>(<span class="cls">String</span> brand) { <span class="kw">this</span>.brand = brand; }
+    <span class="kw">public void</span> accelerate(<span class="kw">int</span> amount) { speed += amount; } <span class="cm">// behavior</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q24</span><span class="q-text">What is an object?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>An object is a <strong>concrete instance</strong> of a class — exists on the heap with its own copy of the state.</p>
+<pre><span class="cls">Car</span> myCar  = <span class="kw">new</span> <span class="cls">Car</span>(<span class="str">"Toyota"</span>);
+<span class="cls">Car</span> yourCar = <span class="kw">new</span> <span class="cls">Car</span>(<span class="str">"Honda"</span>); <span class="cm">// separate object, separate state</span>
+myCar.accelerate(<span class="num">60</span>);
+<span class="cls">System</span>.out.println(yourCar.getSpeed()); <span class="cm">// 0 — independent</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q25</span><span class="q-text">What is state of an object?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The <strong>state</strong> is the set of values held in an object's instance variables at a given moment — "what the object currently knows."</p>
+<pre><span class="cls">Car</span> car = <span class="kw">new</span> <span class="cls">Car</span>(<span class="str">"BMW"</span>); <span class="cm">// state: brand="BMW", speed=0</span>
+car.accelerate(<span class="num">100</span>);      <span class="cm">// state: brand="BMW", speed=100</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q26</span><span class="q-text">What is behavior of an object?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The <strong>behavior</strong> is what an object can do — defined by its methods. Behavior reads or modifies state, or interacts with other objects.</p>
+<pre><span class="cm">// Behaviors of a Car:</span>
+car.accelerate(<span class="num">50</span>);   <span class="cm">// changes state</span>
+car.brake();          <span class="cm">// changes state</span>
+car.getSpeed();       <span class="cm">// reads state</span>
+car.honk();           <span class="cm">// side effect / environment interaction</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q27</span><span class="q-text">What is the super class of every class in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>java.lang.Object</code> is the root superclass of every Java class.</p>
+<pre><span class="cm">// Key methods inherited from Object:</span>
+obj.toString()    <span class="cm">// "ClassName@hashcode" by default</span>
+obj.equals(other) <span class="cm">// reference equality by default</span>
+obj.hashCode()    <span class="cm">// identity hash code</span>
+obj.getClass()    <span class="cm">// returns Class&lt;?&gt;</span>
+obj.clone()       <span class="cm">// shallow copy (needs Cloneable)</span>
+obj.wait()        <span class="cm">// thread coordination</span>
+obj.notify()      <span class="cm">// thread coordination</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q28</span><span class="q-text">Explain about toString method?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>toString()</code> returns a <strong>human-readable string</strong> of an object. Called automatically on print/concat. Override for useful output.</p>
+<pre><span class="cm">// Default: Car@1b6d3586 — not useful</span>
+<span class="ann">@Override</span>
+<span class="kw">public</span> <span class="cls">String</span> toString() {
+    <span class="kw">return</span> <span class="str">"Car{brand='"</span> + brand + <span class="str">"', speed="</span> + speed + <span class="str">"}"</span>;
+}
+<span class="cls">System</span>.out.println(<span class="kw">new</span> <span class="cls">Car</span>(<span class="str">"BMW"</span>)); <span class="cm">// Car{brand='BMW', speed=0}</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q29</span><span class="q-text">What is the use of equals method in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>equals()</code> is for <strong>logical/content equality</strong>. Default from Object checks reference equality (same as ==). Override it to compare fields.</p>
+<pre><span class="cls">String</span> a = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"hello"</span>);
+<span class="cls">String</span> b = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"hello"</span>);
+a == b        <span class="cm">// false — different refs</span>
+a.equals(b)   <span class="cm">// true  — same content</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q30</span><span class="q-text">What are the important things to consider when implementing equals?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The equals contract (from Object Javadoc):</p>
+<ul>
+<li><strong>Reflexive</strong>: <code>x.equals(x)</code> = true</li>
+<li><strong>Symmetric</strong>: <code>x.equals(y)</code> ↔ <code>y.equals(x)</code></li>
+<li><strong>Transitive</strong>: x=y and y=z → x=z</li>
+<li><strong>Consistent</strong>: same result on repeated calls</li>
+<li><strong>Null-safe</strong>: <code>x.equals(null)</code> must return false</li>
+</ul>
+<pre><span class="ann">@Override</span>
+<span class="kw">public boolean</span> equals(<span class="cls">Object</span> o) {
+    <span class="kw">if</span> (<span class="kw">this</span> == o) <span class="kw">return true</span>;
+    <span class="kw">if</span> (!(o <span class="kw">instanceof</span> <span class="cls">Point</span> p)) <span class="kw">return false</span>;
+    <span class="kw">return</span> x == p.x &amp;&amp; y == p.y;
+}</pre>
+<div class="warn">⚠️ Always override hashCode() when you override equals() — or HashMap/HashSet will break.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q31</span><span class="q-text">What is the hashCode method used for in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>hashCode()</code> returns an integer used by hash-based collections (HashMap, HashSet) to determine storage buckets.</p>
+<p>Contract: if <code>a.equals(b)</code> → <code>a.hashCode() == b.hashCode()</code>. The reverse is not required (hash collisions are OK).</p>
+<pre><span class="ann">@Override</span>
+<span class="kw">public int</span> hashCode() {
+    <span class="kw">return</span> <span class="cls">Objects</span>.hash(x, y); <span class="cm">// easy and correct</span>
+}
+
+<span class="cm">// Without proper hashCode, HashMap lookup fails:</span>
+<span class="cls">Map</span>&lt;<span class="cls">Point</span>, <span class="cls">String</span>&gt; map = <span class="kw">new</span> <span class="cls">HashMap</span>&lt;&gt;();
+map.put(<span class="kw">new</span> <span class="cls">Point</span>(<span class="num">1</span>,<span class="num">2</span>), <span class="str">"A"</span>);
+map.get(<span class="kw">new</span> <span class="cls">Point</span>(<span class="num">1</span>,<span class="num">2</span>)); <span class="cm">// null — if hashCode not overridden!</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q32</span><span class="q-text">Explain inheritance with examples.</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Inheritance lets a subclass <strong>acquire fields and methods</strong> of a superclass via <code>extends</code>.</p>
+<pre><span class="kw">class</span> <span class="cls">Animal</span> {
+    <span class="cls">String</span> name;
+    <span class="kw">void</span> eat() { <span class="cls">System</span>.out.println(name + <span class="str">" eats"</span>); }
+}
+<span class="kw">class</span> <span class="cls">Dog</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+    <span class="kw">void</span> bark() { <span class="cls">System</span>.out.println(name + <span class="str">" barks"</span>); }
+}
+<span class="cls">Dog</span> d = <span class="kw">new</span> <span class="cls">Dog</span>();
+d.name = <span class="str">"Rex"</span>;
+d.eat();   <span class="cm">// inherited — "Rex eats"</span>
+d.bark();  <span class="cm">// own method — "Rex barks"</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q33</span><span class="q-text">What is method overloading?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Multiple methods with <strong>same name but different parameter lists</strong> in the same class. Resolved at <strong>compile-time</strong> (static polymorphism).</p>
+<pre><span class="kw">class</span> <span class="cls">Calculator</span> {
+    <span class="kw">int</span>    add(<span class="kw">int</span> a, <span class="kw">int</span> b)          { <span class="kw">return</span> a + b; }
+    <span class="kw">double</span> add(<span class="kw">double</span> a, <span class="kw">double</span> b)   { <span class="kw">return</span> a + b; }
+    <span class="kw">int</span>    add(<span class="kw">int</span> a, <span class="kw">int</span> b, <span class="kw">int</span> c) { <span class="kw">return</span> a + b + c; }
+    <span class="cm">// NOTE: return type alone does NOT make overloading</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q34</span><span class="q-text">What is method overriding?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A subclass provides a <strong>new implementation</strong> for a superclass method. Same name, same signature. Resolved at <strong>runtime</strong> (dynamic polymorphism).</p>
+<pre><span class="kw">class</span> <span class="cls">Animal</span> { <span class="kw">void</span> sound() { <span class="cls">System</span>.out.println(<span class="str">"..."</span>); } }
+<span class="kw">class</span> <span class="cls">Cat</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">void</span> sound() { <span class="cls">System</span>.out.println(<span class="str">"Meow"</span>); }
+}
+<span class="cls">Animal</span> a = <span class="kw">new</span> <span class="cls">Cat</span>();
+a.sound();  <span class="cm">// "Meow" — runtime dispatch picks Cat's version</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q35</span><span class="q-text">Can super class reference variable hold an object of sub class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>Yes</strong> — foundation of polymorphism. Superclass ref can point to a subclass object. Runtime dispatches to actual object's method.</p>
+<pre><span class="cls">Animal</span> a = <span class="kw">new</span> <span class="cls">Dog</span>();  <span class="cm">// Dog IS-A Animal ✅</span>
+a.eat();               <span class="cm">// Dog's eat() if overridden</span>
+<span class="cm">// a.bark();           COMPILE ERROR — Animal ref can't see Dog methods</span>
+((<span class="cls">Dog</span>) a).bark();      <span class="cm">// OK — cast to access Dog-specific method</span>
+
+<span class="cls">Animal</span>[] zoo = { <span class="kw">new</span> <span class="cls">Dog</span>(), <span class="kw">new</span> <span class="cls">Cat</span>() };
+<span class="kw">for</span> (<span class="cls">Animal</span> x : zoo) x.sound(); <span class="cm">// each calls its own version</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q36</span><span class="q-text">Is multiple inheritance allowed in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>No</strong> — Java forbids multiple class inheritance (Diamond Problem). But a class can implement <strong>multiple interfaces</strong>.</p>
+<pre><span class="cm">// class C extends A, B { }  ← COMPILE ERROR</span>
+
+<span class="kw">interface</span> <span class="cls">Flyable</span>  { <span class="kw">void</span> fly(); }
+<span class="kw">interface</span> <span class="cls">Swimmable</span> { <span class="kw">void</span> swim(); }
+
+<span class="kw">class</span> <span class="cls">Duck</span> <span class="kw">implements</span> <span class="cls">Flyable</span>, <span class="cls">Swimmable</span> {
+    <span class="kw">public void</span> fly()  { <span class="cls">System</span>.out.println(<span class="str">"Duck flies"</span>); }
+    <span class="kw">public void</span> swim() { <span class="cls">System</span>.out.println(<span class="str">"Duck swims"</span>); }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q37</span><span class="q-text">What is an interface?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>An interface is a <strong>contract</strong> defining what a class must do without specifying how. From Java 8+, interfaces can have <code>default</code> and <code>static</code> methods with bodies.</p>
+<pre><span class="kw">interface</span> <span class="cls">Shape</span> {
+    <span class="kw">double</span> area();  <span class="cm">// abstract — must implement</span>
+    <span class="kw">default void</span> describe() {  <span class="cm">// Java 8+ — optional override</span>
+        <span class="cls">System</span>.out.println(<span class="str">"Area: "</span> + area());
+    }
+    <span class="kw">static</span> <span class="cls">Shape</span> circle(<span class="kw">double</span> r) {  <span class="cm">// Java 8+ static factory</span>
+        <span class="kw">return</span> () -&gt; <span class="cls">Math</span>.PI * r * r;
+    }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q38</span><span class="q-text">How do you define an interface?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">public interface</span> <span class="cls">Printable</span> {
+    <span class="kw">int</span> MAX_SIZE = <span class="num">100</span>;         <span class="cm">// implicitly public static final</span>
+    <span class="kw">void</span> print();               <span class="cm">// implicitly public abstract</span>
+    <span class="kw">default void</span> printTwice() { print(); print(); }  <span class="cm">// Java 8+</span>
+    <span class="kw">static void</span> help() { <span class="cls">System</span>.out.println(<span class="str">"Implement print()"</span>); }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q39</span><span class="q-text">How do you implement an interface?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">class</span> <span class="cls">Document</span> <span class="kw">implements</span> <span class="cls">Printable</span> {
+    <span class="kw">private</span> <span class="cls">String</span> content;
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> print() { <span class="cls">System</span>.out.println(content); }
+    <span class="cm">// printTwice() is inherited from interface default</span>
+}
+<span class="cls">Printable</span> p = <span class="kw">new</span> <span class="cls">Document</span>();
+p.print(); p.printTwice();</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q40</span><span class="q-text">Can you explain a few tricky things about interfaces?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>All fields are implicitly <code>public static final</code>.</li>
+<li>All methods are implicitly <code>public abstract</code> (unless default/static).</li>
+<li>You cannot instantiate an interface directly.</li>
+<li>Diamond problem with default methods: if two interfaces share a default method, the implementing class MUST override it.</li>
+</ul>
+<pre><span class="kw">interface</span> <span class="cls">A</span> { <span class="kw">default void</span> greet() { <span class="cls">System</span>.out.println(<span class="str">"Hi A"</span>); } }
+<span class="kw">interface</span> <span class="cls">B</span> { <span class="kw">default void</span> greet() { <span class="cls">System</span>.out.println(<span class="str">"Hi B"</span>); } }
+
+<span class="kw">class</span> <span class="cls">C</span> <span class="kw">implements</span> <span class="cls">A</span>, <span class="cls">B</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> greet() { <span class="cls">A</span>.<span class="kw">super</span>.greet(); } <span class="cm">// must resolve explicitly</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q41</span><span class="q-text">Can you extend an interface?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Yes — an interface can extend <strong>one or more interfaces</strong>.</p>
+<pre><span class="kw">interface</span> <span class="cls">Readable</span>  { <span class="kw">void</span> read(); }
+<span class="kw">interface</span> <span class="cls">Writable</span>  { <span class="kw">void</span> write(); }
+<span class="kw">interface</span> <span class="cls">ReadWrite</span> <span class="kw">extends</span> <span class="cls">Readable</span>, <span class="cls">Writable</span> {
+    <span class="kw">void</span> flush();
+}
+<span class="cm">// Implementing class must fulfill all 3 methods</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q42</span><span class="q-text">Can a class extend multiple interfaces?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Yes — a class can <strong>implement multiple interfaces</strong>. (Classes implement; interfaces extend.)</p>
+<pre><span class="kw">class</span> <span class="cls">SmartPhone</span> <span class="kw">implements</span> <span class="cls">Callable</span>, <span class="cls">Browsable</span>, <span class="cls">Photographable</span> {
+    <span class="kw">public void</span> call()      { <span class="cm">/* ... */</span> }
+    <span class="kw">public void</span> browse()    { <span class="cm">/* ... */</span> }
+    <span class="kw">public void</span> takePhoto() { <span class="cm">/* ... */</span> }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q43</span><span class="q-text">What is an abstract class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A class declared with <code>abstract</code> that <strong>cannot be instantiated</strong>. Can have both abstract methods (no body) and concrete methods.</p>
+<pre><span class="kw">abstract class</span> <span class="cls">Vehicle</span> {
+    <span class="kw">protected</span> <span class="cls">String</span> fuel;
+    <span class="kw">void</span> refuel() { <span class="cls">System</span>.out.println(<span class="str">"Refueling..."</span>); } <span class="cm">// concrete</span>
+    <span class="kw">abstract void</span> move();                                  <span class="cm">// abstract</span>
+}
+<span class="kw">class</span> <span class="cls">EV</span> <span class="kw">extends</span> <span class="cls">Vehicle</span> {
+    <span class="ann">@Override</span> <span class="kw">void</span> move() { <span class="cls">System</span>.out.println(<span class="str">"Silent zoom"</span>); }
+}
+<span class="cm">// new Vehicle() — COMPILE ERROR</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q44</span><span class="q-text">When do you use an abstract class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>You want to share <strong>common implementation</strong> among related classes.</li>
+<li>You need <strong>non-public members</strong> (protected fields, package-private methods).</li>
+<li>You need shared <strong>state (instance fields)</strong> — interfaces can't hold instance state.</li>
+<li>You want a <strong>template method pattern</strong> — skeleton algorithm, subclasses fill in steps.</li>
+</ul>
+<pre><span class="kw">abstract class</span> <span class="cls">DataProcessor</span> {
+    <span class="kw">final void</span> process() { readData(); processData(); writeData(); }
+    <span class="kw">abstract void</span> processData(); <span class="cm">// subclasses define this</span>
+    <span class="kw">void</span> readData()  { <span class="cm">/* default */</span> }
+    <span class="kw">void</span> writeData() { <span class="cm">/* default */</span> }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q45</span><span class="q-text">How do you define an abstract method?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">abstract class</span> <span class="cls">Shape</span> {
+    <span class="kw">public abstract double</span> area();      <span class="cm">// no body — ends with ;</span>
+    <span class="kw">public abstract double</span> perimeter();
+
+    <span class="kw">public void</span> describe() {  <span class="cm">// concrete — has body</span>
+        <span class="cls">System</span>.out.printf(<span class="str">"Area=%.2f%n"</span>, area());
+    }
+}
+<span class="cm">// Rules:
+// - Abstract method ONLY in abstract class (or interface)
+// - Subclass MUST implement ALL abstract methods, or itself be abstract</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q46</span><span class="q-text">Compare abstract class vs interface</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Feature</th><th>Abstract Class</th><th>Interface</th></tr>
+<tr><td>Multiple inheritance</td><td>❌ Single extends</td><td>✅ Multiple implements</td></tr>
+<tr><td>Instance fields</td><td>✅ Yes</td><td>❌ Only static final</td></tr>
+<tr><td>Constructors</td><td>✅ Yes</td><td>❌ No</td></tr>
+<tr><td>Access modifiers</td><td>Any</td><td>Only public</td></tr>
+<tr><td>Method bodies</td><td>✅ Yes</td><td>Only via default/static</td></tr>
+<tr><td>Best for</td><td>Shared code + IS-A hierarchy</td><td>Capability contract (CAN-DO)</td></tr>
+</table>
+<div class="note">💡 Rule: interface for capability ("can fly"), abstract class for shared code ("is an Animal").</div>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q47</span><span class="q-text">What is a constructor?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A special method called when an object is created. Same name as class, no return type. Initializes object state.</p>
+<pre><span class="kw">class</span> <span class="cls">Person</span> {
+    <span class="cls">String</span> name; <span class="kw">int</span> age;
+    <span class="cls">Person</span>(<span class="cls">String</span> name, <span class="kw">int</span> age) {
+        <span class="kw">this</span>.name = name; <span class="kw">this</span>.age = age;
+    }
+}
+<span class="cls">Person</span> p = <span class="kw">new</span> <span class="cls">Person</span>(<span class="str">"Alice"</span>, <span class="num">30</span>);</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q48</span><span class="q-text">What is a default constructor?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <strong>no-arg constructor automatically provided by the compiler</strong> if you don't define any constructor yourself.</p>
+<pre><span class="kw">class</span> <span class="cls">Box</span> {
+    <span class="kw">int</span> width;
+    <span class="cm">// Compiler generates: Box() { super(); }</span>
+}
+<span class="cls">Box</span> b = <span class="kw">new</span> <span class="cls">Box</span>(); <span class="cm">// OK</span>
+
+<span class="kw">class</span> <span class="cls">Box2</span> {
+    <span class="cls">Box2</span>(<span class="kw">int</span> w) { } <span class="cm">// custom constructor defined</span>
+    <span class="cm">// Box2() no longer auto-generated!</span>
+    <span class="cm">// new Box2() → COMPILE ERROR</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q49</span><span class="q-text">How do you call a super class constructor from a constructor?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Use <code>super()</code> as the <strong>very first statement</strong> in the constructor.</p>
+<pre><span class="kw">class</span> <span class="cls">Animal</span> {
+    <span class="cls">String</span> name;
+    <span class="cls">Animal</span>(<span class="cls">String</span> name) { <span class="kw">this</span>.name = name; }
+}
+<span class="kw">class</span> <span class="cls">Dog</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+    <span class="cls">String</span> breed;
+    <span class="cls">Dog</span>(<span class="cls">String</span> name, <span class="cls">String</span> breed) {
+        <span class="kw">super</span>(name);   <span class="cm">// ← MUST be first statement</span>
+        <span class="kw">this</span>.breed = breed;
+    }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q50</span><span class="q-text">What is the use of this()?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>this()</code> is used for <strong>constructor chaining</strong> — calling another constructor of the same class to avoid duplication.</p>
+<pre><span class="kw">class</span> <span class="cls">Person</span> {
+    <span class="cls">String</span> name; <span class="kw">int</span> age; <span class="cls">String</span> city;
+
+    <span class="cls">Person</span>(<span class="cls">String</span> name)                      { <span class="kw">this</span>(name, <span class="num">0</span>); }
+    <span class="cls">Person</span>(<span class="cls">String</span> name, <span class="kw">int</span> age)             { <span class="kw">this</span>(name, age, <span class="str">"Unknown"</span>); }
+    <span class="cls">Person</span>(<span class="cls">String</span> name, <span class="kw">int</span> age, <span class="cls">String</span> city) {
+        <span class="kw">this</span>.name = name; <span class="kw">this</span>.age = age; <span class="kw">this</span>.city = city;
+    }
+}</pre>
+<div class="note">💡 this() must be the FIRST statement. You cannot use both this() and super() in the same constructor.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q51</span><span class="q-text">Can a constructor be called directly from a method?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>No</strong> — constructors cannot be called like regular methods. Valid invocations: <code>new ClassName()</code>, <code>this()</code> (from constructor), <code>super()</code> (from constructor).</p>
+<pre><span class="kw">class</span> <span class="cls">Foo</span> {
+    <span class="cls">Foo</span>() { }
+    <span class="kw">void</span> someMethod() {
+        <span class="cls">Foo</span>();      <span class="cm">// ❌ COMPILE ERROR</span>
+        <span class="kw">new</span> <span class="cls">Foo</span>(); <span class="cm">// ✅ creates a new object (usually not intended)</span>
+    }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q52</span><span class="q-text">Is a super class constructor called even when there is no explicit call from a sub class constructor?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>Yes</strong> — the compiler automatically inserts <code>super()</code> as the first statement if you don't write it. The entire superclass chain up to <code>Object</code> is always initialized.</p>
+<pre><span class="kw">class</span> <span class="cls">Animal</span> {
+    <span class="cls">Animal</span>() { <span class="cls">System</span>.out.println(<span class="str">"Animal constructor"</span>); }
+}
+<span class="kw">class</span> <span class="cls">Dog</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+    <span class="cls">Dog</span>() {
+        <span class="cm">// compiler inserts: super(); here automatically</span>
+        <span class="cls">System</span>.out.println(<span class="str">"Dog constructor"</span>);
+    }
+}
+<span class="kw">new</span> <span class="cls">Dog</span>();
+<span class="cm">// Output:
+// Animal constructor  ← called automatically!
+// Dog constructor</span></pre>
+<div class="warn">⚠️ This is why missing a no-arg constructor in the superclass (when a parameterized one exists) breaks subclass compilation.</div>
+</div></div></div>
+
+<!-- ═══════════════════════════════════ ADVANCED OOP ═══════════════════════════════════ -->
+<div class="section-header" data-section="advanced">
+  <div class="section-icon si-advanced">⚡</div>
+  <div class="section-title">Advanced Object Oriented Concepts</div>
+  <div class="section-count">Q53 – Q63</div>
+</div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q53</span><span class="q-text">What is polymorphism?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Polymorphism means <strong>"many forms"</strong> — an object behaving differently depending on the context. Two types in Java:</p>
+<ul>
+<li><strong>Compile-time (static)</strong> — method overloading. Resolved by the compiler.</li>
+<li><strong>Runtime (dynamic)</strong> — method overriding via inheritance. Resolved by JVM at runtime.</li>
+</ul>
+<pre><span class="cm">// Compile-time polymorphism</span>
+<span class="kw">class</span> <span class="cls">Printer</span> {
+    <span class="kw">void</span> print(<span class="cls">String</span> s) { <span class="cls">System</span>.out.println(s); }
+    <span class="kw">void</span> print(<span class="kw">int</span> n)    { <span class="cls">System</span>.out.println(n); }
+}
+
+<span class="cm">// Runtime polymorphism</span>
+<span class="kw">class</span> <span class="cls">Animal</span>  { <span class="kw">void</span> speak() { <span class="cls">System</span>.out.println(<span class="str">"..."</span>); } }
+<span class="kw">class</span> <span class="cls">Dog</span> <span class="kw">extends</span> <span class="cls">Animal</span> { <span class="kw">void</span> speak() { <span class="cls">System</span>.out.println(<span class="str">"Woof"</span>); } }
+<span class="kw">class</span> <span class="cls">Cat</span> <span class="kw">extends</span> <span class="cls">Animal</span> { <span class="kw">void</span> speak() { <span class="cls">System</span>.out.println(<span class="str">"Meow"</span>); } }
+
+<span class="cls">Animal</span>[] animals = { <span class="kw">new</span> <span class="cls">Dog</span>(), <span class="kw">new</span> <span class="cls">Cat</span>() };
+<span class="kw">for</span> (<span class="cls">Animal</span> a : animals) a.speak(); <span class="cm">// Woof, Meow</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q54</span><span class="q-text">What is the use of instanceof operator in Java?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>instanceof</code> checks whether an object is an <strong>instance of a given class or implements an interface</strong> at runtime. Returns <code>boolean</code>.</p>
+<pre><span class="cls">Animal</span> a = <span class="kw">new</span> <span class="cls">Dog</span>();
+<span class="cls">System</span>.out.println(a <span class="kw">instanceof</span> <span class="cls">Animal</span>);  <span class="cm">// true</span>
+<span class="cls">System</span>.out.println(a <span class="kw">instanceof</span> <span class="cls">Dog</span>);     <span class="cm">// true</span>
+<span class="cls">System</span>.out.println(a <span class="kw">instanceof</span> <span class="cls">Cat</span>);     <span class="cm">// false</span>
+
+<span class="cm">// Traditional pattern</span>
+<span class="kw">if</span> (a <span class="kw">instanceof</span> <span class="cls">Dog</span>) {
+    <span class="cls">Dog</span> d = (<span class="cls">Dog</span>) a;
+    d.bark();
+}
+
+<span class="cm">// Java 16+ pattern matching — cleaner!</span>
+<span class="kw">if</span> (a <span class="kw">instanceof</span> <span class="cls">Dog</span> d) {
+    d.bark();  <span class="cm">// d is already cast and bound</span>
+}</pre>
+<div class="note">💡 null instanceof AnyType always returns false — never throws NPE.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q55</span><span class="q-text">What is coupling?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Coupling measures <strong>how much one class depends on another</strong>. The goal is <strong>loose coupling</strong> — changes in one class should minimally impact others.</p>
+<table>
+<tr><th></th><th>Tight Coupling</th><th>Loose Coupling</th></tr>
+<tr><td>Dependency</td><td>Concrete class</td><td>Interface / abstraction</td></tr>
+<tr><td>Testability</td><td>Hard to mock</td><td>Easy to mock</td></tr>
+<tr><td>Changeability</td><td>Ripple effects</td><td>Isolated changes</td></tr>
+</table>
+<pre><span class="cm">// TIGHT — Engine knows about exactly one Fuel type</span>
+<span class="kw">class</span> <span class="cls">Engine</span> {
+    <span class="cls">Petrol</span> fuel = <span class="kw">new</span> <span class="cls">Petrol</span>(); <span class="cm">// hard dependency</span>
+}
+
+<span class="cm">// LOOSE — Engine depends on an abstraction</span>
+<span class="kw">interface</span> <span class="cls">Fuel</span> { <span class="kw">void</span> combust(); }
+<span class="kw">class</span> <span class="cls">Engine</span> {
+    <span class="cls">Fuel</span> fuel; <span class="cm">// inject any Fuel implementation</span>
+    <span class="cls">Engine</span>(<span class="cls">Fuel</span> fuel) { <span class="kw">this</span>.fuel = fuel; }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q56</span><span class="q-text">What is cohesion?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Cohesion measures <strong>how focused a class is on a single, well-defined responsibility</strong>. The goal is <strong>high cohesion</strong>.</p>
+<pre><span class="cm">// LOW cohesion — does everything badly</span>
+<span class="kw">class</span> <span class="cls">UserManager</span> {
+    <span class="kw">void</span> registerUser() { }
+    <span class="kw">void</span> sendEmail() { }
+    <span class="kw">void</span> generateReport() { }
+    <span class="kw">void</span> saveToDatabase() { }
+}
+
+<span class="cm">// HIGH cohesion — each class has one clear job</span>
+<span class="kw">class</span> <span class="cls">UserService</span>   { <span class="kw">void</span> register() { } }
+<span class="kw">class</span> <span class="cls">EmailService</span>  { <span class="kw">void</span> send() { } }
+<span class="kw">class</span> <span class="cls">ReportService</span> { <span class="kw">void</span> generate() { } }</pre>
+<div class="note">💡 High cohesion + Loose coupling = the SOLID principles in action.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q57</span><span class="q-text">What is encapsulation?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Encapsulation is <strong>bundling data (fields) and methods that operate on that data into a single unit</strong>, and restricting direct access to internal state via access modifiers.</p>
+<pre><span class="kw">public class</span> <span class="cls">BankAccount</span> {
+    <span class="kw">private double</span> balance;  <span class="cm">// hidden — can't be touched directly</span>
+
+    <span class="kw">public void</span> deposit(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount &gt; <span class="num">0</span>) balance += amount;  <span class="cm">// controlled access</span>
+    }
+    <span class="kw">public double</span> getBalance() { <span class="kw">return</span> balance; }
+}
+
+<span class="cls">BankAccount</span> acc = <span class="kw">new</span> <span class="cls">BankAccount</span>();
+<span class="cm">// acc.balance = -1000; ← COMPILE ERROR — encapsulated!</span>
+acc.deposit(<span class="num">500</span>);</pre>
+<p>Benefits: data integrity, controlled mutations, abstraction, easier testing.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q58</span><span class="q-text">What is an inner class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>An inner class is a <strong>class defined inside another class</strong>. It has access to all members (including private) of the outer class.</p>
+<pre><span class="kw">class</span> <span class="cls">Outer</span> {
+    <span class="kw">private int</span> x = <span class="num">10</span>;
+
+    <span class="kw">class</span> <span class="cls">Inner</span> {          <span class="cm">// non-static inner class</span>
+        <span class="kw">void</span> show() {
+            <span class="cls">System</span>.out.println(<span class="str">"x = "</span> + x);  <span class="cm">// accesses outer's x</span>
+        }
+    }
+}
+
+<span class="cls">Outer</span> outer = <span class="kw">new</span> <span class="cls">Outer</span>();
+<span class="cls">Outer</span>.<span class="cls">Inner</span> inner = outer.<span class="kw">new</span> <span class="cls">Inner</span>(); <span class="cm">// needs outer instance</span>
+inner.show();  <span class="cm">// x = 10</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q59</span><span class="q-text">What is a static inner class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A static nested class is declared with <code>static</code>. It does <strong>NOT</strong> hold a reference to the outer instance — can only access outer's <strong>static members</strong>.</p>
+<pre><span class="kw">class</span> <span class="cls">Outer</span> {
+    <span class="kw">private static int</span> count = <span class="num">5</span>;
+    <span class="kw">private int</span> val = <span class="num">10</span>;  <span class="cm">// non-static — inaccessible from static nested</span>
+
+    <span class="kw">static class</span> <span class="cls">Nested</span> {
+        <span class="kw">void</span> show() {
+            <span class="cls">System</span>.out.println(count);  <span class="cm">// OK — static member</span>
+            <span class="cm">// System.out.println(val); ← COMPILE ERROR</span>
+        }
+    }
+}
+
+<span class="cls">Outer</span>.<span class="cls">Nested</span> n = <span class="kw">new</span> <span class="cls">Outer</span>.<span class="cls">Nested</span>(); <span class="cm">// no outer instance needed!</span>
+n.show();</pre>
+<div class="note">💡 Builder pattern commonly uses static nested classes (e.g., AlertDialog.Builder).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q60</span><span class="q-text">Can you create an inner class inside a method?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Yes — this is called a <strong>local class</strong>. It's defined inside a method and can only be used within that method. Can access effectively-final local variables.</p>
+<pre><span class="kw">void</span> doSomething() {
+    <span class="kw">int</span> multiplier = <span class="num">3</span>;  <span class="cm">// effectively final</span>
+
+    <span class="kw">class</span> <span class="cls">LocalMultiplier</span> {
+        <span class="kw">int</span> multiply(<span class="kw">int</span> x) {
+            <span class="kw">return</span> x * multiplier; <span class="cm">// can access effectively-final local</span>
+        }
+    }
+
+    <span class="cls">LocalMultiplier</span> lm = <span class="kw">new</span> <span class="cls">LocalMultiplier</span>();
+    <span class="cls">System</span>.out.println(lm.multiply(<span class="num">5</span>)); <span class="cm">// 15</span>
+}  <span class="cm">// LocalMultiplier is invisible outside this method</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="advanced"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q61</span><span class="q-text">What is an anonymous class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>An anonymous class is a <strong>class defined and instantiated in one expression</strong> — no name. Used to provide one-off implementations of an interface or abstract class.</p>
+<pre><span class="cm">// Without lambda — anonymous class</span>
+<span class="cls">Runnable</span> r = <span class="kw">new</span> <span class="cls">Runnable</span>() {
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> run() {
+        <span class="cls">System</span>.out.println(<span class="str">"Running anonymously!"</span>);
+    }
+};
+
+<span class="cm">// Abstract class — anonymous implementation</span>
+<span class="kw">abstract class</span> <span class="cls">Greeter</span> { <span class="kw">abstract void</span> greet(); }
+
+<span class="cls">Greeter</span> g = <span class="kw">new</span> <span class="cls">Greeter</span>() {
+    <span class="ann">@Override</span>
+    <span class="kw">void</span> greet() { <span class="cls">System</span>.out.println(<span class="str">"Hello from anon!"</span>); }
+};
+g.greet();
+
+<span class="cm">// Modern equivalent for functional interfaces:</span>
+<span class="cls">Runnable</span> r2 = () -&gt; <span class="cls">System</span>.out.println(<span class="str">"Lambda is cleaner!"</span>);</pre>
+</div></div></div>
+
+<!-- ═══════════════════════════════════ MODIFIERS ═══════════════════════════════════ -->
+<div class="section-header" data-section="modifiers">
+  <div class="section-icon si-modifiers">🔒</div>
+  <div class="section-title">Modifiers</div>
+  <div class="section-count">Q62 – Q76</div>
+</div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q62</span><span class="q-text">What is default class modifier?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>When a class has <strong>no access modifier</strong>, it has <strong>package-private (default) access</strong> — visible only within the same package.</p>
+<pre><span class="cm">// File: com/example/Helper.java</span>
+<span class="kw">class</span> <span class="cls">Helper</span> {          <span class="cm">// no modifier — package-private</span>
+    <span class="kw">void</span> assist() { }
+}
+
+<span class="cm">// com.example.Service — same package — OK</span>
+<span class="cls">Helper</span> h = <span class="kw">new</span> <span class="cls">Helper</span>();
+
+<span class="cm">// com.other.Client — different package — COMPILE ERROR</span>
+<span class="cm">// Helper h = new Helper(); ← inaccessible</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q63</span><span class="q-text">What is private access modifier?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>private</code> is the <strong>most restrictive modifier</strong>. Members are accessible only within the <strong>same class</strong>.</p>
+<pre><span class="kw">public class</span> <span class="cls">Account</span> {
+    <span class="kw">private double</span> balance;     <span class="cm">// only Account can touch this</span>
+    <span class="kw">private void</span> validate() { } <span class="cm">// only Account can call this</span>
+
+    <span class="kw">public void</span> deposit(<span class="kw">double</span> amt) {
+        validate();       <span class="cm">// OK — same class</span>
+        balance += amt;   <span class="cm">// OK — same class</span>
+    }
+}
+<span class="cm">// new Account().balance = 0; ← COMPILE ERROR outside Account</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q64</span><span class="q-text">What is default or package access modifier?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>When <strong>no modifier is written</strong>, the member is accessible to all classes in the <strong>same package only</strong>.</p>
+<pre><span class="kw">package</span> com.example;
+
+<span class="kw">class</span> <span class="cls">Util</span> {
+    <span class="kw">int</span> helperValue = <span class="num">42</span>;   <span class="cm">// package-private field</span>
+    <span class="kw">void</span> doWork() { }       <span class="cm">// package-private method</span>
+}
+
+<span class="cm">// com.example.Service — same package ✅</span>
+<span class="cm">// com.other.App       — different package ❌</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q65</span><span class="q-text">What is protected access modifier?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>protected</code> members are accessible within the <strong>same package</strong> AND by <strong>subclasses</strong> (even in different packages).</p>
+<pre><span class="kw">package</span> animals;
+<span class="kw">public class</span> <span class="cls">Animal</span> {
+    <span class="kw">protected</span> <span class="cls">String</span> name;
+    <span class="kw">protected void</span> breathe() { <span class="cls">System</span>.out.println(<span class="str">"breathing"</span>); }
+}
+
+<span class="kw">package</span> pets; <span class="cm">// different package!</span>
+<span class="kw">import</span> animals.Animal;
+<span class="kw">class</span> <span class="cls">Dog</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+    <span class="kw">void</span> show() {
+        name = <span class="str">"Rex"</span>;  <span class="cm">// ✅ subclass can access protected</span>
+        breathe();     <span class="cm">// ✅ same</span>
+    }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q66</span><span class="q-text">What is public access modifier?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>public</code> is the <strong>least restrictive</strong> modifier. Accessible from <strong>anywhere</strong> — any class, any package.</p>
+<pre><span class="kw">public class</span> <span class="cls">MathUtils</span> {
+    <span class="kw">public static double</span> PI = <span class="num">3.14159</span>;
+    <span class="kw">public static double</span> sqrt(<span class="kw">double</span> n) { <span class="kw">return</span> <span class="cls">Math</span>.sqrt(n); }
+}
+
+<span class="cm">// Accessible from ANYWHERE:</span>
+<span class="cls">System</span>.out.println(<span class="cls">MathUtils</span>.PI);
+<span class="cls">System</span>.out.println(<span class="cls">MathUtils</span>.sqrt(<span class="num">16</span>)); <span class="cm">// 4.0</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q67</span><span class="q-text">What access types of variables can be accessed from a class in same package?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>From a class in the <strong>same package</strong>, all of the following are accessible:</p>
+<table>
+<tr><th>Modifier</th><th>Same Package?</th></tr>
+<tr><td>public</td><td>✅ Yes</td></tr>
+<tr><td>protected</td><td>✅ Yes</td></tr>
+<tr><td>default (no modifier)</td><td>✅ Yes</td></tr>
+<tr><td>private</td><td>❌ No</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q68</span><span class="q-text">What access types of variables can be accessed from a class in different package?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Modifier</th><th>Different Package (non-subclass)?</th></tr>
+<tr><td>public</td><td>✅ Yes</td></tr>
+<tr><td>protected</td><td>❌ No</td></tr>
+<tr><td>default</td><td>❌ No</td></tr>
+<tr><td>private</td><td>❌ No</td></tr>
+</table>
+<div class="note">💡 Only <code>public</code> crosses package boundaries for non-subclass access.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q69</span><span class="q-text">What access types of variables can be accessed from a sub class in same package?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Modifier</th><th>Subclass, Same Package?</th></tr>
+<tr><td>public</td><td>✅ Yes</td></tr>
+<tr><td>protected</td><td>✅ Yes</td></tr>
+<tr><td>default</td><td>✅ Yes</td></tr>
+<tr><td>private</td><td>❌ No</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q70</span><span class="q-text">What access types of variables can be accessed from a sub class in different package?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Modifier</th><th>Subclass, Different Package?</th></tr>
+<tr><td>public</td><td>✅ Yes</td></tr>
+<tr><td>protected</td><td>✅ Yes (inherited members via subclass ref)</td></tr>
+<tr><td>default</td><td>❌ No</td></tr>
+<tr><td>private</td><td>❌ No</td></tr>
+</table>
+<div class="note">💡 This is the key difference: <code>protected</code> crosses packages only for subclasses.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q71</span><span class="q-text">What is the use of a final modifier on a class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <code>final</code> class <strong>cannot be subclassed/extended</strong>. Prevents modification of behavior through inheritance.</p>
+<pre><span class="kw">public final class</span> <span class="cls">String</span> { }   <span class="cm">// java.lang.String is final</span>
+<span class="kw">public final class</span> <span class="cls">Integer</span> { }  <span class="cm">// so is Integer</span>
+
+<span class="kw">final class</span> <span class="cls">ImmutablePoint</span> {
+    <span class="kw">final int</span> x, y;
+    <span class="cls">ImmutablePoint</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) { <span class="kw">this</span>.x = x; <span class="kw">this</span>.y = y; }
+}
+<span class="cm">// class SubPoint extends ImmutablePoint { } ← COMPILE ERROR</span></pre>
+<p>Use when: immutability is required, or you want to prevent unintended extension (security, API stability).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q72</span><span class="q-text">What is the use of a final modifier on a method?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <code>final</code> method <strong>cannot be overridden</strong> by subclasses. Guarantees the method's behavior remains unchanged in the inheritance hierarchy.</p>
+<pre><span class="kw">class</span> <span class="cls">Template</span> {
+    <span class="kw">final void</span> run() {       <span class="cm">// locked — cannot override</span>
+        setup();
+        execute();
+        teardown();
+    }
+    <span class="kw">void</span> execute() { }      <span class="cm">// overrideable — subclass fills in</span>
+}
+
+<span class="kw">class</span> <span class="cls">ConcreteTask</span> <span class="kw">extends</span> <span class="cls">Template</span> {
+    <span class="ann">@Override</span> <span class="kw">void</span> execute() { <span class="cls">System</span>.out.println(<span class="str">"Doing task"</span>); }
+    <span class="cm">// void run() { }  ← COMPILE ERROR — run() is final</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q73</span><span class="q-text">What is a final variable?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <code>final</code> variable can only be <strong>assigned once</strong> — it becomes a constant after initialization.</p>
+<pre><span class="cm">// Instance final — must be set in constructor</span>
+<span class="kw">class</span> <span class="cls">Circle</span> {
+    <span class="kw">final double</span> radius;
+    <span class="cls">Circle</span>(<span class="kw">double</span> r) { radius = r; }
+    <span class="cm">// radius = 5; ← COMPILE ERROR after assignment</span>
+}
+
+<span class="cm">// Static final — compile-time constant</span>
+<span class="kw">static final double</span> PI = <span class="num">3.14159265</span>;
+
+<span class="cm">// Final reference — reference can't change, object can still mutate!</span>
+<span class="kw">final</span> <span class="cls">List</span>&lt;<span class="cls">String</span>&gt; list = <span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+list.add(<span class="str">"OK"</span>);  <span class="cm">// ✅ list contents can change</span>
+<span class="cm">// list = new ArrayList<>();  ← COMPILE ERROR — ref can't change</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q74</span><span class="q-text">What is a final argument?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <code>final</code> parameter means you cannot <strong>reassign the parameter variable</strong> inside the method. The object it points to can still be mutated.</p>
+<pre><span class="kw">void</span> process(<span class="kw">final int</span> count, <span class="kw">final</span> <span class="cls">List</span>&lt;<span class="cls">String</span>&gt; items) {
+    <span class="cm">// count = 10; ← COMPILE ERROR — can't reassign</span>
+    items.add(<span class="str">"new item"</span>); <span class="cm">// ✅ OK — list object can change</span>
+    <span class="cm">// items = new ArrayList<>(); ← COMPILE ERROR</span>
+}
+
+<span class="cm">// Useful for: anonymous inner classes that capture variables,
+// or documenting intent that the param is read-only.</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q75</span><span class="q-text">What happens when a variable is marked as volatile?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>volatile</code> tells the JVM that this variable may be <strong>accessed by multiple threads</strong>. It guarantees:</p>
+<ul>
+<li><strong>Visibility</strong> – Every read sees the latest write from any thread (no CPU cache staleness).</li>
+<li><strong>No reordering</strong> – Writes/reads to volatile aren't reordered past each other.</li>
+</ul>
+<p>It does <strong>NOT</strong> guarantee atomicity for compound operations like <code>i++</code>.</p>
+<pre><span class="kw">class</span> <span class="cls">StopFlag</span> {
+    <span class="kw">volatile boolean</span> running = <span class="kw">true</span>; <span class="cm">// all threads see latest value</span>
+
+    <span class="kw">void</span> stop() { running = <span class="kw">false</span>; }
+
+    <span class="kw">void</span> work() {
+        <span class="kw">while</span> (running) { <span class="cm">/* do work */</span> }
+        <span class="cm">// without volatile, loop might never see running=false!</span>
+    }
+}
+
+<span class="cm">// For compound ops, use AtomicInteger instead:</span>
+<span class="cls">AtomicInteger</span> counter = <span class="kw">new</span> <span class="cls">AtomicInteger</span>();
+counter.incrementAndGet(); <span class="cm">// thread-safe i++</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="modifiers"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q76</span><span class="q-text">What is a static variable?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <code>static</code> variable belongs to the <strong>class itself</strong>, not to individual instances. There is only one copy, shared by all objects of the class.</p>
+<pre><span class="kw">class</span> <span class="cls">Counter</span> {
+    <span class="kw">static int</span> count = <span class="num">0</span>;  <span class="cm">// ONE copy shared by all instances</span>
+    <span class="kw">int</span> id;                <span class="cm">// each instance gets its own id</span>
+
+    <span class="cls">Counter</span>() {
+        count++;
+        id = count;
+    }
+}
+
+<span class="cls">Counter</span> a = <span class="kw">new</span> <span class="cls">Counter</span>();
+<span class="cls">Counter</span> b = <span class="kw">new</span> <span class="cls">Counter</span>();
+<span class="cls">Counter</span> c = <span class="kw">new</span> <span class="cls">Counter</span>();
+
+<span class="cls">System</span>.out.println(<span class="cls">Counter</span>.count); <span class="cm">// 3 — shared</span>
+<span class="cls">System</span>.out.println(a.id);           <span class="cm">// 1</span>
+<span class="cls">System</span>.out.println(b.id);           <span class="cm">// 2</span></pre>
+<div class="note">💡 static variables are initialized when the class is first loaded by the ClassLoader.</div>
+</div></div></div>
+
+<!-- ═══════════════════════════════════ CONDITIONS & LOOPS ═══════════════════════════════════ -->
+<div class="section-header" data-section="conditions">
+  <div class="section-icon si-conditions">🔁</div>
+  <div class="section-title">Conditions &amp; Loops</div>
+  <div class="section-count">Q77 – Q90</div>
+</div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q77</span><span class="q-text">Why should you always use blocks around if statements?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Without braces, only the <strong>immediately next statement</strong> is part of the if. Adding more statements later silently breaks logic — the classic "dangling else" trap.</p>
+<pre><span class="cm">// DANGEROUS — no braces</span>
+<span class="kw">if</span> (isAdmin)
+    <span class="cls">System</span>.out.println(<span class="str">"Welcome admin"</span>);
+    deleteAllData();  <span class="cm">// runs ALWAYS! Not part of if.</span>
+
+<span class="cm">// SAFE — always use braces</span>
+<span class="kw">if</span> (isAdmin) {
+    <span class="cls">System</span>.out.println(<span class="str">"Welcome admin"</span>);
+    deleteAllData();  <span class="cm">// now correctly inside if</span>
+}</pre>
+<div class="warn">⚠️ Apple's famous "goto fail" SSL bug in 2014 was caused by exactly this mistake.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q78</span><span class="q-text">Guess the output — dangling else puzzle</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">int</span> x = <span class="num">5</span>;
+<span class="kw">if</span> (x &gt; <span class="num">10</span>)
+    <span class="kw">if</span> (x &gt; <span class="num">3</span>)
+        <span class="cls">System</span>.out.println(<span class="str">"A"</span>);
+<span class="kw">else</span>
+    <span class="cls">System</span>.out.println(<span class="str">"B"</span>);</pre>
+<div class="info">🔍 Output: <strong>(nothing)</strong></div>
+<p>The <code>else</code> belongs to the <strong>inner</strong> <code>if (x &gt; 3)</code>, not the outer one. Since <code>x &gt; 10</code> is false, neither inner if nor its else runs.</p>
+<pre><span class="cm">// Java's indentation is misleading. The compiler sees:</span>
+<span class="kw">if</span> (x &gt; <span class="num">10</span>) {
+    <span class="kw">if</span> (x &gt; <span class="num">3</span>)
+        <span class="cls">System</span>.out.println(<span class="str">"A"</span>);
+    <span class="kw">else</span>
+        <span class="cls">System</span>.out.println(<span class="str">"B"</span>); <span class="cm">// belongs to inner if!</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q79</span><span class="q-text">Guess the output — String == vs equals</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cls">String</span> a = <span class="str">"hello"</span>;
+<span class="cls">String</span> b = <span class="str">"hello"</span>;
+<span class="cls">String</span> c = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"hello"</span>);
+
+<span class="cls">System</span>.out.println(a == b);        <span class="cm">// ?</span>
+<span class="cls">System</span>.out.println(a == c);        <span class="cm">// ?</span>
+<span class="cls">System</span>.out.println(a.equals(c));   <span class="cm">// ?</span></pre>
+<div class="info">🔍 Output:
+<pre style="margin-top:8px;background:transparent;border:none;padding:0"><span class="out">true    ← same pool object</span>
+<span class="out">false   ← new String() creates new heap object</span>
+<span class="out">true    ← equals() compares content</span></pre></div>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q80</span><span class="q-text">Guess the output — switch fall-through</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">int</span> x = <span class="num">2</span>;
+<span class="kw">switch</span> (x) {
+    <span class="kw">case</span> <span class="num">1</span>: <span class="cls">System</span>.out.println(<span class="str">"one"</span>);
+    <span class="kw">case</span> <span class="num">2</span>: <span class="cls">System</span>.out.println(<span class="str">"two"</span>);
+    <span class="kw">case</span> <span class="num">3</span>: <span class="cls">System</span>.out.println(<span class="str">"three"</span>);
+    <span class="kw">default</span>: <span class="cls">System</span>.out.println(<span class="str">"default"</span>);
+}</pre>
+<div class="info">🔍 Output:
+<pre style="margin-top:8px;background:transparent;border:none;padding:0"><span class="out">two
+three
+default</span></pre></div>
+<p>No <code>break</code> statements → <strong>fall-through</strong>. Execution starts at matching case and continues through all subsequent cases until a <code>break</code> or end of switch.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q81</span><span class="q-text">Guess the output — switch with default not last</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">int</span> x = <span class="num">10</span>;
+<span class="kw">switch</span> (x) {
+    <span class="kw">default</span>: <span class="cls">System</span>.out.println(<span class="str">"default"</span>);
+    <span class="kw">case</span> <span class="num">1</span>:  <span class="cls">System</span>.out.println(<span class="str">"one"</span>); <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">2</span>:  <span class="cls">System</span>.out.println(<span class="str">"two"</span>);
+}</pre>
+<div class="info">🔍 Output:
+<pre style="margin-top:8px;background:transparent;border:none;padding:0"><span class="out">default
+one</span></pre></div>
+<p><code>default</code> runs when no case matches. It fall-through into <code>case 1</code>. The <code>break</code> after "one" stops execution before "two".</p>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q82</span><span class="q-text">Should default be the last case in a switch statement?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>No</strong> — <code>default</code> can appear anywhere in a switch. However, placing it last is a <strong>strong convention</strong> for readability. It always executes when no case matches, regardless of position.</p>
+<pre><span class="cm">// Legal but confusing — default in middle</span>
+<span class="kw">switch</span> (x) {
+    <span class="kw">case</span> <span class="num">1</span>: ...; <span class="kw">break</span>;
+    <span class="kw">default</span>: ...; <span class="kw">break</span>; <span class="cm">// works fine here</span>
+    <span class="kw">case</span> <span class="num">2</span>: ...;
+}
+
+<span class="cm">// Preferred — default at end</span>
+<span class="kw">switch</span> (x) {
+    <span class="kw">case</span> <span class="num">1</span>: ...; <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">2</span>: ...; <span class="kw">break</span>;
+    <span class="kw">default</span>: ...;
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q83</span><span class="q-text">Can a switch statement be used around a String?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>Yes</strong> — since Java 7, switch supports <code>String</code>. The comparison uses <code>.equals()</code> internally.</p>
+<pre><span class="cls">String</span> day = <span class="str">"MON"</span>;
+<span class="kw">switch</span> (day) {
+    <span class="kw">case</span> <span class="str">"MON"</span>:
+    <span class="kw">case</span> <span class="str">"TUE"</span>:
+    <span class="kw">case</span> <span class="str">"WED"</span>:
+    <span class="kw">case</span> <span class="str">"THU"</span>:
+    <span class="kw">case</span> <span class="str">"FRI"</span>:
+        <span class="cls">System</span>.out.println(<span class="str">"Weekday"</span>); <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="str">"SAT"</span>:
+    <span class="kw">case</span> <span class="str">"SUN"</span>:
+        <span class="cls">System</span>.out.println(<span class="str">"Weekend"</span>); <span class="kw">break</span>;
+    <span class="kw">default</span>:
+        <span class="cls">System</span>.out.println(<span class="str">"Unknown"</span>);
+}
+<span class="cm">// Output: Weekday</span></pre>
+<div class="warn">⚠️ Passing null to a String switch throws NullPointerException!</div>
+<div class="note">💡 Java 14+ switch expressions are cleaner: <code>String result = switch(day) { case "MON" -&gt; "Weekday"; ... };</code></div>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q84</span><span class="q-text">Guess the output — for loop 0 to 9</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">10</span>; i++) {
+    <span class="cls">System</span>.out.print(i + <span class="str">"-"</span>);
+}</pre>
+<div class="info">🔍 Output: <strong>0-1-2-3-4-5-6-7-8-9-</strong></div>
+<p>Loop runs while <code>i &lt; 10</code>, printing i and a dash each iteration. i goes from 0 to 9 inclusive (stops before 10).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q85</span><span class="q-text">What is an enhanced for loop?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The enhanced for loop (for-each) iterates over <strong>arrays or Iterable collections</strong> without managing an index variable. Cleaner but less flexible.</p>
+<pre><span class="cm">// Traditional for</span>
+<span class="kw">int</span>[] nums = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; nums.length; i++) {
+    <span class="cls">System</span>.out.println(nums[i]);
+}
+
+<span class="cm">// Enhanced for — same result, less noise</span>
+<span class="kw">for</span> (<span class="kw">int</span> n : nums) {
+    <span class="cls">System</span>.out.println(n);
+}
+
+<span class="cm">// Works on any Iterable:</span>
+<span class="cls">List</span>&lt;<span class="cls">String</span>&gt; names = <span class="cls">List</span>.of(<span class="str">"Alice"</span>, <span class="str">"Bob"</span>);
+<span class="kw">for</span> (<span class="cls">String</span> name : names) {
+    <span class="cls">System</span>.out.println(name);
+}</pre>
+<div class="warn">⚠️ Can't remove elements during iteration (use Iterator or removeIf). Can't access the index directly.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q86</span><span class="q-text">Guess the output — enhanced for modifying elements</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">int</span>[] arr = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};
+<span class="kw">for</span> (<span class="kw">int</span> x : arr) {
+    x = x * <span class="num">2</span>;
+}
+<span class="cls">System</span>.out.println(<span class="cls">Arrays</span>.toString(arr));</pre>
+<div class="info">🔍 Output: <strong>[1, 2, 3]</strong> — array is UNCHANGED!</div>
+<p><code>x</code> is a <strong>copy</strong> of each element, not a reference to it. Modifying <code>x</code> does not modify the array.</p>
+<pre><span class="cm">// To actually modify, use traditional for:</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; arr.length; i++) {
+    arr[i] = arr[i] * <span class="num">2</span>;  <span class="cm">// [2, 4, 6]</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q87</span><span class="q-text">Guess the output — labeled break</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre>outer:
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; <span class="num">3</span>; j++) {
+        <span class="kw">if</span> (j == <span class="num">1</span>) <span class="kw">break</span> outer;
+        <span class="cls">System</span>.out.print(i + <span class="str">""</span> + j + <span class="str">" "</span>);
+    }
+}</pre>
+<div class="info">🔍 Output: <strong>00 </strong></div>
+<p>When i=0, j=0 prints "00". Then j=1 hits <code>break outer</code> — jumps out of the <strong>entire outer loop</strong>, not just the inner one. Nothing else prints.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q88</span><span class="q-text">Guess the output — static variable in constructor</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">class</span> <span class="cls">Counter</span> {
+    <span class="kw">static int</span> count = <span class="num">0</span>;
+    <span class="cls">Counter</span>() { count++; }
+}
+
+<span class="kw">public class</span> <span class="cls">Main</span> {
+    <span class="kw">public static void</span> main(<span class="cls">String</span>[] args) {
+        <span class="kw">new</span> <span class="cls">Counter</span>(); <span class="kw">new</span> <span class="cls">Counter</span>(); <span class="kw">new</span> <span class="cls">Counter</span>();
+        <span class="cls">System</span>.out.println(<span class="cls">Counter</span>.count);
+    }
+}</pre>
+<div class="info">🔍 Output: <strong>3</strong></div>
+<p><code>count</code> is a <strong>static field</strong> — shared by all instances. Each of the 3 constructors increments the same variable, so it ends at 3.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q89</span><span class="q-text">Guess the output — Integer autoboxing cache trap</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cls">Integer</span> a = <span class="num">100</span>, b = <span class="num">100</span>;
+<span class="cls">Integer</span> c = <span class="num">200</span>, d = <span class="num">200</span>;
+
+<span class="cls">System</span>.out.println(a == b);
+<span class="cls">System</span>.out.println(c == d);</pre>
+<div class="info">🔍 Output:
+<pre style="margin-top:8px;background:transparent;border:none;padding:0"><span class="out">true    ← 100 is in Integer cache (-128 to 127) — same object</span>
+<span class="out">false   ← 200 is outside cache — two different objects</span></pre></div>
+<div class="warn">⚠️ This is the most famous Java interview gotcha. Always use .equals() for Integer comparisons!</div>
+</div></div></div>
+
+<div class="qa-card" data-section="conditions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q90</span><span class="q-text">Guess the output — while loop with post-increment</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">int</span> i = <span class="num">1</span>;
+<span class="kw">while</span> (i &lt;= <span class="num">5</span>) {
+    <span class="cls">System</span>.out.print(i++ + <span class="str">" "</span>);
+}
+<span class="cls">System</span>.out.println();
+<span class="cls">System</span>.out.println(<span class="str">"Final i: "</span> + i);</pre>
+<div class="info">🔍 Output:
+<pre style="margin-top:8px;background:transparent;border:none;padding:0"><span class="out">1 2 3 4 5 </span>
+<span class="out">Final i: 6</span></pre></div>
+<p><code>i++</code> (post-increment) returns the <strong>current value</strong> of i for printing, then increments it. When i becomes 6, the condition <code>i &lt;= 5</code> is false and the loop ends. Final value of i is 6.</p>
+</div></div></div>
+
+
+<!-- ═══ EXCEPTIONS ═══ -->
+<div class="section-header" data-section="exceptions">
+  <div class="section-icon si-exceptions">🚨</div>
+  <div class="section-title">Exception Handling</div>
+  <div class="section-count">Q91 – Q108</div>
+</div>
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q91</span><span class="q-text">Why is exception handling important?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>Without exception handling, any unexpected condition crashes the program. Exception handling provides:</p>
+<ul>
+<li><strong>Separation of concerns</strong> — error handling is separate from business logic.</li>
+<li><strong>Graceful degradation</strong> — app recovers or fails meaningfully instead of crashing.</li>
+<li><strong>Resource safety</strong> — finally/try-with-resources ensures cleanup even on failure.</li>
+<li><strong>Informative errors</strong> — stack traces tell you exactly where and why something broke.</li>
+</ul>
+<pre><span class="kw">try</span> {
+    <span class="kw">int</span> result = <span class="num">10</span> / Integer.parseInt(input);
+} <span class="kw">catch</span> (<span class="cls">NumberFormatException</span> e) {
+    <span class="cls">System</span>.out.println(<span class="str">"Invalid number: "</span> + input);
+} <span class="kw">catch</span> (<span class="cls">ArithmeticException</span> e) {
+    <span class="cls">System</span>.out.println(<span class="str">"Cannot divide by zero"</span>);
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q92</span><span class="q-text">What design pattern is used to implement exception handling features in most languages?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>The <strong>Chain of Responsibility</strong> pattern. When an exception is thrown, it travels up the call stack looking for a matching handler. Each method either handles it or passes it to its caller.</p>
+<pre><span class="cm">// Call stack: main() → processOrder() → validatePayment() → throws</span>
+<span class="kw">void</span> main() {
+    <span class="kw">try</span> { processOrder(); }
+    <span class="kw">catch</span> (<span class="cls">PaymentException</span> e) { <span class="cls">System</span>.out.println(<span class="str">"Caught: "</span> + e.getMessage()); }
+}
+<span class="kw">void</span> processOrder() <span class="kw">throws</span> <span class="cls">PaymentException</span> { validatePayment(); }
+<span class="kw">void</span> validatePayment() <span class="kw">throws</span> <span class="cls">PaymentException</span> { <span class="kw">throw new</span> <span class="cls">PaymentException</span>(<span class="str">"Declined"</span>); }</pre>
+<div class="note">💡 If no handler is found all the way up to main(), the JVM prints the stack trace and terminates the thread.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q93</span><span class="q-text">What is the need for finally block?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>The <code>finally</code> block <strong>always executes</strong> — whether an exception was thrown, caught, or didn't happen. Used for guaranteed resource cleanup.</p>
+<pre><span class="cls">Connection</span> conn = <span class="kw">null</span>;
+<span class="kw">try</span> {
+    conn = getConnection();
+    processData(conn); <span class="cm">// might throw</span>
+} <span class="kw">catch</span> (<span class="cls">SQLException</span> e) {
+    log.error(<span class="str">"DB Error"</span>, e);
+} <span class="kw">finally</span> {
+    <span class="kw">if</span> (conn != <span class="kw">null</span>) conn.close(); <span class="cm">// ALWAYS runs — no leak!</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q94</span><span class="q-text">In what scenarios is code in finally NOT executed?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>System.exit()</strong> is called — JVM terminates immediately.</li>
+<li><strong>JVM crash</strong> — OutOfMemoryError or native crash kills the process.</li>
+<li><strong>Thread killed</strong> externally.</li>
+<li><strong>Infinite loop</strong> in try/catch that never reaches finally.</li>
+</ul>
+<pre><span class="kw">try</span> {
+    <span class="cls">System</span>.out.println(<span class="str">"try"</span>);
+    <span class="cls">System</span>.exit(<span class="num">0</span>); <span class="cm">// JVM shuts down HERE</span>
+} <span class="kw">finally</span> {
+    <span class="cls">System</span>.out.println(<span class="str">"finally"</span>); <span class="cm">// NEVER runs</span>
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q95</span><span class="q-text">Will finally be executed in the program below?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">try</span> {
+    <span class="cls">System</span>.out.println(<span class="str">"try"</span>);
+    <span class="kw">int</span>[] arr = <span class="kw">new int</span>[<span class="num">5</span>];
+    arr[<span class="num">10</span>] = <span class="num">42</span>; <span class="cm">// ArrayIndexOutOfBoundsException</span>
+} <span class="kw">catch</span> (<span class="cls">ArrayIndexOutOfBoundsException</span> e) {
+    <span class="cls">System</span>.out.println(<span class="str">"catch"</span>);
+} <span class="kw">finally</span> {
+    <span class="cls">System</span>.out.println(<span class="str">"finally"</span>);
+}</pre>
+<div class="info">🔍 Output: <strong>try → catch → finally</strong></div>
+<p><strong>Yes</strong> — finally always executes. It runs after catch completes, and also runs even if the exception is NOT caught (before propagating up).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q96</span><span class="q-text">Is try without a catch allowed?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p><strong>Yes</strong> — try-finally (without catch) is valid. Exception propagates up while finally still runs for cleanup.</p>
+<pre><span class="kw">void</span> process() <span class="kw">throws</span> <span class="cls">IOException</span> {
+    <span class="cls">InputStream</span> is = <span class="kw">new</span> <span class="cls">FileInputStream</span>(<span class="str">"data.txt"</span>);
+    <span class="kw">try</span> {
+        readData(is); <span class="cm">// IOException may propagate — we don't catch</span>
+    } <span class="kw">finally</span> {
+        is.close();   <span class="cm">// runs regardless, then exception propagates</span>
+    }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q97</span><span class="q-text">Is try without catch and finally allowed?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<div class="warn">❌ NO — a try block MUST have at least one catch OR a finally block. A bare try is a compile error.</div>
+<pre><span class="kw">try</span> { doSomething(); }  <span class="cm">// COMPILE ERROR — no catch or finally</span>
+
+<span class="cm">// All valid forms:</span>
+<span class="kw">try</span> { } <span class="kw">catch</span>(<span class="cls">Exception</span> e) { }               <span class="cm">// ✅</span>
+<span class="kw">try</span> { } <span class="kw">finally</span> { }                           <span class="cm">// ✅</span>
+<span class="kw">try</span> { } <span class="kw">catch</span>(<span class="cls">Exception</span> e) { } <span class="kw">finally</span> { }  <span class="cm">// ✅</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q98</span><span class="q-text">Can you explain the hierarchy of exception handling classes?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cls">Throwable</span>
+├── <span class="cls">Error</span>                    <span class="cm">// serious JVM-level — don't catch</span>
+│   ├── <span class="cls">OutOfMemoryError</span>
+│   └── <span class="cls">StackOverflowError</span>
+└── <span class="cls">Exception</span>
+    ├── <span class="cls">IOException</span>           <span class="cm">// checked</span>
+    │   └── <span class="cls">FileNotFoundException</span>
+    ├── <span class="cls">SQLException</span>          <span class="cm">// checked</span>
+    ├── <span class="cls">ClassNotFoundException</span> <span class="cm">// checked</span>
+    └── <span class="cls">RuntimeException</span>      <span class="cm">// unchecked</span>
+        ├── <span class="cls">NullPointerException</span>
+        ├── <span class="cls">ArrayIndexOutOfBoundsException</span>
+        ├── <span class="cls">ClassCastException</span>
+        └── <span class="cls">IllegalArgumentException</span>
+            └── <span class="cls">NumberFormatException</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q99</span><span class="q-text">What is the difference between Error and Exception?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<table><tr><th>Aspect</th><th>Error</th><th>Exception</th></tr>
+<tr><td>Severity</td><td>JVM/system level</td><td>Application level</td></tr>
+<tr><td>Recoverable?</td><td>Generally no</td><td>Usually yes</td></tr>
+<tr><td>Should catch?</td><td>❌ Almost never</td><td>✅ Yes, when appropriate</td></tr>
+<tr><td>Examples</td><td>OutOfMemoryError, StackOverflowError</td><td>IOException, NullPointerException</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q100</span><span class="q-text">What is the difference between checked and unchecked exceptions?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<table><tr><th>Aspect</th><th>Checked</th><th>Unchecked (RuntimeException)</th></tr>
+<tr><td>Compiler enforced?</td><td>✅ Must catch or declare throws</td><td>❌ Optional</td></tr>
+<tr><td>Extends</td><td>Exception (not RuntimeException)</td><td>RuntimeException</td></tr>
+<tr><td>Represents</td><td>Recoverable, expected failures</td><td>Programming bugs</td></tr>
+<tr><td>Examples</td><td>IOException, SQLException</td><td>NPE, ClassCastException</td></tr>
+</table>
+<pre><span class="kw">try</span> { <span class="kw">new</span> <span class="cls">FileReader</span>(<span class="str">"f"</span>); } <span class="kw">catch</span>(<span class="cls">IOException</span> e) {} <span class="cm">// checked — must handle</span>
+<span class="cls">String</span> s = <span class="kw">null</span>; s.length(); <span class="cm">// unchecked — NullPointerException, no warning</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q101</span><span class="q-text">How do you throw an exception from a method?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cm">// Unchecked — no declaration needed</span>
+<span class="kw">public void</span> setAge(<span class="kw">int</span> age) {
+    <span class="kw">if</span> (age &lt; <span class="num">0</span>) <span class="kw">throw new</span> <span class="cls">IllegalArgumentException</span>(<span class="str">"Age: "</span> + age);
+    <span class="kw">this</span>.age = age;
+}
+
+<span class="cm">// Checked — must declare with throws</span>
+<span class="kw">public void</span> readFile(<span class="cls">String</span> path) <span class="kw">throws</span> <span class="cls">IOException</span> {
+    <span class="kw">if</span> (!<span class="kw">new</span> <span class="cls">File</span>(path).exists())
+        <span class="kw">throw new</span> <span class="cls">FileNotFoundException</span>(<span class="str">"Not found: "</span> + path);
+}</pre>
+<div class="note">💡 <code>throw</code> (with an instance) vs <code>throws</code> (in method signature) — completely different things!</div>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q102</span><span class="q-text">What happens when you throw a checked exception from a method?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>The compiler forces the caller to either <strong>catch</strong> it or <strong>declare it</strong> in their own throws clause. It propagates up the call stack.</p>
+<pre><span class="kw">void</span> riskyMethod() <span class="kw">throws</span> <span class="cls">IOException</span> { <span class="kw">throw new</span> <span class="cls">IOException</span>(<span class="str">"Disk full"</span>); }
+
+<span class="cm">// Option A — catch it</span>
+<span class="kw">void</span> callerA() {
+    <span class="kw">try</span> { riskyMethod(); } <span class="kw">catch</span>(<span class="cls">IOException</span> e) { System.out.println(<span class="str">"Handled"</span>); }
+}
+<span class="cm">// Option B — propagate it</span>
+<span class="kw">void</span> callerB() <span class="kw">throws</span> <span class="cls">IOException</span> { riskyMethod(); }
+<span class="cm">// Option C (neither) → COMPILE ERROR</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q103</span><span class="q-text">What are the options you have to eliminate compilation errors when handling checked exceptions?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cm">// Option 1 — Catch and handle</span>
+<span class="kw">void</span> load() {
+    <span class="kw">try</span> { <span class="kw">new</span> <span class="cls">FileReader</span>(<span class="str">"f.txt"</span>); }
+    <span class="kw">catch</span>(<span class="cls">IOException</span> e) { e.printStackTrace(); }
+}
+
+<span class="cm">// Option 2 — Propagate (declare in throws clause)</span>
+<span class="kw">void</span> load() <span class="kw">throws</span> <span class="cls">IOException</span> { <span class="kw">new</span> <span class="cls">FileReader</span>(<span class="str">"f.txt"</span>); }
+
+<span class="cm">// Option 3 — Wrap in RuntimeException (use carefully)</span>
+<span class="kw">void</span> load() {
+    <span class="kw">try</span> { <span class="kw">new</span> <span class="cls">FileReader</span>(<span class="str">"f.txt"</span>); }
+    <span class="kw">catch</span>(<span class="cls">IOException</span> e) { <span class="kw">throw new</span> <span class="cls">RuntimeException</span>(<span class="str">"Load failed"</span>, e); }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q104</span><span class="q-text">How do you create a custom exception?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cm">// Checked custom exception</span>
+<span class="kw">public class</span> <span class="cls">InsufficientFundsException</span> <span class="kw">extends</span> <span class="cls">Exception</span> {
+    <span class="kw">private final double</span> shortfall;
+    <span class="kw">public</span> <span class="cls">InsufficientFundsException</span>(<span class="kw">double</span> shortfall) {
+        <span class="kw">super</span>(<span class="cls">String</span>.format(<span class="str">"Need %.2f more"</span>, shortfall));
+        <span class="kw">this</span>.shortfall = shortfall;
+    }
+    <span class="kw">public double</span> getShortfall() { <span class="kw">return</span> shortfall; }
+}
+
+<span class="cm">// Unchecked custom exception</span>
+<span class="kw">public class</span> <span class="cls">InvalidOrderException</span> <span class="kw">extends</span> <span class="cls">RuntimeException</span> {
+    <span class="kw">public</span> <span class="cls">InvalidOrderException</span>(<span class="cls">String</span> msg) { <span class="kw">super</span>(msg); }
+    <span class="kw">public</span> <span class="cls">InvalidOrderException</span>(<span class="cls">String</span> msg, <span class="cls">Throwable</span> cause) { <span class="kw">super</span>(msg, cause); }
+}
+
+<span class="cm">// Usage</span>
+<span class="kw">void</span> withdraw(<span class="kw">double</span> amount) <span class="kw">throws</span> <span class="cls">InsufficientFundsException</span> {
+    <span class="kw">if</span> (amount &gt; balance) <span class="kw">throw new</span> <span class="cls">InsufficientFundsException</span>(amount - balance);
+    balance -= amount;
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q105</span><span class="q-text">How do you handle multiple exception types with same exception handling block?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>Java 7+ supports <strong>multi-catch</strong> — multiple exception types in one catch block separated by <code>|</code>.</p>
+<pre><span class="cm">// Before Java 7 — repetitive</span>
+<span class="kw">try</span> { doWork(); }
+<span class="kw">catch</span>(<span class="cls">IOException</span> e)     { log(e); recover(); }
+<span class="kw">catch</span>(<span class="cls">SQLException</span> e)   { log(e); recover(); }
+<span class="kw">catch</span>(<span class="cls">ParseException</span> e) { log(e); recover(); }
+
+<span class="cm">// Java 7+ multi-catch</span>
+<span class="kw">try</span> { doWork(); }
+<span class="kw">catch</span>(<span class="cls">IOException</span> | <span class="cls">SQLException</span> | <span class="cls">ParseException</span> e) {
+    log(e); recover(); <span class="cm">// e is effectively final</span>
+}
+<span class="cm">// Note: can't catch related types: (FileNotFoundException | IOException) → COMPILE ERROR</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q106</span><span class="q-text">Can you explain about try with resources?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>Try-with-resources (Java 7+) automatically closes resources implementing <code>AutoCloseable</code> when the block exits — no finally needed.</p>
+<pre><span class="cm">// Old way — verbose, error-prone</span>
+<span class="cls">BufferedReader</span> br = <span class="kw">null</span>;
+<span class="kw">try</span> { br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(<span class="kw">new</span> <span class="cls">FileReader</span>(<span class="str">"f.txt"</span>));
+      <span class="cls">System</span>.out.println(br.readLine());
+} <span class="kw">finally</span> { <span class="kw">if</span> (br != <span class="kw">null</span>) br.close(); }
+
+<span class="cm">// New way — clean and safe</span>
+<span class="kw">try</span> (<span class="cls">BufferedReader</span> br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(<span class="kw">new</span> <span class="cls">FileReader</span>(<span class="str">"f.txt"</span>))) {
+    <span class="cls">System</span>.out.println(br.readLine());
+} <span class="cm">// br.close() called automatically!</span>
+
+<span class="cm">// Multiple resources — closed in REVERSE order</span>
+<span class="kw">try</span> (<span class="cls">Connection</span> c = getConn(); <span class="cls">PreparedStatement</span> ps = c.prepareStatement(sql)) {
+    ps.executeQuery();
+} <span class="cm">// ps closed first, then c</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q107</span><span class="q-text">How does try with resources work?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<p>The compiler transforms it into try-finally, handling <strong>suppressed exceptions</strong> — if both body and close() throw, the body exception is primary and the close exception is attached as suppressed.</p>
+<pre><span class="cm">// Implement AutoCloseable to participate in try-with-resources</span>
+<span class="kw">class</span> <span class="cls">MyResource</span> <span class="kw">implements</span> <span class="cls">AutoCloseable</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> close() { <span class="cls">System</span>.out.println(<span class="str">"Resource closed"</span>); }
+    <span class="kw">public void</span> doWork() { <span class="cls">System</span>.out.println(<span class="str">"Working"</span>); }
+}
+
+<span class="kw">try</span> (<span class="cls">MyResource</span> r = <span class="kw">new</span> <span class="cls">MyResource</span>()) {
+    r.doWork();
+}
+<span class="cm">// Output:
+// Working
+// Resource closed  ← automatic!</span>
+
+<span class="cm">// Access suppressed exceptions:</span>
+<span class="kw">try</span> { } <span class="kw">catch</span>(<span class="cls">Exception</span> primary) {
+    <span class="kw">for</span> (<span class="cls">Throwable</span> t : primary.getSuppressed()) { <span class="cm">/* close() exceptions */</span> }
+}</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="exceptions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q108</span><span class="q-text">Can you explain a few exception handling best practices?</span><span class="chevron">▼</span></button><div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>❌ <strong>Never swallow exceptions</strong> — empty catch blocks permanently hide bugs.</li>
+<li>✅ <strong>Log the full stack trace</strong> — <code>log.error("msg", e)</code> not <code>e.getMessage()</code> alone.</li>
+<li>✅ <strong>Throw specific exceptions</strong> — <code>FileNotFoundException</code> not bare <code>Exception</code>.</li>
+<li>✅ <strong>Use try-with-resources</strong> for all AutoCloseable resources.</li>
+<li>❌ <strong>Don't use exceptions for flow control</strong> — expensive (stack trace capture).</li>
+<li>✅ <strong>Wrap and rethrow</strong> — preserve the original cause when converting types.</li>
+<li>✅ <strong>Create domain exceptions</strong> — <code>OrderNotFoundException</code> &gt; bare <code>RuntimeException</code>.</li>
+</ul>
+<pre><span class="cm">// ❌ BAD</span>
+<span class="kw">try</span> { loadConfig(); } <span class="kw">catch</span>(<span class="cls">Exception</span> e) { } <span class="cm">// silent swallow!</span>
+
+<span class="cm">// ✅ GOOD</span>
+<span class="kw">try</span> { loadConfig(); }
+<span class="kw">catch</span>(<span class="cls">IOException</span> e) {
+    log.error(<span class="str">"Config load failed for {}"</span>, path, e);
+    <span class="kw">throw new</span> <span class="cls">ConfigurationException</span>(<span class="str">"Config load failed"</span>, e);
+}</pre>
+</div></div></div>
+</div><!-- end qaContainer -->
+<div class="no-results" id="noResults">No questions match your search.</div>
+</div>
+
+<script>
+function toggle(btn) {
+  const card = btn.closest('.qa-card');
+  const body = card.querySelector('.qa-body');
+  const open = card.classList.contains('open');
+  if (open) {
+    card.classList.remove('open');
+    body.style.maxHeight = '0';
+  } else {
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+  updateCount();
+}
+
+function expandAll() {
+  document.querySelectorAll('.qa-card:not([style*="display: none"])').forEach(card => {
+    const body = card.querySelector('.qa-body');
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+  updateCount();
+}
+
+function collapseAll() {
+  document.querySelectorAll('.qa-card').forEach(card => {
+    card.classList.remove('open');
+    card.querySelector('.qa-body').style.maxHeight = '0';
+  });
+  updateCount();
+}
+
+function updateCount() {
+  document.getElementById('openCount').textContent =
+    document.querySelectorAll('.qa-card.open').length;
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  let vis = 0;
+  document.querySelectorAll('.qa-card').forEach(card => {
+    const text = card.querySelector('.q-text').textContent.toLowerCase();
+    const body = card.querySelector('.qa-body-inner').textContent.toLowerCase();
+    const show = !q || text.includes(q) || body.includes(q);
+    card.style.display = show ? '' : 'none';
+    if (show) vis++;
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    const sec = h.dataset.section;
+    const hasVis = document.querySelectorAll(`.qa-card[data-section="${sec}"]:not([style*="display: none"])`).length > 0;
+    h.style.display = hasVis ? '' : 'none';
+  });
+  document.getElementById('noResults').style.display = vis === 0 ? 'block' : 'none';
+});
+
+function filterSection(section, btn) {
+  document.querySelectorAll('.filters .ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.qa-card').forEach(card => {
+    card.style.display = (section === 'all' || card.dataset.section === section) ? '' : 'none';
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    h.style.display = (section === 'all' || h.dataset.section === section) ? '' : 'none';
+  });
+  document.getElementById('noResults').style.display = 'none';
+}
+
+window.addEventListener('scroll', () => {
+  const total = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('progressBar').style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
+});
+
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.qa-card.open').forEach(card => {
+    const body = card.querySelector('.qa-body');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+});
+</script>
+</body>
+</html>

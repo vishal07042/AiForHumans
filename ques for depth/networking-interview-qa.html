@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Networking Interview Q&amp;A</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0c10;--surface:#0f1117;--card:#13161e;--border:#1e2230;
+  --accent:#00e5a0;--accent2:#00b8ff;--accent3:#ff6b6b;--accent4:#ffd166;
+  --text:#c9d1e0;--muted:#5a6375;--heading:#eef2ff;
+  --code-bg:#080b11;--tag-bg:#0d2a1f;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+.container{max-width:920px;margin:0 auto;padding:60px 24px 120px;position:relative;z-index:1}
+header{text-align:center;margin-bottom:60px}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:var(--tag-bg);border:1px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;padding:6px 14px;border-radius:4px;margin-bottom:22px}
+.header-badge::before{content:'◆';font-size:8px}
+h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;color:var(--heading);letter-spacing:-.03em;line-height:1.1;margin-bottom:12px}
+h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--muted);font-size:.88rem;font-family:'JetBrains Mono',monospace}
+.stats{display:flex;justify-content:center;gap:36px;margin-top:28px;flex-wrap:wrap}
+.stat-num{font-size:1.9rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace;display:block}
+.stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem;pointer-events:none}
+#searchInput{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:12px 14px 12px 40px;border-radius:8px;outline:none;transition:border-color .2s}
+#searchInput:focus{border-color:var(--accent)}
+#searchInput::placeholder{color:var(--muted)}
+.ctrl-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ctrl-btn.active{background:var(--tag-bg);border-color:var(--accent);color:var(--accent)}
+.filters{display:flex;gap:8px;margin-bottom:38px;flex-wrap:wrap}
+.section-header{display:flex;align-items:center;gap:12px;margin:50px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-icon{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.si-platform{background:linear-gradient(135deg,#004d99,#0077ff)}
+.si-wrapper{background:linear-gradient(135deg,#1a4d2e,#00e5a0)}
+.si-strings{background:linear-gradient(135deg,#4d1a00,#ff6b00)}
+.si-oop{background:linear-gradient(135deg,#2d004d,#a020f0)}
+.si-advanced{background:linear-gradient(135deg,#004d3d,#00e5c0)}
+.si-modifiers{background:linear-gradient(135deg,#4d3d00,#ffd166)}
+.si-conditions{background:linear-gradient(135deg,#4d0022,#ff6b6b)}
+.si-exceptions{background:linear-gradient(135deg,#4d1a1a,#ff4444)}
+.si-misc{background:linear-gradient(135deg,#2a2a2a,#888888)}
+.si-collections{background:linear-gradient(135deg,#1a1a4d,#6666ff)}
+.si-advcollections{background:linear-gradient(135deg,#1a003d,#9900cc)}
+.si-generics{background:linear-gradient(135deg,#003d1a,#00cc55)}
+.si-threading{background:linear-gradient(135deg,#3d2800,#cc8800)}
+.si-functional{background:linear-gradient(135deg,#003333,#00cccc)}
+.section-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--muted)}
+.section-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted)}
+.qa-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.qa-card:hover{border-color:#252a3c}
+.qa-card.open{border-color:var(--accent)}
+.qa-toggle{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:16px 18px;text-align:left;color:inherit}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);background:var(--tag-bg);border:1px solid rgba(0,229,160,.2);padding:3px 8px;border-radius:4px;flex-shrink:0;min-width:40px;text-align:center;font-weight:700}
+.q-text{font-size:.92rem;font-weight:600;color:var(--heading);flex:1;line-height:1.4}
+.qa-card.open .q-text{color:var(--accent)}
+.chevron{flex-shrink:0;color:var(--muted);transition:transform .3s;font-size:.65rem}
+.qa-card.open .chevron{transform:rotate(180deg);color:var(--accent)}
+.qa-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.qa-body-inner{padding:0 18px 20px;border-top:1px solid var(--border);padding-top:16px}
+.qa-body-inner p{font-size:.875rem;color:var(--text);margin-bottom:10px;line-height:1.75}
+.qa-body-inner ul,.qa-body-inner ol{margin:8px 0 12px 18px;font-size:.85rem}
+.qa-body-inner li{margin-bottom:5px;line-height:1.65}
+.qa-body-inner strong{color:var(--heading)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.75;color:#c9d1e0}
+.kw{color:#00b8ff;font-weight:600}
+.str{color:#00e5a0}
+.cm{color:#5a6375;font-style:italic}
+.cls{color:#ffd166}
+.num{color:#ff9f43}
+.ann{color:#a29bfe}
+.out{color:#ff6b6b}
+.note{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.15);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent);margin:10px 0}
+.warn{background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.2);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent3);margin:10px 0}
+.info{background:rgba(0,184,255,.05);border:1px solid rgba(0,184,255,.15);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent2);margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.8rem;margin:10px 0}
+th{background:var(--code-bg);color:var(--accent);text-align:left;padding:9px 13px;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+td{padding:8px 13px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+.no-results{text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:60px 20px;display:none}
+.progress-bar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s;z-index:100}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+@media(max-width:600px){.container{padding:28px 14px 80px}.stats{gap:18px}h1{font-size:1.9rem}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="container">
+
+<header>
+  <div class="header-badge">Networking Interview Prep</div>
+  <h1>Master <span>Networking</span><br/>Interview Questions</h1>
+  <p class="subtitle">// 90 questions · 10 sections · click to reveal answers</p>
+  <div class="stats">
+    <div class="stat"><span class="stat-num">90</span><span class="stat-label">Questions</span></div>
+    <div class="stat"><span class="stat-num">10</span><span class="stat-label">Topics</span></div>
+    <div class="stat"><span class="stat-num" id="openCount">0</span><span class="stat-label">Opened</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap"><input type="text" id="searchInput" placeholder="Search questions..."/></div>
+  <button class="ctrl-btn" onclick="expandAll()">Expand All</button>
+  <button class="ctrl-btn" onclick="collapseAll()">Collapse All</button>
+</div>
+
+<div class="filters">
+  <button class="ctrl-btn active" onclick="filterSection('all',this)">All</button>
+  <button class="ctrl-btn" onclick="filterSection('fundamentals',this)">🌐 Basics</button>
+  <button class="ctrl-btn" onclick="filterSection('osi',this)">🗂 OSI/TCP-IP</button>
+  <button class="ctrl-btn" onclick="filterSection('ip',this)">🔢 IP &amp; Subnetting</button>
+  <button class="ctrl-btn" onclick="filterSection('tcpudp',this)">🧵 TCP/UDP</button>
+  <button class="ctrl-btn" onclick="filterSection('dnsdhcp',this)">🔁 DNS/DHCP/NAT</button>
+  <button class="ctrl-btn" onclick="filterSection('http',this)">🏗 HTTP/Web</button>
+  <button class="ctrl-btn" onclick="filterSection('routing',this)">📚 Routing/Switching</button>
+  <button class="ctrl-btn" onclick="filterSection('security',this)">🚨 Security/VPN</button>
+  <button class="ctrl-btn" onclick="filterSection('wireless',this)">📡 Wireless/Advanced</button>
+  <button class="ctrl-btn" onclick="filterSection('troubleshooting',this)">🧩 Troubleshooting</button>
+</div>
+
+<div id="qaContainer">
+
+<!-- ═══════════ FUNDAMENTALS ═══════════ -->
+<div class="section-header" data-section="fundamentals">
+  <div class="section-icon si-platform">🌐</div>
+  <div class="section-title">Networking Fundamentals</div>
+  <div class="section-count">Q1 – Q9</div>
+</div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q01</span><span class="q-text">What is a computer network?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <strong>computer network</strong> is a set of devices (hosts, routers, switches) connected via links that communicate using agreed <strong>protocols</strong> to share resources and data.</p>
+<ul>
+<li><strong>Nodes</strong> – PCs, phones, servers, printers, IoT devices.</li>
+<li><strong>Links</strong> – wired (copper/fiber) or wireless (radio).</li>
+<li><strong>Protocols</strong> – TCP/IP, DNS, HTTP, DHCP; they define format, addressing, and rules.</li>
+<li><strong>Services</strong> – file sharing, email, web, streaming, remote access.</li>
+</ul>
+<div class="note">💡 Interview one-liner: "A network moves bits between addressed endpoints reliably, using layered protocols."</div>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q02</span><span class="q-text">Compare LAN vs MAN vs WAN vs PAN</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Type</th><th>Scope</th><th>Example</th><th>Typical Tech</th></tr>
+<tr><td><strong>PAN</strong></td><td>~10 m, one person</td><td>Phone + earbuds + watch</td><td>Bluetooth, USB</td></tr>
+<tr><td><strong>LAN</strong></td><td>Room → campus</td><td>Office / home network</td><td>Ethernet, Wi-Fi, switches</td></tr>
+<tr><td><strong>MAN</strong></td><td>City</td><td>City fiber ring, campus interconnect</td><td>Metro Ethernet, MPLS</td></tr>
+<tr><td><strong>WAN</strong></td><td>Country / global</td><td>ISP backbone, Internet</td><td>MPLS, leased lines, BGP</td></tr>
+</table>
+<p>Key trade-off: as scope grows, <strong>bandwidth typically drops, latency rises, and cost/complexity increase</strong>.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q03</span><span class="q-text">What are common network topologies?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Star</strong> – all nodes connect to a central switch. Easy to manage; switch is a single point of failure. Dominant today.</li>
+<li><strong>Mesh (full/partial)</strong> – redundant paths; used in WAN backbones and data centers. Expensive.</li>
+<li><strong>Ring</strong> – each node connects to two neighbors (SONET/FDDI legacy). One break can be protected by dual ring.</li>
+<li><strong>Bus</strong> – single shared cable (old Ethernet coax). Cheap but one fault kills all; collisions.</li>
+<li><strong>Hub-and-spoke / Tree</strong> – branches off a core; typical enterprise LAN hierarchy (access → distribution → core).</li>
+</ul>
+<div class="note">💡 Modern LANs are physical star + logical hierarchy; WANs are partial mesh.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q04</span><span class="q-text">Bandwidth vs Throughput vs Latency vs Jitter?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Metric</th><th>Meaning</th><th>Unit</th></tr>
+<tr><td><strong>Bandwidth</strong></td><td>Theoretical max capacity of a link</td><td>Mbps / Gbps</td></tr>
+<tr><td><strong>Throughput</strong></td><td>Actual delivered data rate (after overhead, loss, congestion)</td><td>Mbps</td></tr>
+<tr><td><strong>Latency</strong></td><td>Delay for one bit/packet (propagation + transmission + queuing + processing)</td><td>ms</td></tr>
+<tr><td><strong>Jitter</strong></td><td>Variation in latency over time — kills voice/video quality</td><td>ms</td></tr>
+</table>
+<pre><span class="cm"># throughput is always ≤ bandwidth; test with iperf3</span>
+iperf3 <span class="kw">-c</span> <span class="str">server-ip</span> <span class="cm"># measures TCP throughput</span>
+ping <span class="str">8.8.8.8</span> <span class="cm"># measures RTT latency</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q05</span><span class="q-text">Unicast vs Broadcast vs Multicast vs Anycast?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Unicast</strong> – one sender → one receiver (most traffic: web, SSH). Address: single host IP.</li>
+<li><strong>Broadcast</strong> – one → all hosts on a subnet (ARP requests, DHCP discover). IPv4 <code>255.255.255.255</code>; routers do NOT forward it.</li>
+<li><strong>Multicast</strong> – one → subscribed group (IPTV, OSPF hellos to 224.0.0.5). Range <code>224.0.0.0/4</code>; needs IGMP/PIM.</li>
+<li><strong>Anycast</strong> – one → nearest of several identical servers (DNS roots, CDNs). Same IP announced from many places via BGP.</li>
+</ul>
+<div class="info">ℹ️ IPv6 removed broadcast entirely — it uses multicast (e.g., solicited-node) instead.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q06</span><span class="q-text">Circuit switching vs Packet switching?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Circuit Switching</th><th>Packet Switching</th></tr>
+<tr><td>Idea</td><td>Dedicated path reserved for the call</td><td>Data split into packets, each routed independently</td></tr>
+<tr><td>Example</td><td>Old telephone network</td><td>Internet (IP)</td></tr>
+<tr><td>Efficiency</td><td>Wastes idle capacity</td><td>Statistical multiplexing — links shared</td></tr>
+<tr><td>Reliability</td><td>Guaranteed capacity once connected</td><td>Best-effort; needs TCP/QoS for guarantees</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q07</span><span class="q-text">What is a protocol, and what makes a good one?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A protocol is a <strong>formal rule set</strong> for communication: message format, addressing, sequencing, error handling, and teardown.</p>
+<ul>
+<li><strong>Syntax</strong> – bit/field layout (headers).</li>
+<li><strong>Semantics</strong> – what each message means (SYN = "open connection").</li>
+<li><strong>Timing</strong> – timeouts, retransmissions, ordering.</li>
+</ul>
+<p>Good protocols are <strong>layered, interoperable (open standards/RFCs), extensible</strong> (version fields, options), and handle failure explicitly.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q08</span><span class="q-text">Connection-oriented vs Connectionless communication?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Connection-oriented (TCP)</th><th>Connectionless (UDP/IP)</th></tr>
+<tr><td>Setup</td><td>Handshake before data</td><td>No setup — just send</td></tr>
+<tr><td>Reliability</td><td>Acks, retransmission, ordering</td><td>Best-effort; app handles loss</td></tr>
+<tr><td>Overhead</td><td>Higher (state, headers)</td><td>Minimal</td></tr>
+<tr><td>Use</td><td>Web, files, email</td><td>DNS, VoIP, gaming, streaming</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q09</span><span class="q-text">Simplex vs Half-duplex vs Full-duplex?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Simplex</strong> – one direction only (keyboard → PC, TV broadcast).</li>
+<li><strong>Half-duplex</strong> – both directions, one at a time (walkie-talkie, legacy hubs, Wi-Fi).</li>
+<li><strong>Full-duplex</strong> – both directions simultaneously (modern switched Ethernet with separate TX/RX pairs).</li>
+</ul>
+<div class="warn">⚠️ Duplex mismatch (one side half, other full) causes collisions, late collisions, and terrible throughput — check with ethtool / switch logs.</div>
+</div></div></div>
+
+<!-- ═══════════ OSI ═══════════ -->
+<div class="section-header" data-section="osi">
+  <div class="section-icon si-advanced">🗂</div>
+  <div class="section-title">OSI &amp; TCP/IP Models</div>
+  <div class="section-count">Q10 – Q18</div>
+</div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q10</span><span class="q-text">What are the 7 OSI layers?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Mnemonic bottom-up: <strong>"Please Do Not Throw Sausage Pizza Away"</strong> (Physical → Application).</p>
+<table>
+<tr><th>#</th><th>Layer</th><th>Role</th><th>Examples</th></tr>
+<tr><td>7</td><td><strong>Application</strong></td><td>User services</td><td>HTTP, DNS, FTP, SMTP</td></tr>
+<tr><td>6</td><td><strong>Presentation</strong></td><td>Encoding, encryption, compression</td><td>TLS, JPEG, ASCII/UTF-8</td></tr>
+<tr><td>5</td><td><strong>Session</strong></td><td>Sessions/dialog control</td><td>NetBIOS, RPC, SIP sessions</td></tr>
+<tr><td>4</td><td><strong>Transport</strong></td><td>End-to-end delivery, ports</td><td>TCP, UDP</td></tr>
+<tr><td>3</td><td><strong>Network</strong></td><td>Logical addressing, routing</td><td>IP, ICMP, OSPF</td></tr>
+<tr><td>2</td><td><strong>Data Link</strong></td><td>Framing, MAC, error detect</td><td>Ethernet, ARP, switches</td></tr>
+<tr><td>1</td><td><strong>Physical</strong></td><td>Bits on medium</td><td>Cables, hubs, radio</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q11</span><span class="q-text">TCP/IP model vs OSI — how do they map?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>TCP/IP (4 layers)</th><th>OSI equivalent</th><th>Protocols</th></tr>
+<tr><td>Application</td><td>Application + Presentation + Session (5–7)</td><td>HTTP, DNS, TLS</td></tr>
+<tr><td>Transport</td><td>Transport (4)</td><td>TCP, UDP</td></tr>
+<tr><td>Internet</td><td>Network (3)</td><td>IP, ICMP</td></tr>
+<tr><td>Link (Network Access)</td><td>Data Link + Physical (1–2)</td><td>Ethernet, Wi-Fi, ARP</td></tr>
+</table>
+<div class="note">💡 The Internet runs on TCP/IP in practice; OSI is the reference vocabulary interviewers expect you to use.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q12</span><span class="q-text">What is encapsulation and de-encapsulation?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Each layer <strong>wraps</strong> the upper-layer data with its own header (and sometimes trailer) on send, and <strong>strips</strong> it on receive.</p>
+<pre><span class="cm"># Sending down the stack:</span>
+Data → <span class="kw">TCP header</span> + Data             <span class="cm">(segment)</span>
+     → <span class="kw">IP header</span> + TCP + Data         <span class="cm">(packet)</span>
+     → <span class="kw">Ethernet header</span> + IP + <span class="kw">FCS trailer</span>  <span class="cm">(frame → bits)</span></pre>
+<p>PDU names: L4 <strong>segment</strong> (TCP) / <strong>datagram</strong> (UDP) → L3 <strong>packet</strong> → L2 <strong>frame</strong> → L1 <strong>bits</strong>.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q13</span><span class="q-text">Which devices operate at which layers?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Device</th><th>Layer</th><th>Forwards based on</th></tr>
+<tr><td>Hub / Repeater</td><td>L1</td><td>Bits — repeats everything (one collision domain)</td></tr>
+<tr><td>Switch / Bridge</td><td>L2</td><td>MAC table (CAM)</td></tr>
+<tr><td>Router / L3 switch</td><td>L3</td><td>IP routing table (longest prefix match)</td></tr>
+<tr><td>Firewall / NAT</td><td>L3–L4 (some L7)</td><td>IP/ports/state; NGFW inspects apps</td></tr>
+<tr><td>Load balancer / Proxy / WAF</td><td>L4–L7</td><td>TCP + HTTP content</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q14</span><span class="q-text">Why learn OSI if the real world uses TCP/IP?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Common language</strong> – "L2 loop" vs "L7 bug" instantly localizes a problem.</li>
+<li><strong>Troubleshooting order</strong> – always verify L1 → L2 → L3 before blaming the app.</li>
+<li><strong>Design clarity</strong> – each layer can evolve (fiber → Wi-Fi 6) without rewriting TCP or HTTP.</li>
+<li><strong>Interviews/certifications</strong> – CCNA and most panels still frame questions in OSI terms.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q15</span><span class="q-text">What happens at the Physical layer?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>L1 converts <strong>bits to signals</strong>: voltage levels, light pulses, or radio waves. Defines connectors, pinouts, frequencies, and modulation.</p>
+<ul>
+<li>Copper: Cat5e/6/6a (1/10 Gbps), RJ45, max ~100 m per run.</li>
+<li>Fiber: single-mode (long haul) vs multi-mode (data center); uses SFP/SFP+ optics.</li>
+<li>Wireless: RF channels, modulation (QAM), MIMO.</li>
+</ul>
+<div class="warn">⚠️ L1 faults (bad cable, dirty fiber, wrong transceiver, no link light) cause everything above to fail — check link lights first.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q16</span><span class="q-text">What are the LLC and MAC sublayers?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The Data Link layer (L2) splits into two IEEE 802 sublayers:</p>
+<ul>
+<li><strong>MAC (lower)</strong> – hardware addressing (48-bit MAC), media access (CSMA/CD, CSMA/CA), framing. Implemented in NIC/switch ASICs.</li>
+<li><strong>LLC (upper)</strong> – multiplexing L3 protocols over one link (Ethertype: 0x0800 = IPv4, 0x86DD = IPv6), flow control, optional reliability.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q17</span><span class="q-text">Where do Session and Presentation layers appear in real life?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Presentation (L6)</strong> – TLS encryption, JPEG/MPEG codecs, character encoding (UTF-8), compression (gzip). Anything that converts "app data" ↔ "wire format".</li>
+<li><strong>Session (L5)</strong> – SIP call setup, NetBIOS sessions, RPC bindings, database connections, SSH channels; checkpointing and re-establishing interrupted dialogs.</li>
+</ul>
+<div class="note">💡 In TCP/IP these collapse into the Application layer — but naming them helps explain where TLS or codecs sit.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="osi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q18</span><span class="q-text">Walk a packet from PC-A to PC-B through a switch and router</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li>App builds data → TCP adds ports → IP adds src/dst IP → Ethernet adds src/dst MAC (gateway MAC if remote).</li>
+<li><strong>Switch</strong> reads dst MAC, looks up CAM table, forwards out the right port (floods if unknown).</li>
+<li><strong>Router</strong> strips L2 frame, reads dst IP, longest-prefix lookup, decrements TTL, re-frames with new L2 header toward next hop.</li>
+<li>Repeat per hop; final host strips headers bottom-up and delivers to the socket.</li>
+</ol>
+<div class="info">ℹ️ MAC addresses change every hop (hop-to-hop); IP addresses stay end-to-end (unless NAT).</div>
+</div></div></div>
+
+<!-- ═══════════ IP ═══════════ -->
+<div class="section-header" data-section="ip">
+  <div class="section-icon si-strings">🔢</div>
+  <div class="section-title">IP Addressing &amp; Subnetting</div>
+  <div class="section-count">Q19 – Q30</div>
+</div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q19</span><span class="q-text">What is an IPv4 address, and what are the classes?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>32-bit address written as 4 dotted-decimal octets (e.g., <code>192.168.1.10</code>). Historic classes by leading bits:</p>
+<table>
+<tr><th>Class</th><th>Range</th><th>Default Mask</th><th>Use</th></tr>
+<tr><td>A</td><td>1–126</td><td>/8</td><td>Huge orgs (legacy)</td></tr>
+<tr><td>B</td><td>128–191</td><td>/16</td><td>Medium orgs (legacy)</td></tr>
+<tr><td>C</td><td>192–223</td><td>/24</td><td>Small networks</td></tr>
+<tr><td>D</td><td>224–239</td><td>—</td><td>Multicast</td></tr>
+<tr><td>E</td><td>240–255</td><td>—</td><td>Experimental</td></tr>
+</table>
+<div class="note">💡 Classes are obsolete — CIDR replaced them — but interviewers still ask. 127.x.x.x is loopback, 0.0.0.0 is "unspecified".</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q20</span><span class="q-text">Private vs Public vs Special IP ranges?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Type</th><th>Ranges</th><th>Notes</th></tr>
+<tr><td><strong>Private (RFC 1918)</strong></td><td>10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16</td><td>Not routable on Internet; reused everywhere + NAT</td></tr>
+<tr><td><strong>Loopback</strong></td><td>127.0.0.0/8</td><td>Self (localhost = 127.0.0.1)</td></tr>
+<tr><td><strong>Link-local (APIPA)</strong></td><td>169.254.0.0/16</td><td>Auto-assigned when DHCP fails</td></tr>
+<tr><td><strong>Multicast</strong></td><td>224.0.0.0/4</td><td>Group delivery</td></tr>
+<tr><td><strong>Carrier-grade NAT</strong></td><td>100.64.0.0/10</td><td>ISP internal sharing (RFC 6598)</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q21</span><span class="q-text">What is subnetting and why do we do it?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Subnetting <strong>splits one large network into smaller subnets</strong> by borrowing host bits for the network portion.</p>
+<ul>
+<li><strong>Why:</strong> limit broadcast domains, improve security/isolation, efficient address use, simpler routing (summarization).</li>
+<li><strong>How:</strong> apply a longer mask. <code>10.0.0.0/8</code> → four <code>/10</code>s, or 256 <code>/16</code>s, or 65,536 <code>/24</code>s.</li>
+<li>Each subnet has a <strong>network address</strong> (all host bits 0), <strong>broadcast</strong> (all host bits 1), and usable hosts between them.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q22</span><span class="q-text">What is CIDR and how do you read /24?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>CIDR (Classless Inter-Domain Routing) writes a network as <code>IP/prefix-length</code> where the number = count of network bits.</p>
+<pre><span class="cls">192.168.1.0</span>/<span class="num">24</span>  <span class="cm">→ mask 255.255.255.0 → 256 addrs, 254 usable</span>
+<span class="cls">10.0.0.0</span>/<span class="num">8</span>    <span class="cm">→ mask 255.0.0.0 → ~16.7M addrs</span>
+<span class="cls">172.16.5.64</span>/<span class="num">26</span> <span class="cm">→ mask 255.255.255.192 → 64 addrs, 62 usable</span></pre>
+<div class="note">💡 Usable hosts = 2^(32 − prefix) − 2 (minus network + broadcast). /31 and /127 are exceptions for point-to-point links.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q23</span><span class="q-text">Subnetting worked example: split 192.168.1.0/24 into 4 subnets</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Need 4 subnets → borrow 2 bits → new prefix <code>/26</code>, each with 64 addresses (62 usable).</p>
+<table>
+<tr><th>Subnet</th><th>Network</th><th>Usable Range</th><th>Broadcast</th></tr>
+<tr><td>1</td><td>192.168.1.0/26</td><td>.1 – .62</td><td>.63</td></tr>
+<tr><td>2</td><td>192.168.1.64/26</td><td>.65 – .126</td><td>.127</td></tr>
+<tr><td>3</td><td>192.168.1.128/26</td><td>.129 – .190</td><td>.191</td></tr>
+<tr><td>4</td><td>192.168.1.192/26</td><td>.193 – .254</td><td>.255</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q24</span><span class="q-text">IPv4 vs IPv6 — what's new?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>IPv4</th><th>IPv6</th></tr>
+<tr><td>Length</td><td>32-bit (~4.3B addrs)</td><td>128-bit (~3.4×10³⁸ addrs)</td></tr>
+<tr><td>Format</td><td>192.168.1.1</td><td>2001:db8::1 (hex, :: compresses zeros)</td></tr>
+<tr><td>Broadcast</td><td>Yes</td><td>No — multicast instead</td></tr>
+<tr><td>Config</td><td>DHCP mostly</td><td>SLAAC auto-config + DHCPv6</td></tr>
+<tr><td>Header</td><td>Variable, with checksum</td><td>Fixed 40B, no checksum (faster)</td></tr>
+<tr><td>IPsec</td><td>Optional</td><td>Built into spec</td></tr>
+</table>
+<pre><span class="cm"># IPv6 compression rules: drop leading zeros, ONE "::" per address</span>
+<span class="cls">2001:0db8:0000:0000:0000:ff00:0042:8329</span>
+→ <span class="str">2001:db8::ff00:42:8329</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q25</span><span class="q-text">What is ARP, RARP, GARP?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>ARP</strong> – resolves IPv4 → MAC on a LAN ("Who has 192.168.1.1? Tell 192.168.1.5"). Broadcast request, unicast reply, cached in ARP table.</li>
+<li><strong>RARP</strong> – legacy reverse (MAC → IP for diskless stations); replaced by DHCP.</li>
+<li><strong>GARP (Gratuitous ARP)</strong> – host announces its own IP/MAC unprompted; detects duplicates, updates neighbors after failover (VRRP/HSRP).</li>
+</ul>
+<pre><span class="cm"># inspect the ARP cache</span>
+arp <span class="kw">-a</span>          <span class="cm"># Windows / Linux</span>
+ip neigh show   <span class="cm"># Linux modern equivalent</span></pre>
+<div class="warn">⚠️ ARP has no authentication — attackers can poison caches (ARP spoofing → MITM). Mitigate with Dynamic ARP Inspection.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q26</span><span class="q-text">What is ICMP and what is it used for?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>ICMP (L3) carries <strong>error and diagnostic messages</strong> — not user data. Types include Echo (ping), Destination Unreachable, Time Exceeded (traceroute), Redirect.</p>
+<pre>ping <span class="str">8.8.8.8</span>        <span class="cm"># ICMP Echo Request/Reply → RTT + loss</span>
+tracert <span class="str">example.com</span>   <span class="cm"># Windows; uses TTL expiry → Time Exceeded</span>
+traceroute <span class="str">example.com</span>  <span class="cm"># Linux; UDP or ICMP variants</span></pre>
+<div class="warn">⚠️ Many networks rate-limit or block ICMP — "Request timed out" may mean filtered, not down. Confirm with TCP (port 80/443).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q27</span><span class="q-text">What is TTL and how does traceroute exploit it?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>TTL (Time To Live) is an 8-bit IP field decremented by <strong>each router</strong>; at zero the packet is dropped with an ICMP Time Exceeded back to the sender — preventing infinite loops.</p>
+<p><strong>Traceroute trick:</strong> send packets with TTL = 1, 2, 3… Each router along the path expires one and reveals itself. Three probes per hop give latency samples; <code>*</code> means no reply (filtered/slow).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q28</span><span class="q-text">What is MTU and fragmentation?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>MTU</strong> = largest frame a link accepts (Ethernet = 1500 B). If a packet exceeds it, IPv4 routers <strong>fragment</strong> it; the receiver reassembles. IPv6 forbids router fragmentation — the sender must use Path MTU Discovery.</p>
+<ul>
+<li>Too much fragmentation → CPU cost, loss amplification (lose one fragment, retransmit all).</li>
+<li>Fix: TCP MSS clamping, correct MTU on tunnels (VPN overhead shrinks effective MTU).</li>
+<li>DF (Don't Fragment) bit + ICMP "Fragmentation Needed" drives PMTUD.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q29</span><span class="q-text">How do you calculate hosts needed → subnet mask? (VLSM)</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>VLSM = use <strong>different mask lengths</strong> per subnet to fit each requirement. Rule: find smallest host-bits <code>h</code> with 2<sup>h</sup> − 2 ≥ needed hosts.</p>
+<pre><span class="cm"># Need 100, 50, 20 hosts from 192.168.10.0/24 — allocate largest first</span>
+100 hosts → h=<span class="num">7</span> (126 usable) → <span class="cls">192.168.10.0/25</span>   <span class="cm">(.0–.127)</span>
+ 50 hosts → h=<span class="num">6</span> (62 usable)  → <span class="cls">192.168.10.128/26</span> <span class="cm">(.128–.191)</span>
+ 20 hosts → h=<span class="num">5</span> (30 usable)  → <span class="cls">192.168.10.192/27</span> <span class="cm">(.192–.223)</span>
+<span class="cm"># .224–.255 still free for growth</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="ip"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q30</span><span class="q-text">What is supernetting / route summarization?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The reverse of subnetting: <strong>aggregate contiguous prefixes into one shorter advertisement</strong> to shrink routing tables.</p>
+<pre><span class="cls">192.168.0.0/24</span>, <span class="cls">192.168.1.0/24</span>,
+<span class="cls">192.168.2.0/24</span>, <span class="cls">192.168.3.0/24</span>
+→ summarize as <span class="str">192.168.0.0/22</span>  <span class="cm">(one route instead of four)</span></pre>
+<div class="note">💡 BGP on the Internet survives only because of aggressive aggregation like this.</div>
+</div></div></div>
+
+<!-- ═══════════ TCP/UDP ═══════════ -->
+<div class="section-header" data-section="tcpudp">
+  <div class="section-icon si-threading">🧵</div>
+  <div class="section-title">TCP, UDP &amp; Ports</div>
+  <div class="section-count">Q31 – Q40</div>
+</div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q31</span><span class="q-text">TCP vs UDP — full comparison</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Feature</th><th>TCP</th><th>UDP</th></tr>
+<tr><td>Type</td><td>Connection-oriented, stream</td><td>Connectionless, datagram</td></tr>
+<tr><td>Reliability</td><td>Guaranteed: acks, retransmit, order</td><td>Best-effort; app handles loss</td></tr>
+<tr><td>Speed/overhead</td><td>Slower (20B+ header, handshakes)</td><td>Fast (8B header)</td></tr>
+<tr><td>Flow/congestion ctrl</td><td>Yes (window, slow start)</td><td>No</td></tr>
+<tr><td>Use cases</td><td>Web, files, mail, DB</td><td>DNS, VoIP, video, gaming, DHCP</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q32</span><span class="q-text">Explain the TCP 3-way handshake</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cm"># Client opens connection to server</span>
+Client ── <span class="kw">SYN</span> (seq=x) ──────────────→ Server
+Client ←── <span class="kw">SYN-ACK</span> (seq=y, ack=x+1) ── Server
+Client ── <span class="kw">ACK</span> (ack=y+1) ──────────────→ Server
+<span class="cm"># Connection ESTABLISHED — data flows</span></pre>
+<ul>
+<li><strong>Why 3?</strong> Each side must confirm the other's sequence number and readiness. Two messages can't confirm both directions.</li>
+<li>Server allocates state after SYN → SYN floods can exhaust it (mitigate with SYN cookies).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q33</span><span class="q-text">How does TCP close a connection?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Graceful close is a <strong>4-way exchange</strong> (each direction closes independently since TCP is full-duplex):</p>
+<pre>A ── <span class="kw">FIN</span> ──→ B   <span class="cm">(A: "I'm done sending")</span>
+A ←── <span class="kw">ACK</span> ── B
+A ←── <span class="kw">FIN</span> ── B   <span class="cm">(B: "I'm done too")</span>
+A ── <span class="kw">ACK</span> ──→ B
+<span class="cm"># A waits TIME_WAIT (2×MSL) to catch stray segments</span></pre>
+<p>An abrupt <strong>RST</strong> kills the connection immediately (crashed peer, rejected port, firewall).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q34</span><span class="q-text">Sequence and acknowledgment numbers — how do they work?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Every byte gets a <strong>sequence number</strong>; the receiver returns an <strong>ack = next expected byte</strong>. Gaps trigger retransmission of exactly the missing bytes (selective ack / SACK).</p>
+<pre><span class="cm"># Sender transmits bytes 1–3000; bytes 1001–2000 lost</span>
+Receiver → <span class="kw">ACK 1001</span>   <span class="cm">(got 1–1000, SACK 2001–3000)</span>
+Sender retransmits only <span class="num">1001–2000</span>
+Receiver → <span class="kw">ACK 3001</span>   <span class="cm">(all received, in order)</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q35</span><span class="q-text">Flow control vs Congestion control?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Flow control (receiver protection)</strong> – sliding window: receiver advertises <code>rwnd</code>; sender never exceeds it. Zero-window → sender pauses (persist timer).</li>
+<li><strong>Congestion control (network protection)</strong> – sender maintains <code>cwnd</code>: <em>slow start</em> (exponential growth), <em>congestion avoidance</em> (AIMD linear growth), fast retransmit/recovery on 3 duplicate ACKs.</li>
+<li>Effective window = min(rwnd, cwnd).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q36</span><span class="q-text">What fields are in the TCP header?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Minimum 20 bytes: <strong>src/dst ports (16b each), sequence, ack, data offset, flags (SYN/ACK/FIN/RST/PSH/URG), window, checksum, urgent pointer</strong> + options (MSS, SACK, timestamps, window scaling).</p>
+<div class="note">💡 UDP header is only 8 bytes: src port, dst port, length, checksum. That's why it's fast — and why it guarantees nothing.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q37</span><span class="q-text">Well-known ports you must know?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="num">20/21</span> FTP   <span class="num">22</span> SSH    <span class="num">23</span> Telnet  <span class="num">25</span> SMTP
+<span class="num">53</span> DNS    <span class="num">67/68</span> DHCP  <span class="num">80</span> HTTP    <span class="num">110</span> POP3
+<span class="num">143</span> IMAP   <span class="num">161</span> SNMP   <span class="num">443</span> HTTPS   <span class="num">3389</span> RDP
+<span class="num">3306</span> MySQL  <span class="num">5432</span> Postgres</pre>
+<p>Ranges: <strong>0–1023</strong> well-known (root), <strong>1024–49151</strong> registered, <strong>49152–65535</strong> ephemeral (client source ports).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q38</span><span class="q-text">What is a socket?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A socket is one endpoint of a connection: <strong>IP + port + protocol</strong>. A full connection is a socket pair (client socket ↔ server socket).</p>
+<pre><span class="cm"># server listening, client connected — same server socket, many connections</span>
+Server <span class="cls">10.0.0.5:443</span>/TCP  ←→  Client <span class="cls">10.0.0.9:51234</span>/TCP
+Server <span class="cls">10.0.0.5:443</span>/TCP  ←→  Client <span class="cls">10.0.0.9:51235</span>/TCP</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q39</span><span class="q-text">When would you choose UDP over TCP?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Loss-tolerant real-time</strong> – VoIP, video calls, gaming: a late retransmit is worse than a dropped frame.</li>
+<li><strong>Tiny queries</strong> – DNS fits in one datagram; TCP setup would triple the cost.</li>
+<li><strong>Broadcast/multicast</strong> – TCP can't do one-to-many.</li>
+<li><strong>Custom reliability</strong> – QUIC (HTTP/3) rebuilds congestion control + security on UDP for speed and flexibility.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="tcpudp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q40</span><span class="q-text">What is head-of-line blocking and how does QUIC fix it?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>In TCP, <strong>one lost segment stalls everything behind it</strong> (strict ordering) — and HTTP/2 multiplexed streams inherit the stall. QUIC runs <strong>independent streams over UDP</strong>: loss in stream A doesn't block stream B; plus 0-RTT setup and always-on TLS 1.3.</p>
+</div></div></div>
+
+<!-- ═══════════ DNS/DHCP/NAT ═══════════ -->
+<div class="section-header" data-section="dnsdhcp">
+  <div class="section-icon si-conditions">🔁</div>
+  <div class="section-title">DNS, DHCP &amp; NAT</div>
+  <div class="section-count">Q41 – Q50</div>
+</div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q41</span><span class="q-text">How does DNS resolution work end-to-end?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li>App checks cache → OS cache → <code>/etc/hosts</code>.</li>
+<li>Query goes to <strong>recursive resolver</strong> (ISP / 8.8.8.8 / 1.1.1.1).</li>
+<li>Resolver walks the hierarchy: <strong>root → TLD (.com) → authoritative</strong> nameserver, caching each level (TTL).</li>
+<li>Final A/AAAA record returned to client and cached.</li>
+</ol>
+<pre>nslookup <span class="str">example.com</span>      <span class="cm"># quick check</span>
+dig <span class="str">example.com</span> +trace       <span class="cm"># full delegation walk</span>
+dig <span class="str">example.com</span> +short       <span class="cm"># just the answer</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q42</span><span class="q-text">Recursive vs Iterative DNS queries?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Recursive</strong> – client ↔ resolver: "get me the final answer." Resolver does all the work. (What your PC asks.)</li>
+<li><strong>Iterative</strong> – resolver ↔ name servers: "here's the best referral I have." Root says "ask the .com server", .com says "ask example's server". (What resolvers do upstream.)</li>
+</ul>
+<div class="warn">⚠️ Open recursive resolvers get abused for DNS amplification DDoS — always restrict recursion to your clients.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q43</span><span class="q-text">Common DNS record types?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Type</th><th> Purpose</th></tr>
+<tr><td><strong>A / AAAA</strong></td><td>Hostname → IPv4 / IPv6</td></tr>
+<tr><td><strong>CNAME</strong></td><td>Alias → canonical name (not at apex)</td></tr>
+<tr><td><strong>MX</strong></td><td>Mail exchangers (with priority)</td></tr>
+<tr><td><strong>TXT</strong></td><td>SPF/DKIM/verification strings</td></tr>
+<tr><td><strong>NS / SOA</strong></td><td>Delegation + zone authority/serial</td></tr>
+<tr><td><strong>PTR</strong></td><td>IP → name (reverse DNS)</td></tr>
+<tr><td><strong>SRV / CAA</strong></td><td>Service location / allowed certificate authorities</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q44</span><span class="q-text">What are DoH, DoT, and DNSSEC?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>DNSSEC</strong> – cryptographic signatures prove records weren't tampered with (authenticity, not privacy).</li>
+<li><strong>DoT (port 853)</strong> – DNS over TLS; encrypts resolver traffic, still identifiable.</li>
+<li><strong>DoH (port 443)</strong> – DNS inside HTTPS; blends with web traffic, harder to filter/monitor.</li>
+</ul>
+<div class="info">ℹ️ DNSSEC = integrity, DoT/DoH = confidentiality. They solve different halves and are often combined.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q45</span><span class="q-text">Explain DHCP DORA process</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre>Client ── <span class="kw">Discover</span> (broadcast) ──→ Server(s)  <span class="cm">"Any DHCP here?"</span>
+Client ←── <span class="kw">Offer</span> (IP + lease) ──── Server      <span class="cm">"Use 192.168.1.50"</span>
+Client ── <span class="kw">Request</span> (broadcast) ───→ Server(s)  <span class="cm">"I'll take it"</span>
+Client ←── <span class="kw">ACK</span> ─────────────────── Server      <span class="cm">"Confirmed + gateway/DNS"</span></pre>
+<p>DHCP delivers <strong>IP, mask, gateway, DNS, lease time</strong>. Renewals at 50% (T1) and 87.5% (T2) of lease. No server → APIPA <code>169.254.x.x</code>.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q46</span><span class="q-text">Static vs Dynamic vs Reserved IP?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Static</strong> – manually configured, never changes. Servers, printers, gateways.</li>
+<li><strong>Dynamic</strong> – leased from DHCP pool; may change. Laptops, phones.</li>
+<li><strong>Reservation</strong> – DHCP always hands the same IP to one MAC. Best of both: central control + stable address.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q47</span><span class="q-text">What is NAT and why do we need it?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>NAT rewrites <strong>private IPs to a public IP</strong> at the border, because IPv4 ran out and internal addresses aren't globally routable. It also hides internal topology.</p>
+<table>
+<tr><th>Type</th><th>Mapping</th></tr>
+<tr><td><strong>Static NAT</strong></td><td>1 private ↔ 1 public (servers needing inbound)</td></tr>
+<tr><td><strong>Dynamic NAT</strong></td><td>Pool of publics shared (1:1 while in use)</td></tr>
+<tr><td><strong>PAT / Overload</strong></td><td>Many privates → 1 public via ports (home routers)</td></tr>
+</table>
+<pre><span class="cm"># PAT example: two PCs browse via one public IP</span>
+<span class="cls">192.168.1.10:5001</span> → <span class="str">203.0.113.7:60001</span> → Internet
+<span class="cls">192.168.1.11:5002</span> → <span class="str">203.0.113.7:60002</span> → Internet</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q48</span><span class="q-text">What breaks because of NAT?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Inbound connections</strong> need port-forwarding or UPnP — no listening server behind NAT by default.</li>
+<li><strong>Protocols embedding IPs</strong> (old FTP active mode, SIP) need ALGs/helpers.</li>
+<li><strong>IPsec AH</strong> fails (NAT modifies the signed header); use ESP + NAT-T.</li>
+<li><strong>Double NAT / CGNAT</strong> complicates gaming, P2P, and self-hosting; IPv6 is the real fix.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q49</span><span class="q-text">What is a default gateway?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The router interface a host sends <strong>all off-subnet traffic</strong> to. Decision rule: <code>dst &amp; mask == own-net?</code> → ARP directly; else → forward to gateway MAC.</p>
+<pre><span class="cm"># view / set gateway</span>
+ip route show default      <span class="cm"># Linux</span>
+route print <span class="kw">-4</span>               <span class="cm"># Windows</span></pre>
+<div class="warn">⚠️ Wrong gateway/mask = "can ping LAN but no Internet" — the classic symptom.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="dnsdhcp"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q50</span><span class="q-text">DNS vs ARP — don't confuse them</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>DNS</th><th>ARP</th></tr>
+<tr><td>Resolves</td><td>Name → IP (global, L7)</td><td>IP → MAC (local LAN, L2)</td></tr>
+<tr><td>Scope</td><td>Worldwide hierarchy</td><td>Single broadcast domain</td></tr>
+<tr><td>Transport</td><td>UDP/TCP 53</td><td>Direct Ethernet frames</td></tr>
+</table>
+<p>Order for <code>ping fileserver</code>: <strong>DNS first</strong> (name→IP), <strong>then ARP</strong> (IP→MAC of host or gateway).</p>
+</div></div></div>
+
+<!-- ═══════════ HTTP ═══════════ -->
+<div class="section-header" data-section="http">
+  <div class="section-icon si-oop">🏗</div>
+  <div class="section-title">HTTP, HTTPS &amp; Web</div>
+  <div class="section-count">Q51 – Q60</div>
+</div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q51</span><span class="q-text">HTTP vs HTTPS?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>HTTPS = <strong>HTTP inside TLS</strong> (port 443 vs 80). TLS adds encryption (confidentiality), authentication (server cert), and integrity (tamper detection).</p>
+<ul>
+<li>HTTP is plaintext — anyone on path reads/modifies it.</li>
+<li>HTTPS still leaks <strong>destination IP + SNI (mostly)</strong> unless ECH is used; body/headers/cookies are encrypted.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q52</span><span class="q-text">How does the TLS handshake work?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>TLS 1.2 (simplified):</strong> ClientHello (ciphers) → ServerHello + cert + ServerHelloDone → client verifies cert, sends premaster (encrypted with server public key) → both derive session keys → Finished. <strong>TLS 1.3:</strong> collapses to ~1-RTT, forward-secret key exchange only, 0-RTT resumption option.</p>
+<div class="note">💡 Certificates bind domain → public key via a CA chain; the client trusts the CA list in its OS/browser.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q53</span><span class="q-text">HTTP methods and idempotency?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Method</th><th>Use</th><th>Idempotent?</th></tr>
+<tr><td>GET</td><td>Read resource</td><td>Yes (safe)</td></tr>
+<tr><td>POST</td><td>Create / action</td><td>No</td></tr>
+<tr><td>PUT</td><td>Replace whole resource</td><td>Yes</td></tr>
+<tr><td>PATCH</td><td>Partial update</td><td>Often yes</td></tr>
+<tr><td>DELETE</td><td>Remove</td><td>Yes</td></tr>
+<tr><td>HEAD / OPTIONS</td><td>Headers only / CORS preflight</td><td>Yes</td></tr>
+</table>
+<p>Idempotent = repeating the request has the same effect (safe to retry).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q54</span><span class="q-text">HTTP status code classes with examples?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>2xx Success</strong> – 200 OK, 201 Created, 204 No Content.</li>
+<li><strong>3xx Redirect</strong> – 301 Moved Permanently, 302 Found, 304 Not Modified.</li>
+<li><strong>4xx Client error</strong> – 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 429 Too Many Requests.</li>
+<li><strong>5xx Server error</strong> – 500 Internal Error, 502 Bad Gateway, 503 Unavailable, 504 Gateway Timeout.</li>
+</ul>
+<div class="note">💡 401 = "who are you?" (authenticate), 403 = "I know you, but no" (authorize).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q55</span><span class="q-text">HTTP/1.1 vs HTTP/2 vs HTTP/3?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>HTTP/1.1</th><th>HTTP/2</th><th>HTTP/3</th></tr>
+<tr><td>Transport</td><td>TCP, 6 conns/host</td><td>Single TCP + multiplexed streams</td><td>QUIC over UDP</td></tr>
+<tr><td>Format</td><td>Text</td><td>Binary + HPACK compression</td><td>Binary + QPACK</td></tr>
+<tr><td>Head-of-line</td><td>Per-connection</td><td>TCP-level still stalls</td><td>Eliminated (independent streams)</td></tr>
+<tr><td>Push</td><td>No</td><td>Server push (rarely used)</td><td>Dropped in favor of preload hints</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q56</span><span class="q-text">Cookies vs Sessions vs JWT?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Cookies</strong> – small key-values the browser stores and resends (session ID, prefs). Flag <code>HttpOnly/Secure/SameSite</code>.</li>
+<li><strong>Sessions</strong> – server-side state keyed by a session cookie. Easy to revoke; needs sticky/shared store at scale.</li>
+<li><strong>JWT</strong> – self-contained signed token (header.payload.signature). Stateless verification; hard to revoke early (use short expiry + refresh tokens).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q57</span><span class="q-text">REST vs SOAP vs GraphQL vs gRPC?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Style</th><th>Best for</th></tr>
+<tr><td><strong>REST</strong></td><td>HTTP verbs + JSON, stateless</td><td>Public APIs, CRUD</td></tr>
+<tr><td><strong>SOAP</strong></td><td>XML envelopes, WS-* standards</td><td>Legacy enterprise, strict contracts</td></tr>
+<tr><td><strong>GraphQL</strong></td><td>Single endpoint, client-shaped queries</td><td>Mobile/UIs avoiding over-fetching</td></tr>
+<tr><td><strong>gRPC</strong></td><td>Protobuf over HTTP/2, codegen stubs</td><td>Internal microservices, streaming</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q58</span><span class="q-text">Forward proxy vs Reverse proxy?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Forward</strong> – sits near clients, hides them (corporate egress filter, caching, anonymity). Client configures it.</li>
+<li><strong>Reverse</strong> – sits in front of servers (Nginx, Cloudflare): TLS termination, caching, WAF, load balancing. Client unaware.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q59</span><span class="q-text">How does a CDN work?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A CDN caches content on <strong>edge PoPs near users</strong>. DNS anycast/georouting sends you to the nearest edge; static assets serve from cache (HIT), misses fetch from origin then cache (MISS). Benefits: lower latency, origin offload, DDoS absorption, TLS at edge.</p>
+<div class="info">ℹ️ Cache control via <code>Cache-Control: max-age</code>, ETag validation, and purge APIs.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="http"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q60</span><span class="q-text">WebSocket vs Polling vs SSE?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Short/long polling</strong> – client re-requests; simple but chatty.</li>
+<li><strong>SSE</strong> – one-way server → client event stream over HTTP. Great for feeds/notifications.</li>
+<li><strong>WebSocket (ws/wss)</strong> – full-duplex persistent socket after HTTP upgrade. Chat, games, live dashboards.</li>
+</ul>
+</div></div></div>
+
+<!-- ═══════════ ROUTING ═══════════ -->
+<div class="section-header" data-section="routing">
+  <div class="section-icon si-collections">📚</div>
+  <div class="section-title">Routing &amp; Switching</div>
+  <div class="section-count">Q61 – Q70</div>
+</div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q61</span><span class="q-text">Hub vs Switch vs Router?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Hub (L1)</th><th>Switch (L2)</th><th>Router (L3)</th></tr>
+<tr><td>Forwards on</td><td>Nothing — repeats all</td><td>MAC table</td><td>IP routing table</td></tr>
+<tr><td>Domains</td><td>1 collision, 1 broadcast</td><td>Per-port collision, 1 broadcast</td><td>Breaks both</td></tr>
+<tr><td>Today</td><td>Obsolete</td><td>Every LAN</td><td>Between networks</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q62</span><span class="q-text">How does a switch learn MAC addresses?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>On each ingress frame the switch records <strong>src MAC → port</strong> in its CAM table (aging ~5 min). Dst lookup: known unicast → forward one port; unknown/broadcast/multicast → <strong>flood all ports</strong> in the VLAN. This "learn + flood" is why the first packet to an unknown host hits everyone.</p>
+<div class="warn">⚠️ MAC flooding (attacker fills CAM) forces fail-open flooding → eavesdropping. Mitigate with port-security limits.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q63</span><span class="q-text">What is a VLAN? Access vs Trunk ports?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A VLAN is a <strong>logical L2 broadcast domain</strong> on shared switches — departments isolated without separate hardware.</p>
+<ul>
+<li><strong>Access port</strong> – one untagged VLAN to an end host.</li>
+<li><strong>Trunk port</strong> – carries many VLANs tagged with <strong>802.1Q</strong> headers between switches/routers.</li>
+<li>Inter-VLAN traffic must go through a router/L3 switch (router-on-a-stick or SVIs).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q64</span><span class="q-text">Why do we need Spanning Tree (STP)?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Redundant switch links create <strong>loops → broadcast storms + MAC flapping</strong>. STP (802.1D/RSTP 802.1w) elects a root bridge and <strong>blocks redundant ports</strong>, unblocking on failure. Modern variants: RSTP (fast), MSTP (per-VLAN-group instances).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q65</span><span class="q-text">How does a router forward a packet?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li>Verify dst MAC is its own, strip L2.</li>
+<li><strong>Longest-prefix-match</strong> lookup in routing table (most specific route wins).</li>
+<li>Decrement TTL (drop at 0), rewrite src/dst MAC for next hop, forward.</li>
+<li>If no route → ICMP Destination Unreachable.</li>
+</ol>
+<pre><span class="cm"># example table: 10.1.2.0/24 via eth1 wins over 10.0.0.0/8 via eth0</span>
+<span class="cls">10.0.0.0/8</span> via <span class="str">eth0</span>
+<span class="cls">10.1.2.0/24</span> via <span class="str">eth1</span>  <span class="cm">← longest match for 10.1.2.9</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q66</span><span class="q-text">Static vs Dynamic routing?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Static</strong> – hand-configured routes. Simple, zero overhead; breaks if topology changes. Fine for stubs.</li>
+<li><strong>Dynamic</strong> – protocols (OSPF, BGP) exchange reachability and reconverge automatically. Required at scale.</li>
+<li>Hybrid reality: static defaults at the edge + dynamic in the core.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q67</span><span class="q-text">RIP vs OSPF vs BGP?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>RIP</th><th>OSPF</th><th>BGP</th></tr>
+<tr><td>Type</td><td>Distance-vector, hop count</td><td>Link-state, cost</td><td>Path-vector, policy</td></tr>
+<tr><td>Scope</td><td>Tiny networks (max 15 hops)</td><td>Single AS / enterprise</td><td>Between ASes (Internet)</td></tr>
+<tr><td>Convergence</td><td>Slow, chatty</td><td>Fast (LSA flooding + Dijkstra)</td><td>Slow but scalable/policy-rich</td></tr>
+<tr><td>Metric</td><td>Hops</td><td>Cost (bandwidth)</td><td>AS-path, local-pref, MED…</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q68</span><span class="q-text">What is an Autonomous System (AS)? eBGP vs iBGP?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>An AS is a network under one admin with one routing policy (ISPs, clouds — each has an ASN). <strong>eBGP</strong> runs between ASes (Internet routes, policy filtering); <strong>iBGP</strong> runs inside one AS (needs full mesh or route reflectors; doesn't modify next-hop by default).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q69</span><span class="q-text">Distance-vector vs Link-state?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Distance-vector</strong> (RIP, EIGRP-classic) – "routing by rumor": tell neighbors your distances; Bellman-Ford. Simple, count-to-infinity risk (fixed with split horizon, poison reverse).</li>
+<li><strong>Link-state</strong> (OSPF, IS-IS) – flood the topology so every router computes its own shortest path (Dijkstra). Faster, loop-free, more CPU/memory.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="routing"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q70</span><span class="q-text">Collision domain vs Broadcast domain?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Collision domain</strong> – devices that can collide (share the wire). Each switch port = own collision domain; hubs = one big one.</li>
+<li><strong>Broadcast domain</strong> – devices receiving each other's broadcasts. Each VLAN/subnet = one; routers break them.</li>
+</ul>
+<div class="note">💡 Switches break collisions; routers (and VLANs) break broadcasts.</div>
+</div></div></div>
+
+<!-- ═══════════ SECURITY ═══════════ -->
+<div class="section-header" data-section="security">
+  <div class="section-icon si-exceptions">🚨</div>
+  <div class="section-title">Security, VPN &amp; Firewalls</div>
+  <div class="section-count">Q71 – Q80</div>
+</div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q71</span><span class="q-text">Firewall types: packet-filter vs Stateful vs NGFW?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Packet filter (stateless)</strong> – per-packet ACLs on IP/ports. Fast, dumb (can't track connections).</li>
+<li><strong>Stateful</strong> – tracks connection table; return traffic auto-allowed. The standard since the 90s.</li>
+<li><strong>NGFW / WAF</strong> – adds app awareness, user identity, IPS, TLS inspection, URL filtering (L7).</li>
+</ul>
+<pre><span class="cm"># stateful intuition: allow RELATED,ESTABLISHED back in</span>
+iptables <span class="kw">-A</span> INPUT <span class="kw">-m</span> conntrack --ctstate ESTABLISHED,RELATED <span class="kw">-j</span> ACCEPT</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q72</span><span class="q-text">IDS vs IPS vs WAF?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>IDS</th><th>IPS</th><th>WAF</th></tr>
+<tr><td>Placement</td><td>Passive tap (detect)</td><td>Inline (prevent)</td><td>In front of web apps</td></tr>
+<tr><td>Action</td><td>Alert only</td><td>Drop/reset malicious flows</td><td>Block SQLi/XSS/OWASP Top 10</td></tr>
+<tr><td>Risk</td><td>No outage risk</td><td>False positives can break traffic</td><td>Needs tuning per app</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q73</span><span class="q-text">What is a VPN and how do IPsec / SSL / WireGuard differ?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A VPN builds an <strong>encrypted tunnel</strong> over untrusted networks, making remote hosts appear local.</p>
+<ul>
+<li><strong>IPsec</strong> – L3 suite (AH/ESP, IKEv2); site-to-site and client VPNs. Transport mode (host-to-host) vs Tunnel mode (gateway-to-gateway).</li>
+<li><strong>SSL/TLS VPN</strong> – browser or client over 443; easiest through firewalls; portal or full-tunnel.</li>
+<li><strong>WireGuard</strong> – minimal, fast, modern crypto (Noise); static configs, roaming-friendly. Great for point-to-point/mesh.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q74</span><span class="q-text">Symmetric vs Asymmetric encryption? What is Diffie-Hellman?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Symmetric (AES/ChaCha20)</strong> – one shared key; very fast. Problem: key distribution.</li>
+<li><strong>Asymmetric (RSA/ECDH)</strong> – public/private pair; slow, used for key exchange + signatures.</li>
+<li><strong>Diffie-Hellman</strong> – lets two parties derive a shared secret over a public channel (TLS uses ECDHE for forward secrecy).</li>
+<li>Real systems are <strong>hybrid</strong>: asymmetric to agree a key, symmetric for bulk data.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q75</span><span class="q-text">How does SSH work? Why not Telnet?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>SSH (port 22) negotiates ciphers, <strong>authenticates the server via host key</strong>, then the user (password/keyboard/MFA or public-key), and opens encrypted channels (shell, port forwarding, SFTP, tunnels). Telnet (port 23) sends <strong>everything including passwords in plaintext</strong> — never use it on real networks.</p>
+<pre>ssh <span class="kw">-i</span> <span class="str">~/.ssh/id_ed25519</span> user@host   <span class="cm"># key login</span>
+ssh <span class="kw">-L</span> <span class="num">8080:db:5432</span> user@bastion      <span class="cm"># local forward to private DB</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q76</span><span class="q-text">DDoS attack types and mitigations?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Volumetric</strong> – UDP amplification (DNS/NTP), floods. Mitigate: scrubbing centers, anycast, CDN absorption.</li>
+<li><strong>Protocol</strong> – SYN floods, ping of death. Mitigate: SYN cookies, rate limits, tuned stacks.</li>
+<li><strong>Application (L7)</strong> – slowloris, HTTP floods. Mitigate: WAF, CAPTCHAs, caching, per-IP throttling (429).</li>
+</ul>
+<div class="note">💡 Defense in depth: overprovision + edge filtering + autoscale + runbooks. No single box stops a big DDoS.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q77</span><span class="q-text">ARP spoofing, DNS spoofing, MITM — how do they work?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>ARP spoofing</strong> – attacker answers ARP with its MAC for the gateway IP → victim traffic flows through attacker. Defend: DAI, static entries, 802.1X.</li>
+<li><strong>DNS spoofing/poisoning</strong> – forged responses redirect names to attacker IPs. Defend: DNSSEC, trusted resolvers, DoT/DoH.</li>
+<li><strong>MITM generally</strong> – position on path + downgrade/strip TLS. Defend: HSTS, cert pinning, VPN on untrusted nets.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q78</span><span class="q-text">WEP vs WPA vs WPA2 vs WPA3?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>WEP</strong> – broken (short IV, RC4 reuse). Crackable in minutes. Never use.</li>
+<li><strong>WPA (TKIP)</strong> – stopgap, also deprecated.</li>
+<li><strong>WPA2 (AES-CCMP)</strong> – solid, but 4-way handshake had KRACK; PSK vulnerable to offline dictionary if passphrase weak.</li>
+<li><strong>WPA3 (SAE/GCMP)</strong> – forward secrecy, stronger handshake, protects weak passwords, mandatory PMF. Prefer it; use Enterprise (802.1X) for corps.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q79</span><span class="q-text">What are DMZ and Zero Trust?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>DMZ</strong> – isolated subnet for public-facing servers between outside and inside firewalls; compromise there doesn't reach the LAN directly.</li>
+<li><strong>Zero Trust</strong> – "never trust, always verify": per-request identity, device posture, least privilege, micro-segmentation — no implicit trust from being "inside".</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="security"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q80</span><span class="q-text">How does a certificate chain validate?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Server sends <strong>leaf + intermediates</strong>; client chains to a <strong>trusted root</strong> in its store, checking signatures, expiry, revocation (CRL/OCSP), hostname (SAN), and key usage. Any break → browser warning. Let's Encrypt made valid certs free and automated (ACME).</p>
+</div></div></div>
+
+<!-- ═══════════ WIRELESS ═══════════ -->
+<div class="section-header" data-section="wireless">
+  <div class="section-icon si-functional">📡</div>
+  <div class="section-title">Wireless &amp; Advanced Topics</div>
+  <div class="section-count">Q81 – Q85</div>
+</div>
+
+<div class="qa-card" data-section="wireless"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q81</span><span class="q-text">Wi-Fi standards: N vs AC vs AX vs BE?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Band</th><th>Headline Feature</th></tr>
+<tr><td><strong>802.11n (Wi-Fi 4)</strong></td><td>2.4/5 GHz</td><td>MIMO, 40 MHz channels (~600 Mbps)</td></tr>
+<tr><td><strong>802.11ac (Wi-Fi 5)</strong></td><td>5 GHz</td><td>Wider channels, MU-MIMO downlink (Gbps)</td></tr>
+<tr><td><strong>802.11ax (Wi-Fi 6/6E)</strong></td><td>2.4/5/6 GHz</td><td>OFDMA, uplink MU-MIMO, BSS coloring (dense areas)</td></tr>
+<tr><td><strong>802.11be (Wi-Fi 7)</strong></td><td>2.4/5/6 GHz</td><td>320 MHz channels, multi-link operation (MLO)</td></tr>
+</table>
+<div class="note">💡 Real speed ≪ headline rate: share airtime, mind channel width, RSSI, and interference.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="wireless"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q82</span><span class="q-text">CSMA/CD vs CSMA/CA?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>CSMA/CD (wired legacy hubs)</strong> – listen, send, <em>detect</em> collisions, back off and retry. Gone on full-duplex switches.</li>
+<li><strong>CSMA/CA (Wi-Fi)</strong> – collisions can't be detected on radio, so <em>avoid</em> them: listen, random backoff, RTS/CTS handshake, ACK every frame.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="wireless"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q83</span><span class="q-text">Load balancer algorithms?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Round-robin / weighted</strong> – even or capacity-proportioned spread. Simple; ignores current load.</li>
+<li><strong>Least connections / least response time</strong> – sends to emptiest/fastest backend. Best for uneven workloads.</li>
+<li><strong>IP hash / consistent hashing</strong> – same client → same backend (session affinity) with minimal reshuffle on scale.</li>
+<li><strong>Health checks</strong> (active/passive) remove dead backends — without them, balancing is theater.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="wireless"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q84</span><span class="q-text">What is MPLS and where is it used?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>MPLS forwards on <strong>short labels</strong> (between L2/L3) instead of longest-prefix IP lookups — fast, with traffic-engineering and VPN (L3VPN/VPLS) support. Still the backbone of enterprise WANs, though SD-WAN over commodity Internet is displacing pure MPLS for cost.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="wireless"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q85</span><span class="q-text">IPv6 transition mechanisms?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Dual-stack</strong> – run both; preferred long-term.</li>
+<li><strong>Tunneling (6to4, Teredo, 6in4)</strong> – IPv6 inside IPv4 to cross legacy cores.</li>
+<li><strong>Translation (NAT64/DNS64)</strong> – let IPv6-only clients reach IPv4 servers.</li>
+</ul>
+</div></div></div>
+
+<!-- ═══════════ TROUBLESHOOTING ═══════════ -->
+<div class="section-header" data-section="troubleshooting">
+  <div class="section-icon si-misc">🧩</div>
+  <div class="section-title">Troubleshooting &amp; Tools</div>
+  <div class="section-count">Q86 – Q90</div>
+</div>
+
+<div class="qa-card" data-section="troubleshooting"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q86</span><span class="q-text">Systematic approach: "no Internet" — what order?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li><strong>L1:</strong> link lights, cable, Wi-Fi associated? <code>ip link</code>, try another port/cable.</li>
+<li><strong>L2/L3 local:</strong> got an IP? (<code>ip addr</code> — 169.254.x.x = DHCP failed). Correct mask + gateway? Ping gateway.</li>
+<li><strong>DNS:</strong> <code>nslookup example.com</code>. If IP works but names fail → DNS issue; try 8.8.8.8.</li>
+<li><strong>Path:</strong> <code>ping 8.8.8.8</code>, then <code>traceroute</code> to find the dying hop.</li>
+<li><strong>App/port:</strong> <code>curl -v</code>, <code>telnet host 443</code>, check proxy/firewall.</li>
+</ol>
+<div class="note">💡 Always go bottom-up (L1 → L7). Most outages are L1/L2/DHCP/DNS, not exotic routing.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="troubleshooting"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q87</span><span class="q-text">Essential commands cheat sheet?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre>ping <span class="str">8.8.8.8</span>            <span class="cm"># reachability + RTT/loss</span>
+tracert / traceroute <span class="str">example.com</span>  <span class="cm"># path + dying hop</span>
+ipconfig /all  •  ip addr / ip route  <span class="cm"># own IP/gateway/DNS</span>
+nslookup / dig <span class="str">example.com</span>      <span class="cm"># DNS answers + timing</span>
+netstat <span class="kw">-ano</span>  •  ss <span class="kw">-tulpn</span>           <span class="cm"># sockets: who listens/connects</span>
+arp <span class="kw">-a</span>  •  ip neigh              <span class="cm"># L2 resolution sanity</span>
+curl <span class="kw">-vI</span> https://<span class="str">example.com</span>      <span class="cm"># HTTP status + TLS + headers</span>
+mtr <span class="str">example.com</span>               <span class="cm"># ping + traceroute combined</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="troubleshooting"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q88</span><span class="q-text">How do you use Wireshark / tcpdump effectively?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Capture with a <strong>display filter first</strong>: <code>ip.addr == 10.0.0.5 &amp;&amp; tcp.port == 443</code>, or <code>dns</code>, <code>dhcp</code>, <code>arp</code>.</li>
+<li>Follow <strong>TCP stream</strong> to rebuild a conversation; check SYN/SYN-ACK/ACK, retransmits (black/red), zero windows.</li>
+<li>Verify each layer: ARP present? DHCP complete? DNS answers? TLS handshake aborts (cert?) or resets (firewall)?</li>
+<li>Capture at <strong>both ends</strong> when possible — "sent but never arrived" localizes the drop.</li>
+</ul>
+<pre>tcpdump <span class="kw">-i</span> any port <span class="num">53</span>  <span class="cm"># watch live DNS</span>
+tcpdump <span class="kw">-i</span> eth0 host <span class="str">10.0.0.5</span> <span class="kw">-w</span> out.pcap</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="troubleshooting"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q89</span><span class="q-text">"Can ping IP but can't browse" — diagnosis?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Routing works; the fault is higher up. Checklist:</p>
+<ol>
+<li><strong>DNS?</strong> <code>nslookup google.com</code> fails → set/check DNS, flush cache.</li>
+<li><strong>Proxy?</strong> stale PAC file or env <code>http_proxy</code> → bypass/disable and retest.</li>
+<li><strong>Port 80/443 blocked?</strong> <code>curl -v</code> hangs vs instant RST → firewall/ISP filter.</li>
+<li><strong>Browser-only?</strong> extensions, HSTS pin, captive portal login page.</li>
+</ol>
+</div></div></div>
+
+<div class="qa-card" data-section="troubleshooting"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q90</span><span class="q-text">How do you prove where packet loss happens?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>mtr</strong> for 100+ packets: loss that <em>starts at hop N and persists</em> = problem at/after N; loss at one hop that <em>recovers later</em> = that router deprioritizing ICMP (ignore it).</li>
+<li>Confirm with <strong>TCP-level evidence</strong>: Wireshark retransmits, app timeouts, <code>iperf3</code> throughput collapse.</li>
+<li>Common causes: duplex mismatch, bad cable/optic, saturated queue (bufferbloat), policer, faulty NIC offloads (test with offloads disabled).</li>
+</ul>
+</div></div></div>
+
+</div><!-- end qaContainer -->
+<div class="no-results" id="noResults">No questions match your search.</div>
+</div>
+
+<script>
+function toggle(btn) {
+  const card = btn.closest('.qa-card');
+  const body = card.querySelector('.qa-body');
+  const open = card.classList.contains('open');
+  if (open) {
+    card.classList.remove('open');
+    body.style.maxHeight = '0';
+  } else {
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+  updateCount();
+}
+function expandAll() {
+  document.querySelectorAll('.qa-card:not([style*="display: none"])').forEach(card => {
+    const body = card.querySelector('.qa-body');
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+  updateCount();
+}
+function collapseAll() {
+  document.querySelectorAll('.qa-card').forEach(card => {
+    card.classList.remove('open');
+    card.querySelector('.qa-body').style.maxHeight = '0';
+  });
+  updateCount();
+}
+function updateCount() {
+  document.getElementById('openCount').textContent =
+    document.querySelectorAll('.qa-card.open').length;
+}
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  let vis = 0;
+  document.querySelectorAll('.qa-card').forEach(card => {
+    const text = card.querySelector('.q-text').textContent.toLowerCase();
+    const body = card.querySelector('.qa-body-inner').textContent.toLowerCase();
+    const show = !q || text.includes(q) || body.includes(q);
+    card.style.display = show ? '' : 'none';
+    if (show) vis++;
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    const sec = h.dataset.section;
+    const hasVis = document.querySelectorAll(`.qa-card[data-section="${sec}"]:not([style*="display: none"])`).length > 0;
+    h.style.display = hasVis ? '' : 'none';
+  });
+  document.getElementById('noResults').style.display = vis === 0 ? 'block' : 'none';
+});
+function filterSection(section, btn) {
+  document.querySelectorAll('.filters .ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.qa-card').forEach(card => {
+    card.style.display = (section === 'all' || card.dataset.section === section) ? '' : 'none';
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    h.style.display = (section === 'all' || h.dataset.section === section) ? '' : 'none';
+  });
+  document.getElementById('noResults').style.display = 'none';
+}
+window.addEventListener('scroll', () => {
+  const total = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('progressBar').style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
+});
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.qa-card.open').forEach(card => {
+    const body = card.querySelector('.qa-body');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Python Interview Q&amp;A — From Basics to Bytecode &amp; FFI</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0c10;--surface:#0f1117;--card:#13161e;--border:#1e2230;
+  --accent:#00e5a0;--accent2:#00b8ff;--accent3:#ff6b6b;--accent4:#ffd166;
+  --text:#c9d1e0;--muted:#5a6375;--heading:#eef2ff;
+  --code-bg:#080b11;--tag-bg:#0d2a1f;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+.container{max-width:920px;margin:0 auto;padding:60px 24px 120px;position:relative;z-index:1}
+header{text-align:center;margin-bottom:60px}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:var(--tag-bg);border:1px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;padding:6px 14px;border-radius:4px;margin-bottom:22px}
+.header-badge::before{content:'◆';font-size:8px}
+h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;color:var(--heading);letter-spacing:-.03em;line-height:1.1;margin-bottom:12px}
+h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--muted);font-size:.88rem;font-family:'JetBrains Mono',monospace}
+.stats{display:flex;justify-content:center;gap:36px;margin-top:28px;flex-wrap:wrap}
+.stat-num{font-size:1.9rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace;display:block}
+.stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem;pointer-events:none}
+#searchInput{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:12px 14px 12px 40px;border-radius:8px;outline:none;transition:border-color .2s}
+#searchInput:focus{border-color:var(--accent)}
+#searchInput::placeholder{color:var(--muted)}
+.ctrl-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ctrl-btn.active{background:var(--tag-bg);border-color:var(--accent);color:var(--accent)}
+.filters{display:flex;gap:8px;margin-bottom:38px;flex-wrap:wrap}
+.section-header{display:flex;align-items:center;gap:12px;margin:50px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-icon{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.si-platform{background:linear-gradient(135deg,#004d99,#0077ff)}
+.si-wrapper{background:linear-gradient(135deg,#1a4d2e,#00e5a0)}
+.si-strings{background:linear-gradient(135deg,#4d1a00,#ff6b00)}
+.si-oop{background:linear-gradient(135deg,#2d004d,#a020f0)}
+.si-advanced{background:linear-gradient(135deg,#004d3d,#00e5c0)}
+.si-modifiers{background:linear-gradient(135deg,#4d3d00,#ffd166)}
+.si-conditions{background:linear-gradient(135deg,#4d0022,#ff6b6b)}
+.si-exceptions{background:linear-gradient(135deg,#4d1a1a,#ff4444)}
+.si-misc{background:linear-gradient(135deg,#2a2a2a,#888888)}
+.si-collections{background:linear-gradient(135deg,#1a1a4d,#6666ff)}
+.si-advcollections{background:linear-gradient(135deg,#1a003d,#9900cc)}
+.si-generics{background:linear-gradient(135deg,#003d1a,#00cc55)}
+.si-threading{background:linear-gradient(135deg,#3d2800,#cc8800)}
+.si-functional{background:linear-gradient(135deg,#003333,#00cccc)}
+.section-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--muted)}
+.section-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted)}
+.qa-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.qa-card:hover{border-color:#252a3c}
+.qa-card.open{border-color:var(--accent)}
+.qa-toggle{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:16px 18px;text-align:left;color:inherit}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);background:var(--tag-bg);border:1px solid rgba(0,229,160,.2);padding:3px 8px;border-radius:4px;flex-shrink:0;min-width:40px;text-align:center;font-weight:700}
+.q-text{font-size:.92rem;font-weight:600;color:var(--heading);flex:1;line-height:1.4}
+.qa-card.open .q-text{color:var(--accent)}
+.chevron{flex-shrink:0;color:var(--muted);transition:transform .3s;font-size:.65rem}
+.qa-card.open .chevron{transform:rotate(180deg);color:var(--accent)}
+.qa-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.qa-body-inner{padding:0 18px 20px;border-top:1px solid var(--border);padding-top:16px}
+.qa-body-inner p{font-size:.875rem;color:var(--text);margin-bottom:10px;line-height:1.75}
+.qa-body-inner ul,.qa-body-inner ol{margin:8px 0 12px 18px;font-size:.85rem}
+.qa-body-inner li{margin-bottom:5px;line-height:1.65}
+.qa-body-inner strong{color:var(--heading)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.75;color:#c9d1e0}
+.kw{color:#00b8ff;font-weight:600}
+.str{color:#00e5a0}
+.cm{color:#363f55;font-style:italic}
+.cls{color:#ffd166}
+.num{color:#ff9f43}
+.ann{color:#a29bfe}
+.out{color:#ff6b6b}
+.note{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.15);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent);margin:10px 0}
+.warn{background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.2);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent3);margin:10px 0}
+.info{background:rgba(0,184,255,.05);border:1px solid rgba(0,184,255,.15);border-radius:6px;padding:11px 15px;font-size:.8rem;color:var(--accent2);margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.8rem;margin:10px 0}
+th{background:var(--code-bg);color:var(--accent);text-align:left;padding:9px 13px;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+td{padding:8px 13px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+.no-results{text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:60px 20px;display:none}
+.progress-bar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s;z-index:100}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+@media(max-width:600px){.container{padding:28px 14px 80px}.stats{gap:18px}h1{font-size:1.9rem}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="container">
+
+<header>
+  <div class="header-badge">Python Interview Prep · Deep Track</div>
+  <h1>Master <span>Python</span><br/>From Syntax to C Internals</h1>
+  <p class="subtitle">// 120 questions · 10 sections · down to bytecode, dis &amp; FFI</p>
+  <div class="stats">
+    <div class="stat"><span class="stat-num">120</span><span class="stat-label">Questions</span></div>
+    <div class="stat"><span class="stat-num">10</span><span class="stat-label">Topics</span></div>
+    <div class="stat"><span class="stat-num" id="openCount">0</span><span class="stat-label">Opened</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap"><input type="text" id="searchInput" placeholder="Search questions... (try: GIL, dis, ctypes, MRO)"/></div>
+  <button class="ctrl-btn" onclick="expandAll()">Expand All</button>
+  <button class="ctrl-btn" onclick="collapseAll()">Collapse All</button>
+</div>
+
+<div class="filters">
+  <button class="ctrl-btn active" onclick="filterSection('all',this)">All</button>
+  <button class="ctrl-btn" onclick="filterSection('fundamentals',this)">🐍 Basics</button>
+  <button class="ctrl-btn" onclick="filterSection('datatypes',this)">🧬 Data Types</button>
+  <button class="ctrl-btn" onclick="filterSection('functions',this)">🧩 Functions</button>
+  <button class="ctrl-btn" onclick="filterSection('oop',this)">🏗 OOP</button>
+  <button class="ctrl-btn" onclick="filterSection('iteration',this)">🔁 Iteration</button>
+  <button class="ctrl-btn" onclick="filterSection('imports',this)">📦 Imports</button>
+  <button class="ctrl-btn" onclick="filterSection('memory',this)">🧠 Memory &amp; GC</button>
+  <button class="ctrl-btn" onclick="filterSection('gil',this)">🧵 GIL &amp; Concurrency</button>
+  <button class="ctrl-btn" onclick="filterSection('bytecode',this)">⚙️ Bytecode · dis</button>
+  <button class="ctrl-btn" onclick="filterSection('ffi',this)">🔌 FFI · C API</button>
+</div>
+
+<div id="qaContainer">
+
+<!-- ═══════════ FUNDAMENTALS ═══════════ -->
+<div class="section-header" data-section="fundamentals">
+  <div class="section-icon si-platform">🐍</div>
+  <div class="section-title">Language Fundamentals</div>
+  <div class="section-count">Q1 – Q10</div>
+</div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q01</span><span class="q-text">What is Python, technically? Interpreted or compiled?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Python is a <strong>high-level, dynamically typed, garbage-collected</strong> language. CPython (the reference implementation) is <strong>both compiled and interpreted</strong>: source → AST → <strong>bytecode</strong> (in <code>__pycache__/*.pyc</code>) → executed by the <strong>ceval evaluation loop</strong>, a stack-based virtual machine written in C.</p>
+<ul>
+<li><strong>CPython</strong> – reference, C-based, has the GIL.</li>
+<li><strong>PyPy</strong> – JIT-traced, often 4–10× faster on loops, weaker C-extension compat.</li>
+<li><strong>Jython / IronPython / GraalPy</strong> – JVM / .NET / GraalVM hosts (no GIL, niche).</li>
+<li><strong>MicroPython / CircuitPython</strong> – microcontrollers.</li>
+</ul>
+<div class="note">💡 One-liner: "Python compiles to bytecode for a VM — files just cache it so step 1 is skipped next run."</div>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q02</span><span class="q-text">Dynamic vs static typing — and is Python strongly typed?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Axis</th><th>Meaning</th><th>Python?</th></tr>
+<tr><td><strong>Dynamic</strong></td><td>Types checked at runtime; names rebind freely</td><td>✅ Yes — <code>x = 1; x = "a"</code> is legal</td></tr>
+<tr><td><strong>Strong</strong></td><td>No silent coercion between unrelated types</td><td>✅ Yes — <code>"1" + 1</code> raises <code>TypeError</code> (unlike JS/PHP)</td></tr>
+</table>
+<p>Type <strong>hints (PEP 484+)</strong> add optional static typing checked by mypy/pyright — the runtime ignores them (except <code>typing.get_type_hints</code> introspection and pydantic-style libraries).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q03</span><span class="q-text">Duck typing, EAFP vs LBYL?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><strong>Duck typing</strong>: "if it walks like a duck…" — behavior, not declared type, decides usability. Pythonic style pairs it with <strong>EAFP</strong> (Easier to Ask Forgiveness than Permission): just try, catch the exception.</p>
+<pre><span class="cm"># LBYL — look before you leap (racy, verbose)</span>
+<span class="kw">if</span> <span class="cls">hasattr</span>(obj, <span class="str">"read"</span>) and <span class="cls">callable</span>(obj.read):
+    data = obj.read()
+
+<span class="cm"># EAFP — Pythonic (atomic, race-free)</span>
+<span class="kw">try</span>:
+    data = obj.read()
+<span class="kw">except</span> <span class="cls">AttributeError</span>:
+    data = <span class="kw">None</span></pre>
+<div class="note">💡 EAFP also avoids TOCTOU races (file deleted between check and open) — exceptions are cheap when rare, costly in hot loops.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q04</span><span class="q-text"><code>==</code> vs <code>is</code> — and the integer-cache trap?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>==</code> calls <code>__eq__</code> → <strong>value equality</strong>.</li>
+<li><code>is</code> compares <strong>identity</strong> (same object in memory, i.e. <code>id()</code>).</li>
+<li>CPython caches small ints <strong>-5…256</strong> and some strings → <code>(256+1) is 257</code> may be False while <code>255 is 255</code> is True. Never rely on it.</li>
+</ul>
+<pre>a = <span class="num">1000</span>; b = <span class="num">1000</span>
+a == b  <span class="cm"># True  — values equal</span>
+a <span class="kw">is</span> b  <span class="cm"># False (usually) — distinct objects!</span>
+x = <span class="kw">None</span>
+x <span class="kw">is None</span>  <span class="cm"># ✅ correct — singletons compared by identity</span></pre>
+<div class="warn">⚠️ Rule: <code>is</code> only for singletons (<code>None</code>, <code>True</code>/<code>False</code>, sentinels). Everything else → <code>==</code>.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q05</span><span class="q-text">Truthiness — what is truthy/falsy and how is it decided?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Falsy: <code>None</code>, <code>False</code>, <code>0</code>/<code>0.0</code>/<code>0j</code>, <code>""</code>, <code>[]</code>, <code>{}</code>, <code>()</code>, <code>set()</code>, <code>range(0)</code>. Everything else is truthy. Resolution order: <code>__bool__()</code> → else <code>__len__() == 0</code> → else True.</p>
+<pre><span class="kw">class</span> <span class="cls">Bag</span>:
+    <span class="kw">def</span> <span class="cls">__init__</span>(self, items): self.items = items
+    <span class="kw">def</span> <span class="cls">__len__</span>(self): <span class="kw">return</span> <span class="cls">len</span>(self.items)
+
+<span class="kw">bool</span>(<span class="cls">Bag</span>([]))  <span class="cm"># False — via __len__</span>
+<span class="kw">if</span> items: ...      <span class="cm"># ✅ Pythonic emptiness check</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q06</span><span class="q-text">"Everything is an object" — what does that buy you?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Functions, classes, modules, even <code>None</code> are heap objects with a type pointer and refcount (see Q65). Consequences:</p>
+<ul>
+<li>Introspection everywhere: <code>type(x)</code>, <code>dir(x)</code>, <code>x.__dict__</code>, <code>inspect</code> module.</li>
+<li>Monkey-patching: rebind attributes at runtime (powerful, dangerous).</li>
+<li>Uniform protocol model: dunder methods (<code>__len__</code>, <code>__iter__</code>) instead of interfaces.</li>
+<li>Cost: even <code>1</code> is a 28-byte <code>PyLongObject</code> — hence numpy for numerics.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q07</span><span class="q-text">Mutable vs immutable — the complete picture?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Immutable</th><th>Mutable</th></tr>
+<tr><td>int, float, complex, str, bytes, tuple, frozenset, None</td><td>list, dict, set, bytearray, most user objects</td></tr>
+<tr><td>Hashable (usable as dict keys) if all parts are</td><td>Unhashable (except by identity for user objects)</td></tr>
+<tr><td>Safe to share / thread-trivially-safe</td><td>Shared references alias — mutations visible everywhere</td></tr>
+</table>
+<pre>a = b = []      <span class="cm"># ONE list, two names!</span>
+a.append(<span class="num">1</span>)     <span class="cm"># b is now [1] too — aliasing</span>
+t = (<span class="num">1</span>, [<span class="num">2</span>])    <span class="cm"># "immutable" tuple holding a MUTABLE list</span>
+t[<span class="num">1</span>].append(<span class="num">3</span>)  <span class="cm"># legal! t == (1, [2, 3])</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q08</span><span class="q-text">Shallow vs deep copy?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Assignment</strong> – new name, same object.</li>
+<li><strong>Shallow copy</strong> (<code>list.copy()</code>, <code>copy.copy</code>) – new container, same children.</li>
+<li><strong>Deep copy</strong> (<code>copy.deepcopy</code>) – recursive clone; keeps a <code>memo</code> dict so shared/cyclic references stay shared, not duplicated or infinitely recursed.</li>
+</ul>
+<pre><span class="kw">import</span> copy
+a = [[<span class="num">1</span>], [<span class="num">2</span>]]
+s = copy.copy(a); d = copy.deepcopy(a)
+a[<span class="num">0</span>].append(<span class="num">9</span>)
+s  <span class="cm"># [[1, 9], [2]] — child shared!</span>
+d  <span class="cm"># [[1], [2]]     — fully independent</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q09</span><span class="q-text">Python 2 → 3: what actually broke?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>print</code> statement → <strong>function</strong>; <code>exec</code> likewise.</li>
+<li><strong>str is Unicode</strong>; old <code>str</code> bytes → <code>bytes</code> type. The #1 migration pain.</li>
+<li><code>/</code> is true division; <code>//</code> floors. <code>5/2 == 2.5</code>.</li>
+<li><code>range</code>/<code>map</code>/<code>filter</code>/<code>dict.items()</code> return <strong>lazy views/iterators</strong>.</li>
+<li><code>next()</code>/<code>__next__</code>, keyword-only args, <code>nonlocal</code>, exception chaining (<code>raise … from</code>).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="fundamentals"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q10</span><span class="q-text">How does a Python program execute, end to end?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li><strong>Parse</strong> source → AST (<code>ast.parse</code>).</li>
+<li><strong>Compile</strong> AST → bytecode code object (<code>compile()</code>), cached as <code>__pycache__/*.pyc</code>.</li>
+<li><strong>Execute</strong>: ceval loop interprets bytecode against frames (see §Bytecode).</li>
+<li><strong>Resolve</strong> names via LEGB + import system; allocate everything as refcounted heap objects.</li>
+</ol>
+<pre><span class="kw">import</span> ast, dis
+tree = ast.parse(<span class="str">"x = 1 + 2"</span>)
+<span class="cls">print</span>(ast.dump(tree, indent=<span class="num">2</span>))  <span class="cm"># step 1: the tree</span>
+code = <span class="cls">compile</span>(tree, <span class="str">"&lt;demo&gt;"</span>, <span class="str">"exec"</span>)
+dis.dis(code)                  <span class="cm"># step 2: the bytecode</span></pre>
+</div></div></div>
+
+<!-- ═══════════ DATA TYPES ═══════════ -->
+<div class="section-header" data-section="datatypes">
+  <div class="section-icon si-strings">🧬</div>
+  <div class="section-title">Data Types &amp; Internals</div>
+  <div class="section-count">Q11 – Q20</div>
+</div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q11</span><span class="q-text">list vs tuple — beyond "mutable vs immutable"?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Semantics</strong>: lists = homogeneous sequences; tuples = heterogeneous records (hence unpacking, <code>divmod</code> returns, dict keys).</li>
+<li><strong>Performance</strong>: tuples are smaller, iterate slightly faster, and construction can be constant-folded.</li>
+<li><strong>Hashability</strong>: tuple of hashables is hashable → dict keys, set members, <code>lru_cache</code> args.</li>
+<li><strong>Cowboy detail</strong>: CPython keeps a <strong>tuple freelist</strong> (buffered reuse) and over-allocates lists on growth (amortized O(1) append).</li>
+</ul>
+<pre><span class="kw">import</span> sys
+sys.getsizeof([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>])  <span class="cm"># 88 — over-allocated buffer</span>
+sys.getsizeof((<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>))  <span class="cm"># 64 — exact fit</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q12</span><span class="q-text">How does dict actually work? (hash table, insertion order)</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Open-addressing <strong>hash table</strong>: <code>hash(key)</code> → slot; collisions resolved by probing (perturbation scheme).</li>
+<li>Since 3.6 (guaranteed 3.7): <strong>compact + insertion-ordered</strong> — dense entry array in insertion order + sparse index of slots. Iteration is cheap and ordered; memory dropped ~25%.</li>
+<li>Resize at <strong>2/3 load</strong> (sizes 8, 16, 32…); deletion inserts a dummy to keep probe chains intact.</li>
+<li>Keys must be <strong>hashable + equality-stable</strong>; equal keys must hash equal (<code>1 == True</code>, same hash — they collide as one key!).</li>
+</ul>
+<div class="warn">⚠️ Never mutate a dict during iteration (RuntimeError) — iterate over <code>list(d)</code>. And never use a mutable default as a key.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q13</span><span class="q-text">set and frozenset — when and why?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>O(1) <strong>membership tests</strong> — <code>x in big_set</code> vs O(n) list scan; the classic dedup: <code>list(dict.fromkeys(items))</code> (ordered) or <code>list(set(items))</code>.</li>
+<li>Set algebra: <code>|</code> union, <code>&amp;</code> intersection, <code>-</code> difference, <code>^</code> symmetric difference — expressive diffing of collections.</li>
+<li><code>frozenset</code> = immutable + hashable → dict keys, set elements, <code>lru_cache</code>-friendly snapshots.</li>
+</ul>
+<pre>seen = <span class="cls">set</span>()
+seen.add((<span class="num">1</span>, <span class="num">2</span>))   <span class="cm"># tuple ok</span>
+<span class="cm"># seen.add([1, 2])  → TypeError: unhashable</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q14</span><span class="q-text">str: immutability, interning, formatting options?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Immutable + Unicode</strong> (flexible representation: 1/2/4 bytes per char — PEP 393). Every "modification" builds a new string → always <code>"".join(...)</code> in loops.</li>
+<li><strong>Interning</strong>: identifiers/literals may share one object (<code>sys.intern()</code> forces it — big win for millions of repeated tokens from parsers).</li>
+<li>Formatting: <code>%</code> (legacy), <code>str.format</code> (verbose), <strong>f-strings</strong> (fastest — compiled to <code>FORMAT_VALUE</code>, support <code>=</code> debug and format specs).</li>
+</ul>
+<pre>name, n = <span class="str">"ada"</span>, <span class="num">42</span>
+<span class="kw">f</span><span class="str">"{name=} {n:05d}"</span>  <span class="cm"># "name='ada' 00042"</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q15</span><span class="q-text">str vs bytes vs bytearray vs memoryview?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Type</th><th>Holds</th><th>Mutable?</th></tr>
+<tr><td><strong>str</strong></td><td>Unicode text</td><td>No</td></tr>
+<tr><td><strong>bytes</strong></td><td>Raw byte values 0–255</td><td>No</td></tr>
+<tr><td><strong>bytearray</strong></td><td>Raw bytes, in-place editable</td><td>Yes</td></tr>
+<tr><td><strong>memoryview</strong></td><td>Zero-copy <em>view</em> over any buffer (bytes, bytearray, numpy, mmap)</td><td>View</td></tr>
+</table>
+<pre>raw = <span class="str">b"caf\xc3\xa9"</span>
+raw.decode(<span class="str">"utf-8"</span>)      <span class="cm"># 'café' — bytes → str needs a codec</span>
+<span class="str">"café"</span>.encode(<span class="str">"utf-8"</span>)  <span class="cm"># b'caf\xc3\xa9'</span>
+mv = <span class="cls">memoryview</span>(raw)     <span class="cm"># slice without copying</span></pre>
+<div class="warn">⚠️ #1 networking/file bug: mixing str and bytes. Rule — decode on input, work in str, encode on output.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q16</span><span class="q-text">int internals: arbitrary precision, and float gotchas?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>int</code> = variable-length array of 30-bit "digits" (<code>PyLongObject</code>) → <strong>no overflow</strong>, but big-int math is O(n) in digits. <code>10**1000000</code> works, slowly.</li>
+<li><strong>3.11+ safety cap</strong>: int↔str conversion limited to 4300 digits by default (<code>sys.set_int_max_str_digits</code>) — blocks DoS via giant parses.</li>
+<li><code>float</code> = C double: <code>0.1 + 0.2 != 0.3</code>. Use <code>Decimal</code> for money, <code>Fraction</code> for exact rationals, <code>math.isclose</code> for comparisons.</li>
+</ul>
+<pre><span class="num">0.1</span> + <span class="num">0.2</span> == <span class="num">0.3</span>  <span class="cm"># False!</span>
+<span class="kw">from</span> math <span class="kw">import</span> isclose
+isclose(<span class="num">0.1</span> + <span class="num">0.2</span>, <span class="num">0.3</span>)  <span class="cm"># True</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q17</span><span class="q-text">What makes an object hashable? The eq/hash contract?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Contract: <strong>a == b ⇒ hash(a) == hash(b)</strong>, stable for the object's lifetime as a key.</p>
+<ul>
+<li>Defining <code>__eq__</code> without <code>__hash__</code> sets <code>__hash__ = None</code> → instances become <strong>unhashable</strong>. Opt back in explicitly.</li>
+<li>Mutable fields in <code>__hash__</code> = time bomb (mutate → lost in dict). Hash on immutable identity instead.</li>
+<li><code>@dataclass(frozen=True)</code> / <code>eq=True</code> auto-generates a consistent pair.</li>
+</ul>
+<pre><span class="kw">class</span> <span class="cls">Point</span>:
+    <span class="kw">def</span> <span class="cls">__init__</span>(self, x, y): self.x, self.y = x, y
+    <span class="kw">def</span> <span class="cls">__eq__</span>(self, o): <span class="kw">return</span> (self.x, self.y) == (o.x, o.y)
+    <span class="kw">def</span> <span class="cls">__hash__</span>(self): <span class="kw">return</span> <span class="cls">hash</span>((self.x, self.y))</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q18</span><span class="q-text">Comprehensions, generator expressions, and the scope gotcha?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Comprehensions have their <strong>own scope</strong> (3.x): loop var doesn't leak — except the walrus <code>:=</code> deliberately binds outside.</li>
+<li><code>[...]</code> list, <code>{...}</code> set/dict, <code>(...)</code> generator (lazy — one-shot!).</li>
+<li>Nested loops read left-to-right; conditions filter. Prefer them over <code>map/filter+lambda</code> for readability.</li>
+</ul>
+<pre>squares = [x*x <span class="kw">for</span> x <span class="kw">in</span> <span class="cls">range</span>(<span class="num">10</span>) <span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>]
+total = <span class="cls">sum</span>(x*x <span class="kw">for</span> x <span class="kw">in</span> <span class="cls">range</span>(10**7))  <span class="cm"># genexpr — no 80MB list</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q19</span><span class="q-text">Slicing mechanics — how far does it go?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>seq[start:stop:step]</code> → calls <code>__getitem__</code> with a <code>slice</code> object. Out-of-range bounds are <strong>clipped, never errors</strong>.</li>
+<li>Negative step reverses: <code>s[::-1]</code>. <code>s[:]</code> = shallow copy.</li>
+<li>Slice <strong>assignment</strong> mutates in place: <code>a[1:3] = [7, 8, 9]</code> (even resizes!). <code>del a[::2]</code> deletes every other.</li>
+<li>numpy/pandas extend this to multi-dimensional slicing — same protocol underneath.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="datatypes"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q20</span><span class="q-text">None, Ellipsis, NotImplemented — the singletons?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>None</code> – the null object; always compare with <code>is None</code>.</li>
+<li><code>Ellipsis</code> (<code>...</code>) – placeholder (stub bodies, numpy multi-axis slicing <code>a[..., 0]</code>).</li>
+<li><code>NotImplemented</code> – return from dunders to let Python <strong>try the reflected operation</strong> (<code>a.__add__(b)</code> → <code>b.__radd__(a)</code>). Never raise it — <em>return</em> it.</li>
+<li>Custom sentinels: <code>_MISSING = object()</code> + <code>is</code> checks beat magic defaults.</li>
+</ul>
+</div></div></div>
+
+<!-- ═══════════ FUNCTIONS ═══════════ -->
+<div class="section-header" data-section="functions">
+  <div class="section-icon si-wrapper">🧩</div>
+  <div class="section-title">Functions, Scope &amp; Decorators</div>
+  <div class="section-count">Q21 – Q32</div>
+</div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q21</span><span class="q-text">First-class functions — what does it enable?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Functions are objects: assign, pass, return, store in containers. This single fact powers callbacks, decorators, strategies, and registries.</p>
+<pre>handlers = {}
+<span class="kw">def</span> <span class="cls">route</span>(path):
+    <span class="kw">def</span> <span class="cls">deco</span>(fn):
+        handlers[path] = fn   <span class="cm"># functions as registry values</span>
+        <span class="kw">return</span> fn
+    <span class="kw">return</span> deco
+
+<span class="ann">@route</span>(<span class="str">"/ping"</span>)
+<span class="kw">def</span> <span class="cls">ping</span>(): <span class="kw">return</span> <span class="str">"pong"</span>   <span class="cm"># = ping = route("/ping")(ping)</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q22</span><span class="q-text">LEGB scope rule + global vs nonlocal?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Name lookup: <strong>Local → Enclosing → Global → Builtins</strong>. Assignment binds locally unless declared otherwise.</p>
+<pre>x = <span class="str">"global"</span>
+<span class="kw">def</span> <span class="cls">outer</span>():
+    x = <span class="str">"enclosing"</span>
+    <span class="kw">def</span> <span class="cls">inner</span>():
+        <span class="kw">nonlocal</span> x   <span class="cm"># rebind outer's x (closure write!)</span>
+        x = <span class="str">"changed"</span>
+    inner()
+    <span class="kw">return</span> x       <span class="cm"># "changed"</span>
+
+<span class="kw">def</span> <span class="cls">f</span>():
+    <span class="kw">global</span> x      <span class="cm"># rebind module-level x</span></pre>
+<div class="warn">⚠️ Reading a global then assigning it in one function = <code>UnboundLocalError</code> (compiler marks it local for the whole scope).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q23</span><span class="q-text">Closures + the late-binding loop trap?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A closure captures <strong>variables (cells), not values</strong> — looked up at call time. Loop-created closures all see the final value:</p>
+<pre>funcs = [<span class="kw">lambda</span>: i <span class="kw">for</span> i <span class="kw">in</span> <span class="cls">range</span>(<span class="num">3</span>)]
+[f() <span class="kw">for</span> f <span class="kw">in</span> funcs]  <span class="cm"># [2, 2, 2] — not [0, 1, 2]!</span>
+
+<span class="cm"># Fix: bind as a default (evaluated at def time)</span>
+funcs = [<span class="kw">lambda</span> i=i: i <span class="kw">for</span> i <span class="kw">in</span> <span class="cls">range</span>(<span class="num">3</span>)]
+[f() <span class="kw">for</span> f <span class="kw">in</span> funcs]  <span class="cm"># [0, 1, 2] ✅</span></pre>
+<div class="info">ℹ️ Under the hood: <code>co_cellvars</code>/<code>co_freevars</code> + <code>LOAD_DEREF</code> (see Q99). Inspect with <code>fn.__closure__</code>.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q24</span><span class="q-text">The mutable-default-argument gotcha?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Defaults evaluate <strong>once at def time</strong> and are shared across calls:</p>
+<pre><span class="kw">def</span> <span class="cls">add</span>(item, bag=[]):   <span class="cm"># ❌ one list forever</span>
+    bag.append(item)
+    <span class="kw">return</span> bag
+
+add(<span class="num">1</span>)  <span class="cm"># [1]</span>
+add(<span class="num">2</span>)  <span class="cm"># [1, 2] — surprise!</span>
+
+<span class="kw">def</span> <span class="cls">add</span>(item, bag=<span class="kw">None</span>):  <span class="cm"># ✅ sentinel pattern</span>
+    <span class="kw">if</span> bag <span class="kw">is None</span>: bag = []
+    bag.append(item)
+    <span class="kw">return</span> bag</pre>
+<div class="note">💡 Same root cause as Q23: <code>def</code> executes once, eagerly. Inspect via <code>add.__defaults__</code>.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q25</span><span class="q-text">*args and **kwargs — full mechanics?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Definition</strong> <code>def f(a, *args, k, **kw)</code>: positional overflow → tuple, keyword overflow → dict.</li>
+<li><strong>Call</strong> <code>f(*lst, **d)</code>: unpack any iterable/mapping into arguments.</li>
+<li>Bare <code>*</code> forces <strong>keyword-only</strong> args after it; <code>/</code> forces <strong>positional-only</strong> before it (C-API style, fast).</li>
+<li>Forwarding pattern preserves signatures: <code>def wrap(*a, **k): return f(*a, **k)</code>.</li>
+</ul>
+<pre><span class="kw">def</span> <span class="cls">f</span>(a, /, b, *, c): ...
+f(<span class="num">1</span>, <span class="num">2</span>, c=<span class="num">3</span>)   <span class="cm"># ✅  f(a=1) → TypeError</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q26</span><span class="q-text">How do decorators work? With arguments? Stacking?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>@deco</code> = rebinding: <code>f = deco(f)</code> at def time. Decorator <em>with</em> args = factory returning the real decorator (two nesting levels).</p>
+<pre><span class="kw">import</span> functools, time
+<span class="kw">def</span> <span class="cls">timed</span>(fn):
+    <span class="ann">@functools.wraps</span>(fn)  <span class="cm"># preserves __name__/__doc__/__wrapped__</span>
+    <span class="kw">def</span> <span class="cls">inner</span>(*a, **k):
+        t = time.perf_counter()
+        <span class="kw">try</span>: <span class="kw">return</span> fn(*a, **k)
+        <span class="kw">finally</span>: <span class="cls">print</span>(fn.__name__, time.perf_counter() - t)
+    <span class="kw">return</span> inner
+
+<span class="ann">@a</span>
+<span class="ann">@b</span>
+<span class="kw">def</span> <span class="cls">f</span>(): ...   <span class="cm"># = a(b(f)) — bottom applies FIRST</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q27</span><span class="q-text">Class decorators and decorating classes?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Any callable taking the class and (usually) returning it: <code>@dataclass</code>, <code>@functools.total_ordering</code>, registry patterns.</li>
+<li>Runs <strong>once at class creation</strong> — perfect for validation, method injection, registration.</li>
+<li>Heavier alternative: <strong>metaclasses</strong> (Q41) control creation itself; decorators only post-process.</li>
+</ul>
+<pre><span class="kw">def</span> <span class="cls">singleton</span>(cls):
+    inst = {}
+    <span class="kw">def</span> <span class="cls">get</span>(*a, **k):
+        <span class="kw">return</span> inst.setdefault(cls, cls(*a, **k))
+    <span class="kw">return</span> get</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q28</span><span class="q-text">lambda limits — why only expressions?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>lambda</code> is a single <strong>expression</strong> — no statements, no annotations, always anonymous (though assignable). It exists for tiny throwaway callables (<code>key=</code>, <code>sorted</code>); anything needing statements deserves <code>def</code>.</p>
+<pre>pairs = [(<span class="num">1</span>, <span class="str">"b"</span>), (<span class="num">2</span>, <span class="str">"a"</span>)]
+<span class="cls">sorted</span>(pairs, key=<span class="kw">lambda</span> p: p[<span class="num">1</span>])  <span class="cm"># sort by 2nd element</span>
+<span class="cm"># PEP 8: never assign lambda to a name — use def instead</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q29</span><span class="q-text">Recursion limit — why does Python have one?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Each call pushes a C-level frame; unbounded recursion segfaults the C stack → CPython caps at <code>sys.getrecursionlimit()</code> (1000) with <code>RecursionError</code>.</li>
+<li><strong>No tail-call optimization</strong> (deliberate — Guido: tracebacks must stay complete).</li>
+<li>Raising the limit is usually wrong: rewrite iteratively or with an explicit stack; deep JSON/pickle structures are the classic victims.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q30</span><span class="q-text">functools power tools: lru_cache, partial, singledispatch?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>lru_cache(maxsize=…)</code> – memoizes on hashable args; exposes <code>cache_info()</code>/<code>cache_clear()</code>. <strong>Never cache unbounded on unbounded inputs</strong> (memory leak) — and never with unhashable/mutable args.</li>
+<li><code>partial</code> – freeze leading args: <code>run = partial(subprocess.run, check=True)</code>.</li>
+<li><code>singledispatch</code> – type-based overloading (poor man's multimethods) for the first arg.</li>
+</ul>
+<pre><span class="ann">@functools.lru_cache</span>(maxsize=<span class="num">1024</span>)
+<span class="kw">def</span> <span class="cls">fib</span>(n): <span class="kw">return</span> n <span class="kw">if</span> n &lt; <span class="num">2</span> <span class="kw">else</span> fib(n-<span class="num">1</span>) + fib(n-<span class="num">2</span>)</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q31</span><span class="q-text">Type annotations — what do they actually do at runtime?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Nothing by default</strong> — stored in <code>fn.__annotations__</code>, ignored by the interpreter (except evaluated eagerly at def time, unless <code>from __future__ import annotations</code> stringifies them).</li>
+<li>Enforced by <strong>external checkers</strong> (mypy, pyright) and <strong>runtime validators</strong> (pydantic, attrs, beartype).</li>
+<li><code>typing</code> arsenal: <code>Optional</code>/<code>X | None</code>, <code>Protocol</code> (structural), <code>TypeVar</code>/<code>ParamSpec</code> (generics), <code>overload</code>, <code>TypedDict</code>, <code>Literal</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="functions"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q32</span><span class="q-text">What is <code>functools.wraps</code> actually copying — and why care?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>wraps</code> copies <code>__module__</code>, <code>__name__</code>, <code>__qualname__</code>, <code>__doc__</code>, <code>__dict__</code> and sets <code>__wrapped__</code>. Without it: broken tracebacks, wrong help(), stacked decorators lose metadata, and <code>inspect.signature</code> follows <code>__wrapped__</code> chains to show the <em>real</em> signature.</p>
+</div></div></div>
+
+<!-- ═══════════ OOP ═══════════ -->
+<div class="section-header" data-section="oop">
+  <div class="section-icon si-oop">🏗</div>
+  <div class="section-title">OOP, Dunders &amp; Metaclasses</div>
+  <div class="section-count">Q33 – Q44</div>
+</div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q33</span><span class="q-text">What is <code>self</code>? Why explicit?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>self</code> is just the conventional name for the <strong>explicitly passed instance</strong>. Methods are plain functions stored on the class; attribute access binds them via the descriptor protocol into <strong>bound methods</strong> (function + instance).</p>
+<pre><span class="kw">class</span> <span class="cls">A</span>:
+    <span class="kw">def</span> <span class="cls">m</span>(self): <span class="kw">return</span> self
+a = <span class="cls">A</span>()
+a.m()        <span class="cm"># bound: A.m(a)</span>
+<span class="cls">A</span>.m(a)       <span class="cm"># identical unbound call</span>
+<span class="kw">type</span>(a.m)    <span class="cm"># &lt;class 'method'&gt;</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q34</span><span class="q-text"><code>__new__</code> vs <code>__init__</code>?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>__new__(cls, …)</code> – <strong>creates</strong> the instance (static method, returns the object). Rarely overridden — singletons, immutable subclassing (int/str/tuple need it since <code>__init__</code> can't set their value), custom allocation.</li>
+<li><code>__init__(self, …)</code> – <strong>initializes</strong> the already-created instance. Returns nothing.</li>
+<li>Call chain: <code>A(…)</code> → <code>type.__call__</code> → <code>cls.__new__(cls,…)</code> → <code>isinstance</code> check → <code>obj.__init__(…)</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q35</span><span class="q-text">Essential dunders: str/repr, eq/hash, len/iter, call, with?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Dunder</th><th>Role</th></tr>
+<tr><td><code>__repr__</code> / <code>__str__</code></td><td>Unambiguous (dev/debug) vs readable (users); <code>str()</code> falls back to <code>__repr__</code>. Always implement <code>__repr__</code>.</td></tr>
+<tr><td><code>__eq__</code> / <code>__hash__</code></td><td>Value semantics + dict/set contract (see Q17).</td></tr>
+<tr><td><code>__len__</code> / <code>__iter__</code> / <code>__getitem__</code></td><td>Container protocol: truthiness, loops, indexing, unpacking.</td></tr>
+<tr><td><code>__call__</code></td><td>Instances behave like functions (handlers, strategies, partial-like objects).</td></tr>
+<tr><td><code>__enter__</code> / <code>__exit__</code></td><td>Context-manager protocol (see Q50).</td></tr>
+<tr><td><code>__getattr__</code> / <code>__getattribute__</code></td><td>Fallback vs total interception of attribute access (proxies, lazy loaders).</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q36</span><span class="q-text">MRO and C3 linearization — solve the diamond?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Method Resolution Order = the class search path, computed by <strong>C3 linearization</strong> (monotonic, preserves local precedence + base order). Inspect with <code>Cls.mro()</code>.</p>
+<pre><span class="kw">class</span> <span class="cls">A</span>: <span class="kw">def</span> <span class="cls">who</span>(self): <span class="kw">return</span> <span class="str">"A"</span>
+<span class="kw">class</span> <span class="cls">B</span>(A): <span class="kw">pass</span>
+<span class="kw">class</span> <span class="cls">C</span>(A):
+    <span class="kw">def</span> <span class="cls">who</span>(self): <span class="kw">return</span> <span class="str">"C"</span>
+<span class="kw">class</span> <span class="cls">D</span>(B, C): <span class="kw">pass</span>
+<span class="cls">D</span>().who()  <span class="cm"># "C" — MRO: D → B → C → A → object</span>
+<span class="cls">D</span>.mro()      <span class="cm"># check it yourself</span></pre>
+<div class="info">ℹ️ Cooperative MI requires every class to call <code>super().__init__()</code> — <code>super()</code> means "next in MRO", not "parent".</div>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q37</span><span class="q-text">instance vs classmethod vs staticmethod?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Receives</th><th>Use</th></tr>
+<tr><td>Instance method</td><td><code>self</code></td><td>Normal behavior needing state.</td></tr>
+<tr><td><code>@classmethod</code></td><td><code>cls</code></td><td>Alternate constructors (<code>from_json</code>), inherited-aware factories.</td></tr>
+<tr><td><code>@staticmethod</code></td><td>Nothing</td><td>Namespaced utility with no class/instance need.</td></tr>
+</table>
+<pre><span class="kw">class</span> <span class="cls">Date</span>:
+    <span class="ann">@classmethod</span>
+    <span class="kw">def</span> <span class="cls">today</span>(cls): <span class="kw">return</span> cls(...)  <span class="cm"># subclass-friendly ✅</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q38</span><span class="q-text">@property — and the setter/deleter pattern?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>property</code> exposes <strong>computed attributes</strong> with validation/laziness while keeping attribute syntax (no getter/setter rewrites for callers).</p>
+<pre><span class="kw">class</span> <span class="cls">Temp</span>:
+    <span class="kw">def</span> <span class="cls">__init__</span>(self, c): self._c = c
+    <span class="ann">@property</span>
+    <span class="kw">def</span> <span class="cls">c</span>(self): <span class="kw">return</span> self._c
+    <span class="ann">@c.setter</span>
+    <span class="kw">def</span> <span class="cls">c</span>(self, v):
+        <span class="kw">if</span> v &lt; -<span class="num">273.15</span>: <span class="kw">raise</span> <span class="cls">ValueError</span>
+        self._c = v</pre>
+<div class="warn">⚠️ Properties run on <em>every</em> access — no caching. For expensive computed values use <code>functools.cached_property</code>.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q39</span><span class="q-text">Descriptors — the machinery behind property/slots/methods?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Any object with <code>__get__</code>/<code>__set__</code>/<code>__delete__</code>. Attribute lookup calls the descriptor instead of returning it:</p>
+<ul>
+<li><strong>Data descriptors</strong> (<code>__set__</code> present: property, slots) beat instance dict.</li>
+<li><strong>Non-data</strong> (plain functions → bound methods, classmethod, staticmethod) lose to instance dict.</li>
+<li>Precedence: data descriptor → instance <code>__dict__</code> → non-data descriptor/class attr.</li>
+</ul>
+<pre><span class="kw">class</span> <span class="cls">Typed</span>:  <span class="cm"># validated-attribute descriptor</span>
+    <span class="kw">def</span> <span class="cls">__set_name__</span>(self, owner, name): self.name = name
+    <span class="kw">def</span> <span class="cls">__get__</span>(self, obj, cls): <span class="kw">return</span> obj.__dict__[self.name]
+    <span class="kw">def</span> <span class="cls">__set__</span>(self, obj, v):
+        <span class="kw">if</span> <span class="kw">not</span> <span class="cls">isinstance</span>(v, <span class="cls">int</span>): <span class="kw">raise</span> <span class="cls">TypeError</span>
+        obj.__dict__[self.name] = v</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q40</span><span class="q-text">__slots__ — what, why, and the costs?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Replaces per-instance <code>__dict__</code> with a fixed C-array → ~40–50% less memory per object, faster attribute access.</li>
+<li><strong>Costs</strong>: no dynamic attributes, no weakrefs (unless <code>"__weakref__"</code> listed), multiple inheritance needs <em>every</em> base slotted, pickling needs care.</li>
+<li>Worth it for <strong>millions of small objects</strong> (AST nodes, rows, particles). Also pairs with <code>@dataclass(slots=True)</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q41</span><span class="q-text">Metaclasses — what are they, when are they justified?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A metaclass is the <strong>class of a class</strong>: <code>type(cls)</code>. Class creation = <code>Meta(name, bases, namespace)</code>; customize via <code>__new__</code>/<code>__init__</code>/<code>__call__</code> (the last intercepts <em>instantiation</em>).</p>
+<ul>
+<li>Justified: ORMs (Django models), ABCs/enums, API registration, interface enforcement.</li>
+<li>Prefer first: <strong>class decorators</strong>, <code>__init_subclass__</code> (runs on subclassing — covers 90% of metaclass use!), <code>__set_name__</code>.</li>
+</ul>
+<pre><span class="kw">class</span> <span class="cls">Registry</span>(<span class="cls">type</span>):
+    plugins = {}
+    <span class="kw">def</span> <span class="cls">__new__</span>(m, name, bases, ns):
+        cls = <span class="cls">super</span>().__new__(m, name, bases, ns)
+        <span class="kw">if</span> name != <span class="str">"Base"</span>: m.plugins[name] = cls
+        <span class="kw">return</span> cls</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q42</span><span class="q-text">ABCs vs Protocols — nominal vs structural typing?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>ABC</strong> (<code>abc.ABC</code> + <code>@abstractmethod</code>) – nominal: must <em>inherit</em>; instantiation blocked until all abstracts implemented. Virtual subclasses via <code>register()</code>.</li>
+<li><strong>Protocol</strong> (<code>typing.Protocol</code>) – structural: "has these members" suffices, no inheritance. Static-checker feature (runtime only with <code>@runtime_checkable</code>, and then only member presence).</li>
+<li>Rule: ABCs for frameworks needing runtime enforcement; Protocols for flexible duck-typed APIs.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q43</span><span class="q-text">Mixins and cooperative multiple inheritance done right?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Mixin = small behavior class (no state, no <code>__init__</code> args), designed to compose: <code>class View(LoginMixin, CacheMixin, Base)</code>.</li>
+<li>Every <code>__init__</code> must call <code>super().__init__(**kwargs)</code> and forward unknowns — the chain walks the MRO exactly once.</li>
+<li>Order matters: put mixins <strong>leftmost</strong>, most-specific first.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="oop"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q44</span><span class="q-text">dataclass vs NamedTuple vs attrs vs plain class?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Best for</th><th>Notes</th></tr>
+<tr><td><strong>NamedTuple</strong></td><td>Tiny immutable records</td><td>Tuple subclass: unpacks, tiny, no defaults hassle</td></tr>
+<tr><td><strong>@dataclass</strong></td><td>Everyday value objects</td><td>Auto eq/repr; <code>frozen=True</code> for hashable; <code>slots=True</code> (3.10+) for memory</td></tr>
+<tr><td><strong>attrs</strong></td><td>Validated/converted models</td><td>Validators, converters, private attrs — dataclass++</td></tr>
+<tr><td><strong>Plain class</strong></td><td>Behavior-rich entities</td><td>Full control, more boilerplate</td></tr>
+</table>
+<div class="warn">⚠️ Dataclass mutable defaults need <code>field(default_factory=list)</code> — same def-time evaluation trap as Q24.</div>
+</div></div></div>
+
+<!-- ═══════════ ITERATION ═══════════ -->
+<div class="section-header" data-section="iteration">
+  <div class="section-icon si-conditions">🔁</div>
+  <div class="section-title">Iterators, Generators &amp; Context Managers</div>
+  <div class="section-count">Q45 – Q54</div>
+</div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q45</span><span class="q-text">Iterable vs iterator — the protocol exactly?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Iterable</strong>: has <code>__iter__</code> returning a fresh iterator — lists, dicts, files.</li>
+<li><strong>Iterator</strong>: has <code>__iter__</code> (returns self) <em>and</em> <code>__next__</code> (raises <code>StopIteration</code> when done).</li>
+<li><code>for</code> = <code>iter(x)</code> then <code>next()</code> until <code>StopIteration</code>. Iterators are <strong>single-pass</strong>; re-looping an exhausted generator silently yields nothing (classic bug!).</li>
+</ul>
+<pre><span class="kw">class</span> <span class="cls">Count</span>:
+    <span class="kw">def</span> <span class="cls">__init__</span>(self, n): self.n, self.i = n, <span class="num">0</span>
+    <span class="kw">def</span> <span class="cls">__iter__</span>(self): <span class="kw">return</span> self
+    <span class="kw">def</span> <span class="cls">__next__</span>(self):
+        <span class="kw">if</span> self.i &gt;= self.n: <span class="kw">raise</span> <span class="cls">StopIteration</span>
+        self.i += <span class="num">1</span>; <span class="kw">return</span> self.i</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q46</span><span class="q-text">How do generators work under the hood?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Any function with <code>yield</code> is a <strong>generator factory</strong>: calling it returns a generator without running a line. Each <code>next()</code> resumes the <strong>saved frame</strong> (instruction pointer + locals) until the next <code>yield</code>.</p>
+<ul>
+<li>Lazy + O(1) memory: stream terabytes through constant RAM.</li>
+<li><code>gen.send(v)</code> injects a value as the yield's result; <code>throw()</code>/<code>close()</code> drive exceptions and cleanup.</li>
+<li>Introspect: <code>gi_frame</code>, <code>gi_running</code>, <code>inspect.getgeneratorstate</code>.</li>
+</ul>
+<pre><span class="kw">def</span> <span class="cls">gen</span>():
+    x = <span class="kw">yield</span> <span class="num">1</span>   <span class="cm"># yields 1; next send() becomes x</span>
+    <span class="kw">yield</span> x + <span class="num">1</span>
+g = <span class="cls">gen</span>(); <span class="cls">next</span>(g)  <span class="cm"># 1</span>
+g.send(<span class="num">10</span>)          <span class="cm"># 11</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q47</span><span class="q-text"><code>yield from</code> — delegation, not just sugar?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Delegates the <strong>whole protocol</strong>: values, <code>send()</code>, <code>throw()</code>, <code>close()</code> pass through to the sub-generator.</li>
+<li>Captures the sub-generator's <code>return value</code> (surfaced via <code>StopIteration(value)</code>, PEP 380).</li>
+<li>Foundation of pre-<code>async/await</code> coroutines (<code>@asyncio.coroutine</code> era).</li>
+</ul>
+<pre><span class="kw">def</span> <span class="cls">sub</span>():
+    <span class="kw">yield</span> <span class="num">1</span>; <span class="kw">return</span> <span class="str">"done"</span>
+<span class="kw">def</span> <span class="cls">main</span>():
+    result = <span class="kw">yield from</span> sub()  <span class="cm"># "done"</span>
+    <span class="kw">yield</span> result</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q48</span><span class="q-text">Generator pipelines for big data — the pattern?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Chain single-purpose stages: source → filter → transform → sink. Each pulls lazily; memory stays flat.</p>
+<pre><span class="kw">def</span> <span class="cls">lines</span>(path):
+    <span class="kw">with</span> <span class="cls">open</span>(path) <span class="kw">as</span> f:
+        <span class="kw">for</span> line <span class="kw">in</span> f: <span class="kw">yield</span> line
+
+<span class="kw">for</span> e <span class="kw">in</span> (r <span class="kw">for</span> r <span class="kw">in</span> lines(<span class="str">"10gb.log"</span>) <span class="kw">if</span> <span class="str">"ERROR"</span> <span class="kw">in</span> r):
+    ...  <span class="cm"># ~KB of RAM regardless of file size</span></pre>
+<div class="warn">⚠️ One-shot! Re-create or use <code>itertools.tee</code> (buffers!). Debug laziness with <code>itertools.islice</code>.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q49</span><span class="q-text">itertools essentials for interviews?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>chain</code> (flatten), <code>islice</code> (lazy slicing), <code>count/cycle/repeat</code> (infinite streams).</li>
+<li><code>groupby</code> (needs <strong>pre-sorted</strong> input!), <code>pairwise</code> (3.10+), <code>batched</code> (3.12+).</li>
+<li><code>product/permutations/combinations</code> (beware combinatorial explosion), <code>accumulate</code>, <code>zip_longest</code>.</li>
+<li><code>more-itertools</code>: <code>chunked</code>, <code>first_true</code>, <code>collapse</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q50</span><span class="q-text">Context managers — __enter__/__exit__ and @contextmanager?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Protocol: <code>__enter__</code> (value bound by <code>as</code>) + <code>__exit__(exc_type, exc, tb)</code>. Returning <strong>True</strong> <strong>suppresses</strong> the exception.</li>
+<li><code>@contextlib.contextmanager</code>: code before <code>yield</code> = enter, after = exit (wrap post-yield in <code>try/finally</code>!).</li>
+<li>Stacking: <code>with a, b:</code> or <code>ExitStack</code> for a dynamic number of contexts.</li>
+</ul>
+<pre><span class="kw">from</span> contextlib <span class="kw">import</span> contextmanager
+<span class="ann">@contextmanager</span>
+<span class="kw">def</span> <span class="cls">timer</span>(name):
+    t = time.perf_counter()
+    <span class="kw">try</span>: <span class="kw">yield</span>
+    <span class="kw">finally</span>: <span class="cls">print</span>(name, time.perf_counter() - t)</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q51</span><span class="q-text">Suppressing vs chaining exceptions in __exit__?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Return truthy → swallowed (prefer <code>contextlib.suppress(ValueError)</code> over hand-rolled).</li>
+<li>Return falsy/None → re-raised after <code>__exit__</code>; raising anew inside chains it (<code>__context__</code> → "During handling…" tracebacks).</li>
+<li><code>raise … from err</code> sets explicit <code>__cause__</code>; <code>from None</code> hides context for cleaner library errors.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q52</span><span class="q-text">Async iteration: async for / async with?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>async for</code> drives <code>__aiter__</code>/<code>__anext__</code> — streaming sockets, queues, paginated APIs.</li>
+<li><code>async with</code> drives <code>__aenter__</code>/<code>__aexit__</code> — asynchronously acquired locks, connections, transactions.</li>
+<li>Async generators: <code>async def</code> containing <code>yield</code>; consume with <code>async for</code> or async comprehensions.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q53</span><span class="q-text">PEP 479 — why can't StopIteration bubble out of a generator?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Pre-3.7, a stray <code>StopIteration</code> inside a generator body silently <strong>terminated the loop</strong> — hiding bugs. Now it becomes <code>RuntimeError: generator raised StopIteration</code>. Fix: <code>return</code> instead of raising.</p>
+<pre><span class="kw">def</span> <span class="cls">bad</span>():
+    <span class="kw">yield from</span> []       <span class="cm"># fine — delegation</span>
+    <span class="kw">raise</span> <span class="cls">StopIteration</span>  <span class="cm"># ❌ RuntimeError since 3.7</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="iteration"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q54</span><span class="q-text">Coroutines vs generators — the history in one minute?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Generator-based</strong> (3.3–3.7): <code>@asyncio.coroutine</code> + <code>yield from</code> — reused generator machinery for event loops.</li>
+<li><strong>Native</strong> (3.5+): <code>async def</code>/<code>await</code> — dedicated <code>CO_COROUTINE</code> objects; no <code>yield</code> inside (use async generators).</li>
+<li>Same suspension idea, cleaner semantics: <code>await</code> pauses only at <strong>awaitables</strong> (coroutines, Tasks, Futures), making scheduling explicit.</li>
+</ul>
+</div></div></div>
+
+<!-- ═══════════ IMPORTS ═══════════ -->
+<div class="section-header" data-section="imports">
+  <div class="section-icon si-collections">📦</div>
+  <div class="section-title">The Import System</div>
+  <div class="section-count">Q55 – Q64</div>
+</div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q55</span><span class="q-text">What happens step-by-step on <code>import x</code>?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li><code>sys.modules</code> cache hit → return immediately (imports are singletons!).</li>
+<li><strong>Finders</strong> (<code>sys.meta_path</code>: builtin → frozen → path-based) locate a <strong>spec</strong> (name, loader, origin).</li>
+<li>Create the module, insert into <code>sys.modules</code> <em>first</em> (partially initialized — this is what lets circular imports resolve at all).</li>
+<li><strong>Loader</strong> executes the code in the module namespace (<code>SourceFileLoader</code> compiles source; <code>ExtensionFileLoader</code> dlopens .so).</li>
+<li>Bind the name in the importing namespace.</li>
+</ol>
+<div class="info">ℹ️ Re-importing is nearly free (dict lookup). Forcing re-execution needs <code>importlib.reload()</code> — with caveats (Q56).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q56</span><span class="q-text">sys.modules + importlib.reload — powers and pitfalls?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>sys.modules</code> is the live registry: inject test doubles (<code>sys.modules["requests"] = fake</code>), detect double-imports (same file as <code>mod</code> and <code>pkg.mod</code> = <strong>two module objects</strong>, breaking <code>isinstance</code>).</li>
+<li><code>reload(mod)</code> re-executes in the <em>existing</em> namespace: old classes/functions linger, <code>from x import y</code> bindings go stale, C extensions usually can't reload.</li>
+<li>Fix double-imports with absolute imports + launching via <code>python -m</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q57</span><span class="q-text">How is sys.path built? Where do imports search?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li>Script directory (or cwd for REPL; <code>-m</code> uses <strong>cwd</strong> instead — classic gotcha).</li>
+<li><code>PYTHONPATH</code> entries.</li>
+<li>Stdlib + <code>site-packages</code> (plus <code>.pth</code> additions, venv paths).</li>
+</ol>
+<p>Debug with <code>python -m site</code>. Naming your file <code>random.py</code> hijacks step 1 and shadows the stdlib — the infamous beginner bug.</p>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q58</span><span class="q-text">Absolute vs relative imports? __package__?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Absolute</strong> (<code>from pkg.sub import x</code>) – always preferred; unambiguous, grep-able.</li>
+<li><strong>Explicit relative</strong> (<code>from . import sib</code>) – intra-package only, resolved against <code>__package__</code>.</li>
+<li>Running a submodule as a script (<code>python pkg/mod.py</code>) breaks relatives (<code>__package__</code> is None) → run <code>python -m pkg.mod</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q59</span><span class="q-text">Circular imports — why they happen and every fix?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A imports B, B imports A: the second import finds a <strong>partially initialized module</strong> → <code>ImportError</code>/missing attribute.</p>
+<ul>
+<li>Defer: move the import <strong>inside the function</strong>.</li>
+<li>Restructure: extract shared code to a third module.</li>
+<li>Import the <strong>module, not names</strong> (<code>import b; b.func()</code> resolves at call time).</li>
+<li><code>TYPE_CHECKING</code> guard + string annotations for type-only cycles.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q60</span><span class="q-text">__init__.py vs namespace packages (PEP 420)?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Regular package</strong> (with <code>__init__.py</code>): single directory, init runs on first import — version, re-exports (<code>__all__</code>), lazy <code>__getattr__</code> (PEP 562).</li>
+<li><strong>Namespace package</strong> (no init): spans <em>multiple</em> <code>sys.path</code> directories — plugins, monorepos, distro-split packages.</li>
+<li>Keep <code>__init__.py</code> light: heavy imports slow <em>every</em> submodule import and invite cycles.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q61</span><span class="q-text"><code>if __name__ == "__main__"</code> + <code>python -m</code>?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Direct execution sets <code>__name__ == "__main__"</code>; import sets the module name. The guard separates library from script behavior.</li>
+<li><code>python -m pkg.mod</code> runs with <strong>package context</strong> (relatives work) and cwd on <code>sys.path</code> — the correct launcher for package code and tools.</li>
+<li><code>python -m x</code> also executes <code>__main__.py</code> in packages/dirs/zipapps — how pip, venv, and zipapps run.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q62</span><span class="q-text">Lazy imports and TYPE_CHECKING — when?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Lazy (function-level) imports</strong>: heavy/optional deps (torch, pandas), cycle-breaking, fast CLI startup. Cost: hidden deps (negligible lookup — <code>sys.modules</code> hit).</li>
+<li><code>if TYPE_CHECKING: import x</code> + quoted annotations: visible to checkers, never imported at runtime — zero-cost, cycle-free.</li>
+<li>Detect optional deps: <code>importlib.util.find_spec("torch") is not None</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q63</span><span class="q-text">How are C extension modules (.so/.pyd) imported?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>ExtensionFileLoader</code> <code>dlopen()</code>s the shared object, then calls its <code>PyInit_&lt;name&gt;</code> entry point (multi-phase init per PEP 489 in modern extensions).</li>
+<li>Filenames carry ABI tags (<code>mymod.cpython-311-x86_64-linux-gnu.so</code>) — wrong interpreter → <code>ImportError</code>; hence version-specific wheels.</li>
+<li>They live in <code>sys.modules</code> like any module but generally <strong>cannot be reloaded</strong>.</li>
+</ul>
+<div class="info">ℹ️ Bridge to §FFI: writing that <code>PyInit_</code> function by hand is Q108.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="imports"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q64</span><span class="q-text">Import hooks: meta_path and path_hooks — with an example?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>A <code>sys.meta_path</code> finder intercepts imports — lazy loading, remote modules, plugin systems, test mocks.</p>
+<pre><span class="kw">import</span> sys, importlib.abc, importlib.machinery
+<span class="kw">class</span> <span class="cls">Virtual</span>(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+    <span class="kw">def</span> <span class="cls">find_spec</span>(self, name, path, target=<span class="kw">None</span>):
+        <span class="kw">if</span> name == <span class="str">"magic"</span>:
+            <span class="kw">return</span> importlib.machinery.ModuleSpec(name, self)
+    <span class="kw">def</span> <span class="cls">create_module</span>(self, spec): <span class="kw">return None</span>
+    <span class="kw">def</span> <span class="cls">exec_module</span>(self, mod): mod.answer = <span class="num">42</span>
+sys.meta_path.insert(<span class="num">0</span>, <span class="cls">Virtual</span>())
+<span class="kw">import</span> magic; magic.answer  <span class="cm"># 42 — no file on disk!</span></pre>
+</div></div></div>
+
+<!-- ═══════════ MEMORY ═══════════ -->
+<div class="section-header" data-section="memory">
+  <div class="section-icon si-generics">🧠</div>
+  <div class="section-title">Memory Model &amp; Garbage Collection</div>
+  <div class="section-count">Q65 – Q76</div>
+</div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q65</span><span class="q-text">PyObject: what does every Python object carry?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Every object starts with <code>PyObject</code>: a <strong>reference count</strong> + a <strong>type pointer</strong> (variable-size objects add <code>ob_size</code>). The type pointer is how <code>type(x)</code>, method lookup, and every dunder dispatch work — pure C-level indirection, no vtables in Python code.</p>
+<pre><span class="kw">import</span> sys
+sys.getsizeof(<span class="num">1</span>)      <span class="cm"># 28 — int object header + digits</span>
+sys.getsizeof([])     <span class="cm"># 56 — list header (no items yet)</span>
+sys.getsizeof(<span class="str">""</span>)      <span class="cm"># 49 — str header + nul</span></pre>
+<div class="note">💡 This is why "just an int" costs 28 bytes — and why numpy arrays (raw C buffers + one header) win 10–50× on numerics.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q66</span><span class="q-text">Reference counting + generational GC — the dual system?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Refcounting (primary)</strong>: count drops to zero → deallocated <em>immediately</em> (deterministic destruction → reliable <code>with</code>/file closing, unlike Java).</li>
+<li><strong>Cyclic GC (backup)</strong>: finds reference <em>cycles</em> refcounting can't (a↔b). Only container types participate (tracked by GC).</li>
+<li><strong>Generations</strong> 0/1/2: survivors promote; gen0 collected often, gen2 rarely. Thresholds tunable via <code>gc.set_threshold()</code>.</li>
+</ul>
+<pre><span class="kw">import</span> gc
+gc.get_threshold()   <span class="cm"># (700, 10, 10) defaults</span>
+gc.collect(<span class="num">2</span>)          <span class="cm"># force full collection → returns unreachable count</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q67</span><span class="q-text">gc module: debugging leaks in practice?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>gc.get_objects()</code> — every tracked object (huge; filter by type).</li>
+<li><code>gc.get_referrers(x)</code> / <code>get_referents(x)</code> — who keeps this alive? (frames in the output are the debugger's own — exclude them).</li>
+<li><code>tracemalloc</code> – <em>where</em> memory was allocated: <code>start()</code> → snapshot → <code>compare_to()</code> top diffs by traceback.</li>
+<li>Growth check: <code>len(gc.get_objects())</code> or per-type counts across requests — monotonic growth = leak.</li>
+</ul>
+<pre><span class="kw">import</span> tracemalloc
+tracemalloc.start()
+... workload ...
+snap = tracemalloc.take_snapshot()
+<span class="kw">for</span> s <span class="kw">in</span> snap.statistics(<span class="str">"traceback"</span>)[:<span class="num">5</span>]: <span class="cls">print</span>(s)</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q68</span><span class="q-text">Small-int cache, interning, freelists — CPython's reuse tricks?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Small ints −5…256</strong> preallocated at startup; <code>a = 100</code> twice → same object.</li>
+<li><strong>String interning</strong>: identifiers + explicit <code>sys.intern()</code> — dedups millions of repeated tokens (parsers, CSV columns).</li>
+<li><strong>Freelists</strong>: dead lists, tuples, frames, ints recycled into per-type free lists instead of malloc/free churn.</li>
+<li>List <strong>over-allocation</strong>: appends amortized O(1) via geometric growth (also why a shrunk list keeps memory — use <code>list.clear()</code> + realloc patterns or array module).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q69</span><span class="q-text">sys.getsizeof lies — how do you measure real memory?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>getsizeof</code> counts <strong>only the container shell</strong>, not referents: <code>getsizeof([1]*1000)</code> misses all 1000 ints (~28 KB).</li>
+<li>Recursive walkers (pympler <code>asizeof</code>, <code>sys.getsizeof</code> + manual traversal) approximate totals.</li>
+<li><code>tracemalloc</code> attributes Python allocations to source lines — best for "what grew?".</li>
+<li>OS-level truth (RSS): <code>resource.getrusage</code>, <code>psutil.Process().memory_info()</code> — includes fragmentation, allocator arenas, C-side (numpy!) memory Python can't see.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q70</span><span class="q-text">copy vs deepcopy — memo, __copy__, __deepcopy__?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>copy.copy</code>: new outer object sharing children; honors <code>__copy__</code>.</li>
+<li><code>copy.deepcopy</code>: recursive clone with a <code>memo</code> dict mapping id(old)→new — shared subobjects stay shared, cycles terminate.</li>
+<li>Customize via <code>__deepcopy__(self, memo)</code> (e.g. skip un-copyable locks/sockets, re-create them).</li>
+<li>Immutable atoms (int/str/tuple-of-immutables) are returned as-is — no wasted copies.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q71</span><span class="q-text">weakref — caches without leaks?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>weakref.ref(obj, callback)</code> observes without keeping alive; dies automatically when the referent does. Use cases: caches (<code>WeakValueDictionary</code>), parent back-pointers (avoid cycles), observers/listeners.</p>
+<pre><span class="kw">import</span> weakref
+cache = weakref.WeakValueDictionary()
+<span class="kw">class</span> <span class="cls">Node</span>:
+    <span class="kw">def</span> <span class="cls">__init__</span>(self, parent=<span class="kw">None</span>):
+        self.parent = weakref.ref(parent) <span class="kw">if</span> parent <span class="kw">else None</span>
+        <span class="cm"># child → parent never keeps parent alive ✅</span></pre>
+<div class="warn">⚠️ Not everything is weakref-able: plain <code>int/str/tuple/list/dict</code> refuse; user classes work (unless <code>__slots__</code> without <code>"__weakref__"</code>).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q72</span><span class="q-text">__del__, resurrection, and PEP 442?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>__del__</code> (finalizer) runs at deallocation — but in <strong>cycles</strong> order is undefined and exceptions are swallowed (printed to stderr).</li>
+<li><strong>Resurrection</strong>: <code>__del__</code> storing <code>self</code> somewhere revives the object; pre-PEP 442 this broke the collector (objects finalized twice or never).</li>
+<li><strong>PEP 442 (3.4+)</strong>: safe finalization ordering; still — prefer <code>weakref.finalize</code> or context managers over <code>__del__</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q73</span><span class="q-text">Buffer protocol + memoryview — zero-copy?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Objects exposing the <strong>buffer protocol</strong> (bytes, bytearray, array, mmap, numpy) share raw memory without copying. <code>memoryview</code> slices/casts those buffers as typed views.</p>
+<pre>buf = <span class="cls">bytearray</span>(<span class="num">10_000_000</span>)
+mv = <span class="cls">memoryview</span>(buf)
+chunk = mv[<span class="num">100</span>:<span class="num">200</span>]   <span class="cm"># view — zero bytes copied</span>
+chunk[<span class="num">0</span>] = <span class="num">255</span>         <span class="cm"># writes through into buf!</span>
+ints = mv.cast(<span class="str">"i"</span>)      <span class="cm"># reinterpret as int32 array</span></pre>
+<div class="note">💡 This is the foundation of numpy↔PIL↔socket zero-copy pipelines — and of Q112 (buffers in C).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q74</span><span class="q-text">__dict__ vs __slots__ memory layout?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Normal instances: attribute dict (<code>__dict__</code>) — flexible, ~100+ bytes overhead per object plus the dict itself.</li>
+<li><code>__slots__</code>: fixed C-array offsets, no dict (see Q40) — ~40–50% smaller, faster access.</li>
+<li>Middle ground: keys-sharing dicts (CPython 3.3+ — instances of one class share key storage), <code>__getattr__</code>-backed lazy attrs, flyweight for repeated values.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q75</span><span class="q-text">String building: why is += in a loop bad (and when is it fine)?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Strings immutable → each <code>+=</code> copies → O(n²) total. Always <code>"".join(chunks)</code> (O(n)), or <code>io.StringIO</code> for incremental writers.</li>
+<li>Nuance: CPython has an <strong>in-place overallocation trick</strong> when refcount==1 (<code>s += x</code> can extend) — unreliable, don't depend on it; PyPy/Jython lack it entirely.</li>
+<li>Same rule for bytes: accumulate in <code>bytearray</code>, convert once.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="memory"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q76</span><span class="q-text">Where does Python memory actually go? (arenas, RSS vs Python-visible)</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>CPython's <strong>obmalloc</strong> carves 256 KB <strong>arenas</strong> → pools → blocks for small objects; large objects go to malloc directly. Freed arenas may stay mapped → <strong>RSS rarely shrinks</strong> (fragmentation, not a leak!).</li>
+<li><code>MALLOC_TRIM_THRESHOLD_</code> / <code>PYTHONMALLOC=malloc</code> trade speed for return-to-OS behavior; <code>gc.collect()</code> frees <em>objects</em>, not necessarily <em>pages</em>.</li>
+<li>numpy/C extensions allocate outside obmalloc — invisible to tracemalloc, visible in RSS. Diagnose with_counts + RSS together.</li>
+</ul>
+</div></div></div>
+
+<!-- ═══════════ GIL ═══════════ -->
+<div class="section-header" data-section="gil">
+  <div class="section-icon si-threading">🧵</div>
+  <div class="section-title">GIL &amp; Concurrency</div>
+  <div class="section-count">Q77 – Q88</div>
+</div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q77</span><span class="q-text">What is the GIL and why does it exist?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The <strong>Global Interpreter Lock</strong>: a mutex allowing only <strong>one thread at a time to execute Python bytecode</strong> in a process. It exists because:</p>
+<ul>
+<li><strong>Refcount safety</strong> — every operation touches refcounts; fine-grained locking would be slow and bug-prone.</li>
+<li><strong>C-extension simplicity</strong> — decades of extensions assume single-threaded Python access.</li>
+<li>Single-threaded programs (the majority) pay ~zero cost.</li>
+</ul>
+<div class="note">💡 The GIL is a CPython implementation detail, not a language feature — Jython/IronPython/GraalPy never had one.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q78</span><span class="q-text">What does the GIL block — and what escapes it?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Workload</th><th>Threads help?</th><th>Why</th></tr>
+<tr><td><strong>CPU-bound Python</strong> (loops, pure compute)</td><td>❌ No (often slower)</td><td>GIL serializes bytecode; switching adds overhead</td></tr>
+<tr><td><strong>I/O-bound</strong> (requests, files, DB)</td><td>✅ Yes</td><td>Blocking calls <strong>release the GIL</strong> while waiting</td></tr>
+<tr><td><strong>C-extension compute</strong> (numpy, regex, zlib)</td><td>✅ Often</td><td>Extensions release GIL around heavy C loops</td></tr>
+<tr><td><strong>CPU-bound</strong>, true parallelism needed</td><td colspan="2">Use <strong>multiprocessing</strong> (separate GIL per process) or free-threaded build (Q84)</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q79</span><span class="q-text">threading: races still possible? daemon? GIL switching?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Races are real</strong>: the GIL switches between bytecodes (5 ms interval, <code>sys.getswitchinterval()</code>), so <code>count += 1</code> (LOAD→ADD→STORE) interleaves. Only <em>single</em> bytecodes are atomic-ish.</li>
+<li><code>queue.Queue</code> is thread-safe (condition-variable guarded) — the default handoff; raw shared state needs <code>Lock/RLock</code>.</li>
+<li><strong>Daemon threads</strong> die with the program (no join, no cleanup) — fine for watchdogs, never for writes you must flush.</li>
+</ul>
+<pre><span class="kw">import</span> threading
+count = <span class="num">0</span>
+<span class="kw">def</span> <span class="cls">work</span>():
+    <span class="kw">global</span> count
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="cls">range</span>(10**6): count += <span class="num">1</span>  <span class="cm"># final &lt; 2M with 2 threads!</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q80</span><span class="q-text">multiprocessing: fork vs spawn, pickling, IPC?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Separate processes = <strong>separate GIL + memory</strong> → true CPU parallelism at the cost of startup + IPC.</li>
+<li><strong>fork</strong> (Unix default pre-3.14): inherits memory copy-on-write; fast but unsafe with threads (only async-signal-safe between fork/exec — hence macOS/3.8+ default <strong>spawn</strong>).</li>
+<li><strong>spawn</strong>: fresh interpreter re-importing your module → needs <code>if __name__ == "__main__"</code> guard + <strong>picklable</strong> targets/args.</li>
+<li>IPC: <code>Queue/Pipe</code> (pickled), <code>shared_memory</code>/<code>Value/Array</code> (raw, fast), Managers (slow RPC).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q81</span><span class="q-text">ThreadPoolExecutor vs ProcessPoolExecutor — the decision rule?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>I/O-bound + shared memory wanted</strong> → ThreadPool (cheap startup, shared objects).</li>
+<li><strong>CPU-bound</strong> → ProcessPool (bypasses GIL; pickling cost amortized over heavy work).</li>
+<li><strong>Many tiny CPU tasks</strong> → neither: batch into chunks (<code>chunksize</code>) or vectorize (numpy) — per-task overhead dominates otherwise.</li>
+<li><code>max_workers</code>: threads ≈ dozens–hundreds for I/O; processes ≈ <code>os.cpu_count()</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q82</span><span class="q-text">asyncio in one answer: loop, coroutines, Tasks?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>One thread, one event loop</strong>: runs coroutines, switching only at <code>await</code> points — no preemption, no races between awaits, no GIL benefit needed (it never needed threads).</li>
+<li><code>async def</code> = coroutine; <code>await x</code> = suspend until x completes; <code>asyncio.create_task()</code> schedules concurrent execution; <code>asyncio.gather</code> joins results.</li>
+<li>Blocking calls <strong>freeze the whole loop</strong> — offload with <code>asyncio.to_thread</code>; CPU work with <code>run_in_executor(process_pool)</code>.</li>
+</ul>
+<pre><span class="kw">import</span> asyncio
+<span class="kw">async def</span> <span class="cls">fetch</span>(url): ...  <span class="cm"># awaits aiohttp, never blocks</span>
+<span class="kw">async def</span> <span class="cls">main</span>():
+    <span class="kw">return</span> <span class="kw">await</span> asyncio.gather(*<span class="cls">map</span>(fetch, urls))
+asyncio.run(main())</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q83</span><span class="q-text">Threads vs processes vs asyncio — pick correctly?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Threads</th><th>asyncio</th><th>Processes</th></tr>
+<tr><td>Parallelism</td><td>I/O only (GIL)</td><td>I/O, single-threaded</td><td>True (CPU too)</td></tr>
+<tr><td>Memory</td><td>Shared (races!)</td><td>Shared (no preemption)</td><td>Isolated (pickling)</td></tr>
+<tr><td>Scale</td><td>~100s (stacks)</td><td>~10–100k conns</td><td>~CPUs</td></tr>
+<tr><td>Use</td><td>Legacy I/O code, C-ext</td><td>Servers, crawlers, chat</td><td>Compute, ML, encoding</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q84</span><span class="q-text">Free-threaded Python (PEP 703, 3.13t) — what changes?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>--disable-gil</code> build: <strong>no GIL</strong> — threads truly parallelize Python code (2–4× on numeric/threaded workloads in early benchmarks).</li>
+<li>How: <strong>biased reference counting</strong> (owning thread avoids atomics), immortal objects, fine-grained locking on containers, <code>_PyObject_Mutex</code> per object.</li>
+<li>Costs: ~single-threaded slowdown (mitigated by 3.11+ speedups + JIT work), C extensions must declare thread-safety (many still force the GIL back on).</li>
+<li>Check at runtime: <code>sys._is_gil_enabled()</code>. The ecosystem transition (numpy etc.) is the long pole — not the interpreter.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q85</span><span class="q-text">Subinterpreters (PEP 734) — a third way?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Multiple interpreters <strong>in one process</strong>, each with its own GIL (3.12+ per-interpreter GIL; <code>concurrent.interpreters</code> API landing in 3.13/3.14).</li>
+<li>Cheaper than processes (shared FDs, no pickle for some channels), isolated like processes (no shared mutable state — communicate via channels).</li>
+<li>Ideal shape: CPU-parallel plugins/workers without multiprocessing's spawn cost or the free-threaded build's extension risk.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q86</span><span class="q-text">Deadlocks, RLock, and lock discipline?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Deadlock recipe</strong>: two locks, opposite acquisition order in two threads. Fix: global lock ordering (always A→B), or one coarse lock, or lock-free queues.</li>
+<li><code>RLock</code>: same thread may re-acquire (recursion, callbacks) — still deadlocks <em>across</em> threads.</li>
+<li><code>Semaphore/BoundedSemaphore</code>: N-at-a-time (connection pools); <code>Event/Condition/Barrier</code>: signaling and rendezvous.</li>
+<li>Always <code>with lock:</code> — never manual acquire/release (exceptions skip release).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q87</span><span class="q-text">Prove threads don't speed CPU work — the 30-second demo?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">import</span> time
+<span class="kw">from</span> concurrent.futures <span class="kw">import</span> ThreadPoolExecutor, ProcessPoolExecutor
+<span class="kw">def</span> <span class="cls">burn</span>(n):
+    s = <span class="num">0</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="cls">range</span>(n): s += i*i
+    <span class="kw">return</span> s
+N = <span class="num">10_000_000</span>
+burn(N)  <span class="cm"># warmup</span>
+<span class="cm"># time: 1× burn vs 4× ThreadPool vs 4× ProcessPool</span>
+<span class="cm"># typical: threads ≈ 1× (or worse), processes ≈ 3–4× on 4 cores</span></pre>
+<div class="note">💡 Then show the flip: replace <code>burn</code> with <code>urllib</code> fetches and threads win 10× — the contrast <em>is</em> the interview answer.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="gil"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q88</span><span class="q-text">How do C extensions release the GIL? (preview of §FFI)</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Bracket blocking C code with <code>Py_BEGIN_ALLOW_THREADS … Py_END_ALLOW_THREADS</code> — other Python threads run while this one crunches or waits. Rule: <strong>touch no Python objects</strong> inside the bracket (no refcounts, no calls, no errors).</p>
+<pre><span class="cm">/* C extension: heavy loop runs GIL-free */</span>
+Py_BEGIN_ALLOW_THREADS
+result = expensive_computation(data, n);  <span class="cm">/* pure C */</span>
+Py_END_ALLOW_THREADS
+<span class="kw">return</span> <span class="cls">PyLong_FromLong</span>(result);  <span class="cm">/* GIL held again */</span></pre>
+</div></div></div>
+
+<!-- ═══════════ BYTECODE ═══════════ -->
+<div class="section-header" data-section="bytecode">
+  <div class="section-icon si-advanced">⚙️</div>
+  <div class="section-title">CPython Pipeline, Bytecode &amp; dis</div>
+  <div class="section-count">Q89 – Q102</div>
+</div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q89</span><span class="q-text">CPython compilation pipeline — source to running code?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ol>
+<li><strong>Parse</strong>: tokenizer + PEG parser → AST (<code>ast.parse</code>; view with <code>ast.dump</code>).</li>
+<li><strong>Symbol tables + CFG</strong>: scope analysis, basic blocks, control-flow graph.</li>
+<li><strong>Codegen</strong>: AST → bytecode <code>code</code> objects (nested: module, function, comprehension each get one).</li>
+<li><strong>Optimize</strong>: peephole/AST opts (Q94), then marshal into <code>.pyc</code>.</li>
+<li><strong>Execute</strong>: ceval loop interprets bytecode against frames; 3.11+ specializes hot opcodes adaptively.</li>
+</ol>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q90</span><span class="q-text">What is bytecode? .pyc and __pycache__ validation?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Bytecode</strong>: compact instruction stream for the ceval VM (opcodes + opargs), stored in <code>code.co_code</code> with constants/names in <code>co_consts/co_names/co_varnames</code>.</li>
+<li><strong>.pyc</strong>: marshalled code objects in <code>__pycache__/mod.cpython-311.pyc</code> — a <em>cache only</em>, still version-specific.</li>
+<li><strong>Validation</strong>: source mtime+size by default; <code>PYTHONPYCACHEPREFIX</code>, hash-based pycs (<code>--check-hash-based-pycs</code>) for read-only deploys.</li>
+<li>Version skew → silently recompiled. Never ship <em>only</em> pyc (debugging, auditing, and cross-version pain).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q91</span><span class="q-text">dis module — how do you read disassembly output?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>dis.dis(fn)</code> prints offset, opcode, argument, and resolved <code>argval</code>. Columns: <code>offset  OP  arg (argval)</code>; <code>--&gt;</code> marks jump targets.</p>
+<pre><span class="kw">import</span> dis
+<span class="kw">def</span> <span class="cls">add</span>(a, b): <span class="kw">return</span> a + b
+dis.dis(add)
+<span class="cm">#   1  RESUME          0
+#   2  LOAD_FAST       0 (a)
+#      LOAD_FAST       1 (b)
+#      BINARY_OP       0 (+)
+#      RETURN_VALUE</span></pre>
+<ul>
+<li><code>dis.Bytecode(fn)</code> – programmatic instruction stream (<code>.opname</code>, <code>.argval</code>, <code>.starts_line</code>).</li>
+<li><code>dis.show_code(fn)</code> – the <code>co_*</code> metadata dump.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q92</span><span class="q-text">The stack machine: LOAD/STORE/BINARY_OP/RETURN?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>ceval is a <strong>value-stack machine</strong>: opcodes push/pop values; no registers in the classic model.</p>
+<ul>
+<li><code>LOAD_FAST</code> (locals array) vs <code>LOAD_GLOBAL</code> (dict/namespace lookup — slower!) vs <code>LOAD_DEREF</code> (closure cells) vs <code>LOAD_CONST</code>.</li>
+<li><code>BINARY_OP</code> pops two, pushes result (specialized per type at runtime in 3.11+).</li>
+<li><code>RETURN_VALUE</code> / <code>YIELD_VALUE</code> hand the top of stack back.</li>
+<li>Why local-variable micro-optimization works: <code>LOAD_FAST</code> is array indexing; <code>LOAD_GLOBAL</code> is dict + version checks.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q93</span><span class="q-text">Frames: what is a running function call made of?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>PyFrameObject</code>: code object + value stack + block stack + <strong>instruction pointer</strong> + fast-locals array + back-pointer (call chain).</li>
+<li>Inspect live: <code>inspect.currentframe()</code>, <code>f_code.co_name</code>, <code>f_lasti</code> (bytecode offset!), <code>f_back</code> (caller).</li>
+<li>Tracebacks = linked frame list + line-number table (<code>co_linetable</code>); generators/coroutines <em>keep</em> their frames alive between suspensions (that's the magic of Q46).</li>
+<li>3.11+ frames are heap-allocated lazily and smaller — part of the Faster CPython wins.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q94</span><span class="q-text">co_names vs co_varnames vs co_consts vs co_cellvars?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Tuple</th><th>Holds</th><th>Used by</th></tr>
+<tr><td><code>co_consts</code></td><td>Literals + nested code objects</td><td><code>LOAD_CONST</code>, constant folding</td></tr>
+<tr><td><code>co_names</code></td><td>Globals, attributes</td><td><code>LOAD_GLOBAL</code>, <code>LOAD_ATTR</code></td></tr>
+<tr><td><code>co_varnames</code></td><td>Locals + params</td><td><code>LOAD_FAST</code>/<code>STORE_FAST</code></td></tr>
+<tr><td><code>co_cellvars</code> / <code>co_freevars</code></td><td>Closure write/read cells</td><td><code>LOAD_DEREF</code>/<code>STORE_DEREF</code></td></tr>
+</table>
+<pre><span class="kw">def</span> <span class="cls">f</span>(a): b = a + <span class="num">1</span>; <span class="kw">return</span> b
+f.__code__.co_varnames  <span class="cm"># ('a', 'b')</span>
+f.__code__.co_consts    <span class="cm"># (None, 1)</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q95</span><span class="q-text">Adaptive specialization (3.11+): how did Python get 25% faster?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Hot opcodes start <strong>generic</strong>, count executions, then <strong>specialize</strong>: <code>BINARY_OP_ADD_INT</code>, <code>LOAD_GLOBAL_MODULE</code>, <code>LOAD_ATTR_SLOT</code>…</li>
+<li>Guards verify assumptions (exact type, version tags); guard failure <strong>de-specializes</strong> back to generic (megamorphic call sites stay slow — keep types stable!).</li>
+<li>Same family: zero-cost frames, inlined comprehensions (no more inner function call!), <code>CALL</code> + vectorcall.</li>
+<li>Observe: <code>PYTHON_LLTRACE</code>, <code>dis</code> with <code>adaptive=True</code>, <code>sys.monitoring</code> (3.12+).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q96</span><span class="q-text">Constant folding, -O, and asserts?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Constant folding</strong> at compile time: <code>2**10</code>, <code>(1,2)</code> tuples, simple string concats become single <code>LOAD_CONST</code> — verify with <code>dis</code>.</li>
+<li><code>python -O</code>: strips <code>assert</code> statements, sets <code>__debug__ = False</code>. <code>-OO</code> additionally drops docstrings.</li>
+<li><strong>Never assert for runtime validation</strong> (user input, prod checks) — <code>-O</code> deletes them. Asserts are for <em>impossible-state</em> documentation in dev/tests.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q97</span><span class="q-text">How do function calls execute? (CALL + vectorcall)</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>3.11+ calling convention: push callable + args, <code>PRECALL</code>/<code>CALL</code> (specialized: <code>CALL_BOUND_METHOD_EXACT_ARGS</code>, <code>CALL_PY_EXACT_ARGS</code>…).</li>
+<li><strong>Vectorcall</strong> (PEP 590): C-level fast path passing a C array of args — how numpy/C functions avoid tuple/dict packing.</li>
+<li><code>*args/**kwargs</code> calls build tuple/dict first (<code>BUILD_TUPLE</code>/<code>BUILD_MAP</code>) — measurably slower than plain calls; hot paths avoid them.</li>
+<li>Bound-method optimization: <code>LOAD_METHOD</code>/<code>CALL_METHOD</code> skip bound-method allocation for <code>obj.method(x)</code>.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q98</span><span class="q-text">Exception handling at bytecode level (3.11+ zero-cost)?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>3.11+: <strong>zero-cost exceptions</strong> — no setup opcodes on entry; an <strong>exception table</strong> maps instruction ranges → handlers. <code>try</code> blocks cost nothing when no exception fires.</li>
+<li>Raising walks the table, unwinds frames, matches <code>except</code> types; <code>finally</code> compiles to duplicated cleanup + re-raise paths.</li>
+<li>Cost model: entering <code>try</code> ≈ free; <em>raising</em> is expensive (traceback construction) → EAFP is for rare failures, not hot-loop control flow.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q99</span><span class="q-text">MAKE_FUNCTION: closures as bytecode (cells and derefs)?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Nested <code>def</code> compiles to: build defaults/annotations tuple → <code>LOAD_CLOSURE</code> (cell refs) → <code>BUILD_TUPLE</code> → <code>MAKE_FUNCTION</code> (binds code + closure) → <code>STORE_FAST</code>.</p>
+<pre><span class="kw">def</span> <span class="cls">outer</span>():
+    x = <span class="num">1</span>
+    <span class="kw">def</span> <span class="cls">inner</span>(): <span class="kw">return</span> x + <span class="num">1</span>  <span class="cm"># LOAD_DEREF x</span>
+    <span class="kw">return</span> inner
+inner.__code__.co_freevars  <span class="cm"># ('x',)</span>
+inner.__closure__[<span class="num">0</span>].cell_contents  <span class="cm"># 1</span></pre>
+<div class="note">💡 This is the machine behind Q23's late-binding trap: cells hold <em>references</em>, read at call time.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q100</span><span class="q-text">IMPORT_NAME / IMPORT_FROM — imports as bytecode?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>import a.b</code> → <code>IMPORT_NAME a.b</code> (calls <code>__import__</code> machinery from Q55) then binds top name.</li>
+<li><code>from m import x</code> → <code>IMPORT_NAME</code> + <code>IMPORT_FROM x</code> (+ <code>POP_TOP</code> cleanup). Failed attr → <code>ImportError</code> (or fallback to submodule check!).</li>
+<li><code>import *</code> → <code>IMPORT_STAR</code>, honoring <code>__all__</code> else all public names — namespace pollution, avoid in libraries.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q101</span><span class="q-text">match statements and walrus — how do they compile?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>match</code> compiles to <code>MATCH_KEYS</code>/<code>MATCH_MAPPING</code>/<code>MATCH_SEQUENCE</code> + jumps — class patterns call <code>__match_args__</code>; guards are plain conditional jumps after binding.</li>
+<li>Walrus <code>:=</code> = evaluate + <code>STORE</code> into the <em>enclosing function</em> scope even inside comprehensions (deliberate scope exception!).</li>
+<li>Both are compile-time features — no runtime magic beyond ordinary opcodes, which is why they're fast.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="bytecode"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q102</span><span class="q-text">sys.settrace, sys.monitoring, and how debuggers/coverage work?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>sys.settrace(fn)</code>: per-line/call/return/exception callbacks — powers pdb, coverage.py, profilers. Global + slow (disables specialization!).</li>
+<li><code>sys.monitoring</code> (3.12+): selective low-overhead events (PY_START, LINE, CALL, RAISE…) — debuggers/coverage subscribe to <em>only</em> what they need.</li>
+<li><code>cProfile</code> uses <code>lsprof</code> C hooks (less overhead); <code>faulthandler.dump_traceback_later</code> catches hangs in prod.</li>
+</ul>
+</div></div></div>
+
+<!-- ═══════════ FFI ═══════════ -->
+<div class="section-header" data-section="ffi">
+  <div class="section-icon si-exceptions">🔌</div>
+  <div class="section-title">FFI, C API &amp; Native Extensions</div>
+  <div class="section-count">Q103 – Q120</div>
+</div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q103</span><span class="q-text">FFI landscape: ctypes vs cffi vs C API vs Cython vs pybind11?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th>Tool</th><th>Needs compiler?</th><th>Profile</th></tr>
+<tr><td><strong>ctypes</strong> (stdlib)</td><td>No</td><td>Call existing .so/.dll directly; slowest, most fragile</td></tr>
+<tr><td><strong>cffi</strong></td><td>ABI mode: no</td><td>Safer/faster ctypes replacement; API mode compiles bindings</td></tr>
+<tr><td><strong>C API extension</strong></td><td>Yes</td><td>Full control, max speed, max refcounting risk</td></tr>
+<tr><td><strong>Cython</strong></td><td>Yes</td><td>Python-syntax → C; best for speeding Python code itself</td></tr>
+<tr><td><strong>pybind11</strong></td><td>Yes (C++11)</td><td>Idiomatic C++ bindings; header-only</td></tr>
+</table>
+<div class="note">💡 Decision rule: existing C lib, no build → ctypes/cffi ABI. Speed up <em>your</em> code → Cython/numba. Expose C++ → pybind11. Ship to PyPI → compiled extension.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q104</span><span class="q-text">ctypes basics: calling libc in 5 lines?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">import</span> ctypes
+libc = ctypes.CDLL(<span class="str">"libc.so.6"</span>)      <span class="cm"># Win: windll/msvcrt, macOS: libc.dylib</span>
+libc.strlen.argtypes = [ctypes.c_char_p]  <span class="cm"># declare signature!</span>
+libc.strlen.restype = ctypes.c_size_t
+libc.strlen(<span class="str">b"hello"</span>)  <span class="cm"># 5</span></pre>
+<ul>
+<li><code>CDLL</code> (cdecl) vs <code>WinDLL</code> (stdcall) — wrong convention = stack corruption.</li>
+<li>Without <code>argtypes</code>, everything passes as C <code>int</code> — the #1 ctypes bug source (see Q118).</li>
+<li>ctypes <strong>releases the GIL</strong> around the foreign call — threads keep running.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q105</span><span class="q-text">ctypes: structs, pointers, callbacks, errno?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="kw">class</span> <span class="cls">Point</span>(ctypes.Structure):
+    _fields_ = [(<span class="str">"x"</span>, ctypes.c_double),
+                (<span class="str">"y"</span>, ctypes.c_double)]
+
+<span class="cm"># callback C can call: keep a PYTHON reference alive!</span>
+<span class="ann">@ctypes.CFUNCTYPE</span>(ctypes.c_int, ctypes.c_int)
+<span class="kw">def</span> <span class="cls">cmp</span>(a, b): <span class="kw">return</span> (a &gt; b) - (a &lt; b)
+libc.qsort(arr, n, ctypes.sizeof(ctypes.c_int), cmp)
+
+libc.__errno_location.restype = ctypes.POINTER(ctypes.c_int)  <span class="cm"># Linux errno</span></pre>
+<div class="warn">⚠️ If the CFUNCTYPE object is garbage-collected while C holds the pointer → segfault on next callback. Store it in a global/list.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q106</span><span class="q-text">ctypes segfault playbook — the usual suspects?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Missing restype</strong> (defaults to 32-bit int → truncated 64-bit pointers!).</li>
+<li>Passing Python objects where C writes (use <code>create_string_buffer</code>, not <code>c_char_p</code>, for out-params).</li>
+<li>Freed buffers: temporary <code>(c_int * n)(...)</code> with no surviving reference while C still uses it.</li>
+<li>Dead callbacks (Q105), wrong calling convention, struct padding mismatches (<code>_pack_</code>).</li>
+<li>Debug: <code>faulthandler.enable()</code> for Python-side tracebacks; <code>gdb python core</code> past that.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q107</span><span class="q-text">cffi: ABI vs API mode, and why prefer it over ctypes?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>ABI mode</strong> (<code>ffi.dlopen</code>): like ctypes — parse C declarations from a string, call directly. No compiler needed.</li>
+<li><strong>API mode</strong>: <code>ffibuilder.set_source</code> + <code>cdef</code> → compiles a real C extension at install → faster calls, real C types/structs/macros.</li>
+<li>Why better: C-level type checking of declarations, faster dispatch, cleaner memory management (<code>ffi.gc()</code> destructors, <code>ffi.new</code> zeroed memory), first-class embedding story.</li>
+</ul>
+<pre><span class="kw">from</span> cffi <span class="kw">import</span> FFI
+ffi = FFI()
+ffi.cdef(<span class="str">"size_t strlen(const char *s);"</span>)
+lib = ffi.dlopen(<span class="str">"c"</span>)
+lib.strlen(<span class="str">b"hello"</span>)  <span class="cm"># 5</span></pre>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q108</span><span class="q-text">Hand-writing a C extension: minimal module?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="cm">/* fastadd.c — METH_O single-arg function */</span>
+<span class="ann">#include</span> &lt;Python.h&gt;
+<span class="kw">static</span> <span class="cls">PyObject</span> *add_one(<span class="cls">PyObject</span> *self, <span class="cls">PyObject</span> *arg) {
+    <span class="kw">long</span> v = <span class="cls">PyLong_AsLong</span>(arg);   <span class="cm">/* NULL + exception on failure */</span>
+    <span class="kw">if</span> (v == -<span class="num">1</span> &amp;&amp; <span class="cls">PyErr_Occurred</span>()) <span class="kw">return NULL</span>;
+    <span class="kw">return</span> <span class="cls">PyLong_FromLong</span>(v + <span class="num">1</span>); <span class="cm">/* new reference */</span>
+}
+<span class="kw">static</span> <span class="cls">PyMethodDef</span> methods[] = {
+    {<span class="str">"add_one"</span>, add_one, METH_O, <span class="str">"add one"</span>}, {NULL, NULL, <span class="num">0</span>, NULL}};
+<span class="kw">static struct</span> <span class="cls">PyModuleDef</span> mod = {
+    PyModuleDef_HEAD_INIT, <span class="str">"fastadd"</span>, NULL, -<span class="num">1</span>, methods};
+PyMODINIT_FUNC <span class="cls">PyInit_fastadd</span>(<span class="kw">void</span>) { <span class="kw">return</span> <span class="cls">PyModule_Create</span>(&amp;mod); }</pre>
+<p>Build: <code>setuptools.Extension("fastadd", ["fastadd.c"])</code> → <code>pip install .</code> → <code>import fastadd</code> (recall Q63's loader path).</p>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q109</span><span class="q-text">Reference counting in C: borrowed vs new references?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>The contract behind 90% of C-extension bugs:</p>
+<ul>
+<li><strong>New reference</strong> (you own it, must <code>Py_DECREF</code>): constructors (<code>PyLong_FromLong</code>), <code>PyObject_Call</code>, <code>PySequence_GetItem</code>(!).</li>
+<li><strong>Borrowed</strong> (owner keeps it, <code>INCREF</code> if you store it): <code>PyList_GetItem</code>, <code>PyDict_GetItem</code>, <code>PyTuple_GET_ITEM</code>, <code>METH_O</code> args.</li>
+<li>Return protocol: return owned ref on success, <strong>NULL + set exception</strong> on failure (<code>PyErr_SetString</code>).</li>
+<li>Leak check: <code>sys.gettotalrefcount()</code> (debug build) or <code>tracemalloc</code> + repeat-call RSS growth.</li>
+</ul>
+<div class="warn">⚠️ <code>PyList_GetItem</code> (borrowed) vs <code>PySequence_GetItem</code> (new) — same data, opposite ownership. Read the docs per function, every time.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q110</span><span class="q-text">GIL handling inside C code?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Extension functions run <strong>with the GIL held</strong>. Release around pure-C blocking work (Q88): <code>Py_BEGIN_ALLOW_THREADS … Py_END_ALLOW_THREADS</code> — touch <strong>no</strong> Python objects inside.</li>
+<li>Calling <em>back into</em> Python from a foreign thread: acquire with <code>PyGILState_Ensure()</code>, release with <code>PyGILState_Release()</code>.</li>
+<li>Free-threaded builds (Q84): same API, but your C code must actually be thread-safe now — the GIL no longer serializes your bugs away.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q111</span><span class="q-text">PyCapsule — passing C pointers through Python safely?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p><code>PyCapsule</code> wraps a raw <code>void*</code> + <strong>name tag</strong> + destructor in a Python object. Producer and consumer agree on the name; mismatched names → <code>ValueError</code> instead of memory corruption. The destructor frees/closes the resource when the capsule dies — RAII across the boundary.</p>
+<div class="note">💡 Canonical use: C library handle created in one extension, consumed in another, lifetime managed by Python refcounting.</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q112</span><span class="q-text">Buffer protocol in C — zero-copy with numpy?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Request raw access: <code>PyObject_GetBuffer(obj, &amp;view, PyBUF_SIMPLE)</code> → <code>view.buf</code>/<code>view.len</code>; release with <code>PyBuffer_Release</code>.</li>
+<li>Exporter keeps memory alive while views exist (locked via its own refcount) — safe zero-copy.</li>
+<li>This is how <code>numpy.frombuffer(bytearray)</code>, <code>PIL</code>, and socket code share gigabytes without memcpy — the C twin of Q73's <code>memoryview</code>.</li>
+</ul>
+<div class="warn">⚠️ Hold the GIL (or exporter lock) while acquiring; never write to a read-only buffer (<code>view.readonly</code> check).</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q113</span><span class="q-text">pybind11 in 2 minutes — why C++ devs love it?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<pre><span class="ann">#include</span> &lt;pybind11/pybind11.h&gt;
+<span class="ann">#include</span> &lt;pybind11/stl.h&gt;   <span class="cm">// auto vector&lt;&gt; ↔ list!</span>
+<span class="kw">namespace</span> py = pybind11;
+<span class="kw">int</span> add(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> a + b; }
+PYBIND11_MODULE(fast, m) {
+    m.def(<span class="str">"add"</span>, &amp;add, <span class="str">"a function"</span>,
+          py::arg(<span class="str">"a"</span>), py::arg(<span class="str">"b"</span>) = <span class="num">0</span>);
+    py::class_&lt;Pet&gt;(m, <span class="str">"Pet"</span>)
+        .def(py::init&lt;<span class="kw">const std</span>::string &amp;&gt;())
+        .def_readwrite(<span class="str">"name"</span>, &amp;Pet::name);
+}</pre>
+<ul>
+<li>Header-only, STL/eigen/numpy casters, exceptions translate (<code>std::runtime_error</code> → <code>RuntimeError</code>), <code>py::gil_scoped_release</code> for GIL control.</li>
+<li>Tradeoff: C++ compile times + binary size; nanobind is the leaner successor for new projects.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q114</span><span class="q-text">Cython: Python syntax at C speed — how?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>cdef int</code> locals, typed function args, <code>cdef class</code> extension types → C declarations; untyped code stays Python-object speed.</li>
+<li><strong>Typed memoryviews</strong> (<code>int[:] arr</code>) give bounds-checked-but-fast buffer access with <code>nogil</code> blocks releasing the GIL for <code>prange</code> parallel loops.</li>
+<li>Profile first (<code>cython -a</code> annotated HTML: yellow = Python interaction), type the hot 5%, keep the rest Pythonic.</li>
+</ul>
+<pre><span class="cm"># mean.pyx — typical 20–50× speedup on numeric loops</span>
+<span class="kw">def</span> <span class="cls">mean</span>(<span class="kw">double</span>[:] a):
+    <span class="kw">cdef double</span> s = <span class="num">0</span>
+    <span class="kw">cdef Py_ssize_t</span> i
+    <span class="kw">with</span> nogil:
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="cls">range</span>(a.shape[<span class="num">0</span>]): s += a[i]
+    <span class="kw">return</span> s / a.shape[<span class="num">0</span>]</pre>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q115</span><span class="q-text">Extending vs embedding Python?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<table>
+<tr><th></th><th>Extending (Python in charge)</th><th>Embedding (C/C++ in charge)</th></tr>
+<tr><td>Flow</td><td>Import your .so from Python</td><td><code>Py_Initialize()</code> then <code>PyRun_*</code> from C</td></tr>
+<tr><td>Use</td><td>Speedups, bindings (99% of cases)</td><td>Scripting inside apps (games, CAD, modding APIs)</td></tr>
+<tr><td>Gotchas</td><td>Refcounting, GIL sections</td><td>Init/finalize order, signal handlers, isolated configs (PEP 587 <code>PyConfig</code>)</td></tr>
+</table>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q116</span><span class="q-text">Debugging native crashes: faulthandler, gdb, core dumps?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>faulthandler.enable()</code> / <code>PYTHONFAULTHANDLER=1</code> – Python tracebacks on segfault/timeout (<code>dump_traceback_later(30)</code> for hangs).</li>
+<li><code>gdb -ex r --args python crash.py</code> + <code>py-bt</code> (CPython's gdb hooks show <em>Python</em> frames inside the C stack!).</li>
+<li>Refcount bugs: debug build (<code>--with-pydebug</code>) + <code>sys.gettotalrefcount()</code> growth per loop iteration; ASan/Valgrind for heap errors.</li>
+<li>Prod: cores via <code>ulimit -c</code>/coredumpctl, symbols from <code>python3-dbg</code> or matching <code>.debug</code> packages.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q117</span><span class="q-text">Stable ABI (abi3) and the limited API?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li>Normal extensions bind one CPython version (see Q63's filename tags) → rebuild per 3.x.</li>
+<li><strong>Limited API</strong> (<code>#define Py_LIMITED_API 0x03090000</code>): subset guaranteed stable → one <code>.abi3.so</code> wheel runs on 3.9+.</li>
+<li>Cost: no access to struct internals (use function API only), slight overhead, some features unavailable. Worth it for widely-distributed packages (cryptography, lxml ship abi3).</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q118</span><span class="q-text">The classic ctypes 64-bit truncation bug?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<p>Default <code>restype</code> is C <code>int</code> (32-bit). A function returning a <strong>pointer</strong> gets truncated to 32 bits → garbage address → segfault far from the cause.</p>
+<pre><span class="cm"># ❌ without restype: pointer truncated on 64-bit!</span>
+lib = ctypes.CDLL(<span class="str">"./mylib.so"</span>)
+lib.make_buffer()             <span class="cm"># returns void* → chopped to int</span>
+<span class="cm"># ✅ always declare:</span>
+lib.make_buffer.restype = ctypes.c_void_p
+lib.make_buffer.argtypes = [ctypes.c_size_t]</pre>
+<div class="warn">⚠️ Interview answer in one line: "Always set argtypes and restype — the defaults silently truncate pointers on 64-bit."</div>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q119</span><span class="q-text">struct packing across the boundary (struct module)?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><code>struct.pack("&lt;i", 42)</code> serializes Python values to C layouts: <code>&lt;</code>/<code>&gt;</code> endianness, <code>i/q/d</code> types, <code>struct.calcsize</code> for buffer sizing.</li>
+<li>Use for binary protocols, file formats, and poor-man's FFI message framing (pairs with <code>socket</code>/<code>mmap</code>).</li>
+<li>Alignment traps: native mode pads (<code>@</code> default); use explicit <code>&lt;</code>/<code>=</code> for wire formats, and mirror <code>_pack_</code>/padding in ctypes Structs.</li>
+</ul>
+</div></div></div>
+
+<div class="qa-card" data-section="ffi"><button class="qa-toggle" onclick="toggle(this)"><span class="q-num">Q120</span><span class="q-text">When should you NOT reach for FFI?</span><span class="chevron">▼</span></button>
+<div class="qa-body"><div class="qa-body-inner">
+<ul>
+<li><strong>Algorithm first</strong>: O(n²)→O(n), caching, batching, and numpy/pandas vectorization beat FFI 10× with zero native risk.</li>
+<li><strong>numba</strong> (<code>@jit(nopython=True)</code>) compiles numeric Python without leaving the language.</li>
+<li><strong>PyPy</strong> JITs pure-Python loops free — but <em>breaks</em> most C extensions (pick one speedup story).</li>
+<li>FFI costs: build toolchains, wheel matrices, segfault-class bugs, GIL/refcount expertise, harder debugging. Measure with <code>cProfile</code>/<code>perf</code> — optimize only the proven hotspot.</li>
+</ul>
+<div class="note">💡 Closing interview line: "FFI is for boundaries with existing native code and proven hotspots — everything else is premature native optimization."</div>
+</div></div></div>
+</div>
+<div class="no-results" id="noResults">No questions match your search.</div>
+</div>
+
+<script>
+function toggle(btn) {
+  const card = btn.closest('.qa-card');
+  const body = card.querySelector('.qa-body');
+  const open = card.classList.contains('open');
+  if (open) {
+    card.classList.remove('open');
+    body.style.maxHeight = '0';
+  } else {
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+  updateCount();
+}
+function expandAll() {
+  document.querySelectorAll('.qa-card:not([style*="display: none"])').forEach(card => {
+    const body = card.querySelector('.qa-body');
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+  updateCount();
+}
+function collapseAll() {
+  document.querySelectorAll('.qa-card').forEach(card => {
+    card.classList.remove('open');
+    card.querySelector('.qa-body').style.maxHeight = '0';
+  });
+  updateCount();
+}
+function updateCount() {
+  document.getElementById('openCount').textContent =
+    document.querySelectorAll('.qa-card.open').length;
+}
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  let vis = 0;
+  document.querySelectorAll('.qa-card').forEach(card => {
+    const text = card.querySelector('.q-text').textContent.toLowerCase();
+    const body = card.querySelector('.qa-body-inner').textContent.toLowerCase();
+    const show = !q || text.includes(q) || body.includes(q);
+    card.style.display = show ? '' : 'none';
+    if (show) vis++;
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    const sec = h.dataset.section;
+    const hasVis = document.querySelectorAll(`.qa-card[data-section="${sec}"]:not([style*="display: none"])`).length > 0;
+    h.style.display = hasVis ? '' : 'none';
+  });
+  document.getElementById('noResults').style.display = vis === 0 ? 'block' : 'none';
+});
+function filterSection(section, btn) {
+  document.querySelectorAll('.filters .ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.qa-card').forEach(card => {
+    card.style.display = (section === 'all' || card.dataset.section === section) ? '' : 'none';
+  });
+  document.querySelectorAll('.section-header').forEach(h => {
+    h.style.display = (section === 'all' || h.dataset.section === section) ? '' : 'none';
+  });
+  document.getElementById('noResults').style.display = 'none';
+}
+window.addEventListener('scroll', () => {
+  const total = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('progressBar').style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
+});
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.qa-card.open').forEach(card => {
+    const body = card.querySelector('.qa-body');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+});
+</script>
+</body>
+</html>
