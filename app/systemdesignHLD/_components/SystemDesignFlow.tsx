@@ -14,6 +14,7 @@ import {
   type EdgeChange,
   type Node,
   type NodeChange,
+  type OnNodeDrag,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -30,6 +31,8 @@ const TOPIC_BOX = 300;
 const LEAF_W = 240;
 const LEAF_H = 140;
 const ROTATE_STEP = 15;
+/** Pixels of parent travel before each deeper level starts following. */
+const CASCADE_PX = 220;
 
 interface XY {
   x: number;
@@ -82,6 +85,12 @@ function FlowCanvas() {
   /** Per-node data cache: identical fields reuse the same object so nodes don't re-render. */
   const dataCache = useRef(new Map<string, DataRecord>());
   const draggingNode = useRef(false);
+  /** Drag caravan snapshot: dragged node start + visible descendants to pull along. */
+  const dragSnap = useRef<{
+    id: string;
+    start: XY;
+    followers: Array<{ id: string; depth: number; start: XY }>;
+  } | null>(null);
   const mountedRef = useRef(false);
   /** Floating Guide panel: drag offset + size. Null = docked bottom-right. */
   const asideRef = useRef<HTMLElement | null>(null);
@@ -347,10 +356,67 @@ function FlowCanvas() {
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
+      // Caravan follow: descendants trail the dragged parent once its travel
+      // exceeds depth × CASCADE_PX, moving in the parent's direction.
+      const snap = dragSnap.current;
+      if (snap) {
+        for (const ch of changes) {
+          if (ch.type !== 'position' || !ch.position || ch.id !== snap.id) continue;
+          const dx = ch.position.x - snap.start.x;
+          const dy = ch.position.y - snap.start.y;
+          const travel = Math.hypot(dx, dy);
+          if (travel <= 0) continue;
+          const ux = dx / travel;
+          const uy = dy / travel;
+          const moves = new Map<string, XY>();
+          for (const f of snap.followers) {
+            const excess = travel - f.depth * CASCADE_PX;
+            if (excess > 0) {
+              moves.set(f.id, { x: f.start.x + ux * excess, y: f.start.y + uy * excess });
+            }
+          }
+          if (moves.size > 0) {
+            setNodes((prev) =>
+              prev.map((n) => {
+                const m = moves.get(n.id);
+                return m ? { ...n, position: m } : n;
+              }),
+            );
+          }
+        }
+      }
       rfOnNodesChange(changes);
     },
-    [rfOnNodesChange],
+    [rfOnNodesChange, setNodes],
   );
+
+  const onNodeDragStart: OnNodeDrag = useCallback(
+    (_event, node) => {
+      draggingNode.current = true;
+      const live = new Map(getNodes().map((n) => [n.id, n.position]));
+      const followers: Array<{ id: string; depth: number; start: XY }> = [];
+      const queue: Array<{ id: string; depth: number }> = (childrenByParent.get(node.id) ?? [])
+        .filter((c) => live.has(c.id))
+        .map((c) => ({ id: c.id, depth: 1 }));
+      while (queue.length > 0) {
+        const cur = queue.shift()!;
+        const pos = live.get(cur.id);
+        if (!pos) continue;
+        followers.push({ id: cur.id, depth: cur.depth, start: { ...pos } });
+        for (const c of childrenByParent.get(cur.id) ?? []) {
+          if (live.has(c.id)) queue.push({ id: c.id, depth: cur.depth + 1 });
+        }
+      }
+      const start = live.get(node.id);
+      dragSnap.current = start ? { id: node.id, start: { ...start }, followers } : null;
+    },
+    [childrenByParent, getNodes],
+  );
+
+  const onNodeDragStop = useCallback(() => {
+    draggingNode.current = false;
+    dragSnap.current = null;
+  }, []);
 
   const fitSoon = useCallback(() => {
     requestAnimationFrame(() => fitView({ padding: 0.2, duration: 300 }));
@@ -451,12 +517,8 @@ function FlowCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onNodeDragStart={() => {
-          draggingNode.current = true;
-        }}
-        onNodeDragStop={() => {
-          draggingNode.current = false;
-        }}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={FLOW_NODE_TYPES}
         elementsSelectable={false}
         fitView
@@ -494,7 +556,7 @@ function FlowCanvas() {
           Clear
         </button>
         <span className="hidden px-2 text-xs font-medium text-slate-300 lg:inline">
-          {hint ?? `${expandedCount} open · + drops parts below · drag handle to connect · ctrl+I/O zoom · shift+ctrl+move pans`}
+          {hint ?? `${expandedCount} open · + drops below · drag to move · pull 120px/level to bring children · ctrl+I/O zoom`}
         </span>
       </div>
 
